@@ -1,0 +1,63 @@
+// TODO: add documentation comments.
+// TODO: fill in all missing parts.
+
+// TODO: place in suitable package.
+package edu.unm.cs.cs361.f12.locd011.subsets;
+import java.util.*;     // (Collections framework)
+
+/** A non-mutable set class.
+ * Each instance is defined by a backing set, and a size, k.
+ * It contains all k-element subsets of the backing set.
+ */
+public class SizeKSubset<E> extends AbstractSet<Set<E>> {
+
+    // The AbstractSet class provides defaults for all
+    // methods of the Set interface.  We only need to 
+    // supply the size and iterator methods.
+    
+    Set<E> backingSet;  
+    // We will assume that backingSet is unchanging, at least
+    // for the lifetime of our SizeKSubset object.
+    int k;
+    
+    public Iterator<Set<E>> iterator( ) {
+    	return new SizeKSubsetIterator<E>( this );
+    }
+
+    private int size = -1;
+    
+    /**
+     *  Returns an integer representing the total number of powersets
+     */ 
+    public int size( ) {
+      if(size == -1 && (k <= backingSet.size())){
+        size = 1;
+        for(int s = 0; s < k; s++){
+          size *= (backingSet.size() - s);
+        }
+        size /= (backingSet.size()-k)*(k-backingSet.size());
+      } else if (size == -1){
+        size = 0;
+      }
+      return size;
+    }
+    
+    public SizeKSubset ( Set<E> backingSet, int k ) {
+	this.backingSet = backingSet;
+	this.k = k;
+    }
+    
+    public static void main ( String[ ] args ) {
+    	// TODO: add your own tests.
+    	SizeKSubset<String> s = new SizeKSubset<String>( new TreeSet<String>( Arrays.asList( args ) ), 3 ) ;
+		int size = s.size();
+		int counter = 0;
+		for ( Set<String> x : s ) {
+			System.out.println( x );
+			counter++;
+	    
+		}
+		System.out.println("Expected " + size + " elements. Actually " + counter + "elements");
+    }
+    
+}

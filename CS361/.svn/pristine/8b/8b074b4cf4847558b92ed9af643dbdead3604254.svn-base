@@ -1,0 +1,75 @@
+// Helper class for SizeKSubset.
+
+// TODO: place in same package as SizeKSubset class.
+package edu.unm.cs.cs361.f12.locd011.subsets;
+import java.security.KeyPair;
+import java.util.*;   // (Collections framework)
+
+public class SizeKSubsetIterator<E> implements Iterator<Set<E>> { 
+
+    private SizeKSubset<E> theSet;
+    // TODO: add additional private variables to keep track of 
+    // where you are in the iteration of all subsets.
+
+    private LinkedHashSet<E> currSuperSet = new LinkedHashSet<E>();
+
+    private Stack<Set<E>> frameTracker = new Stack<Set<E>>();
+    
+    private int currCount = 0;
+
+    /** Construct a new iterator for "theSet", a SizeKSubset.
+     */
+    public SizeKSubsetIterator ( SizeKSubset<E> theSet ) {
+    	this.theSet = theSet;
+    	frameTracker.add(theSet.backingSet);
+    }
+
+    @Override
+    public boolean hasNext() {
+    	// Returns true if the iteration has more elements.
+    	return theSet.size() < currCount;
+    }
+    
+    /**
+     * Returns the next found Set in the list of subsets
+     */
+    @Override
+    public Set<E> next( ) {
+	// Returns the next element in the iteration.
+	// This will always be a size-k subset of the Set<E>
+	// that is backing theSet.
+    	if(!hasNext())
+    		throw new NoSuchElementException();
+    	Set<E> nextElement = findNext(theSet.k, frameTracker.firstElement(), new HashSet<E>());
+    	theSet.add(nextElement);
+    	return nextElement;
+    }
+    
+    private Set<E> findNext(int k, Set<E> frame, Set<E> currSet){
+    	if(k > (currSet.size() + frame.size())){
+    		frameTracker.remove(0);
+    		Set<E> currFrame = frameTracker.firstElement();
+    		
+    	}
+    	return null;
+    }
+    
+    
+    /*
+     * 
+     * FindNext:
+     * 	Remove the last item pulled out
+     *  Return if it's done
+     *  Step back if it's impossible
+     *  
+     * (non-Javadoc)
+     * @see java.util.Iterator#remove()
+     */
+    
+    
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException();
+	}
+ 
+}

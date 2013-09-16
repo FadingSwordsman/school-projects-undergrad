@@ -1,0 +1,25 @@
+package edu.unm.cs.locd011;
+
+public abstract class Person{	
+	private int index; 
+	private String name;
+	
+	public Person(int index, String name){
+		this.index = index;
+		this.name = name;
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	public int getIndex(){
+		return index;
+	}
+	
+	@Override
+	public String toString(){
+		return name;
+	}
+	
+}

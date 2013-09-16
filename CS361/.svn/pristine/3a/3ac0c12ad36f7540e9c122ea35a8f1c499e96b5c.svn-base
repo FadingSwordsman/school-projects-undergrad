@@ -1,0 +1,17 @@
+package edu.unm.cs.locd011;
+
+import java.util.LinkedList;
+
+public class Man extends Person {
+	
+	private LinkedList<String> preferenceList;
+	
+	public Man(LinkedList<String> preferenceList, int index, String name) {
+		super(index, name);
+		this.preferenceList = preferenceList;
+	}
+	
+	public String getNextMatch(){
+		return preferenceList.remove();
+	}
+}

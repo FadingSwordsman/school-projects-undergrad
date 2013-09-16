@@ -1,0 +1,16 @@
+package edu.unm.cs.locd011;
+
+public class Woman extends Person {
+
+	int[] preferenceList;
+	
+	public Woman(int[] preferenceList, int index, String name) {
+		super(index, name);
+		this.preferenceList = preferenceList;
+	}
+	
+	public Man prefers(Man first, Man second){
+		boolean prefersFirst = preferenceList[first.getIndex()] < preferenceList[second.getIndex()];
+		return prefersFirst ? first : second;
+	}
+}

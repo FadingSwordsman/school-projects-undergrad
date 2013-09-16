@@ -1,0 +1,49 @@
+package com.unm.cs.locd011;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class MatchGen {
+
+	public void main(String[] args){
+		for( int x = 0; x < args.length; x++){
+			createMatchPrefFile(Integer.parseInt(args[x]));
+		}
+	}
+	
+	private void createMatchPrefFile(int numMatches){
+		String prefList;
+		try{
+			FileWriter bestOut = new FileWriter(numMatches + ".best.txt");
+			FileWriter worstOut = new FileWriter(numMatches + ".worst.txt");
+			BufferedWriter bestOutput = new BufferedWriter(bestOut);
+			BufferedWriter worstOutput = new BufferedWriter(worstOut);
+			String worstCase = "";
+			for(int y = 0; y < numMatches; y++){
+				worstCase += " w" + y;
+			}
+			for(int x = 0; x < numMatches; x++){
+				prefList = "";
+				prefList += "m" + x + worstCase;
+				worstOutput.write(prefList);
+				worstOutput.flush();
+				prefList = "m" + x;
+				for(int y = 0; y < numMatches; y++){
+					prefList += " w"+((y+x)%numMatches);
+				}
+				
+				bestOutput.write(prefList);
+				bestOutput.flush();
+			}
+			for(int x = 0; x < numMatches; x++){
+				
+			}
+			bestOutput.close();
+			worstOutput.close();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+}
