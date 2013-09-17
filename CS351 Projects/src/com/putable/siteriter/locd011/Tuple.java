@@ -33,4 +33,19 @@ public class Tuple<T, U>
     {
 	return first.toString() + " : " + second.toString();
     }
+
+   @Override
+   public boolean equals(Object o)
+   {
+	if(!o instanceof Tuple.class)
+		return false;
+	Tuple<?,?> obj = (Tuple<?,?>) o;
+	if(!obj.getFirst() instanceof first.class)
+		return false;
+	if(!obj.getSecond() instanceof second.class)
+		return false;
+	T first = (T) obj.getFirst(); 
+	U second = (U) obj.getSecond();
+	return this.first.equals(first) && this.second.equals(second);
+   }
 }
