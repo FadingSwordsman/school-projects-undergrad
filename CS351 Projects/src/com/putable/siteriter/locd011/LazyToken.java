@@ -2,6 +2,7 @@ package com.putable.siteriter.locd011;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,29 +22,24 @@ public enum LazyToken {
 	
 	private LazyToken(LazyLexer lexer)
 	{
-		
+		this.lexer = lexer;
 	}
 	
-	public static List<Tuple<LazyToken, String>> lexUntil(Reader reader, LazyToken... terminalTokens) throws IOException
+	public static List<Tuple<LazyToken, String>> lexUntil(Reader reader, LazyToken... endConditions) throws IOException
 	{
-		List<Tuple<LazyToken, String>> tokensUntil = new LinkedList<Tuple<LazyToken, String>>();
-		List<Tuple<LazyToken, String>> nextTokens = getNextTokens(reader);
-		boolean continuing = true;
-		while(continuing)
-		{
-			tokensUntil.addAll(nextTokens);
-			for(Tuple<LazyToken, String> nextToken : nextTokens)
-				for(LazyToken tokenToCheck : terminalTokens)
-					if(tokenToCheck == nextToken.getFirst())
-						return tokensUntil; 
-			//Break out of the loop if the Reader is all done.
-			if(nextTokens.get(nextTokens.size()-1).getFirst() == LazyToken.EOI)
-				continuing = false;
-		}
-		throw new SDLParseException("");
+	    List<Tuple<LazyToken, String>> nextTokens = getNextTokens(reader);
+	    while(nextTokens.size() == 0 || nextTokens.get(nextTokens.size()-1).getFirst() != LazyToken.EOI);
+	    {
+		for(LazyToken endToken : endConditions)
+		    for(Tuple<LazyToken, String> tokenToCheck : nextTokens)
+			if(tokenToCheck.getFirst() == endToken)
+			    return nextTokens;
+		nextTokens = getNextTokens(reader);
+	    }
+	    return nextTokens;
 	}
 	
-	private static List<Tuple<LazyToken, String>> getNextTokens(Reader reader) throws IOException
+	public static List<Tuple<LazyToken, String>> getNextTokens(Reader reader) throws IOException
 	{
 		char nextChar = Utility.processChar(reader.read());
 		for(LazyToken toCheck : LazyToken.values())
