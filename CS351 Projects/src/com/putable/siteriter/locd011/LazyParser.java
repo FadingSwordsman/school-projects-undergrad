@@ -18,15 +18,21 @@ public enum LazyParser {
 
 	private Parser parser;
 
-	public static Iterable<Symbolable> parse(Reader reader) throws IOException {
+	private static boolean complete = false;
+	
+ 	public static Iterable<Symbolable> parse(Reader reader) throws IOException {
 		Symbolable ruleSymbol = RULE.parser.parse(reader);
 		List<Symbolable> rules = new LinkedList<Symbolable>();
-		rules.add(ruleSymbol);
+		while(!complete)
+		{
+			rules.add(ruleSymbol);
+			ruleSymbol = RULE.parser.parse(reader);
+		}
+		complete = false;
 		return new LinkedList<Symbolable>();
 	}
 
 	private static boolean notComplete(Iterable<Tuple<LazyToken, String>> rule) {
-		boolean complete = false;
 		for (Tuple<LazyToken, String> next : rule)
 			complete = complete || next.getFirst() == LazyToken.EOI;
 		return !complete;
@@ -45,6 +51,8 @@ public enum LazyParser {
 			public Symbolable parse(Reader reader) throws IOException
 			{
 				Symbolable head = HEAD.parser.parse(reader);
+				if(head == null)
+					return null;
 				Symbolable choices = CHOICE.parser.parse(reader);
 				return constructRuleSymbol(head, choices);
 			}
@@ -150,6 +158,8 @@ public enum LazyParser {
 		List<Tuple<LazyToken, String>> nextTokens = getNextTokens(reader);
 		tokens.addAll(nextTokens);
 
+		if(!notComplete(nextTokens))
+			return null;
 		int currentToken = 0;
 		boolean alternateStartString = nextTokens.get(0).getFirst() == LazyToken.COLON;
 		if (alternateStartString) {
@@ -165,8 +175,10 @@ public enum LazyParser {
 		if (nextTokens.get(currentToken).getFirst() == LazyToken.NAME) {
 			symbolName = nextTokens.get(currentToken).getSecond();
 			currentToken++;
-		} else
-			throw new SDLParseException("Expected NAME!");
+		}
+		else
+			throw new SDLParseException("Expected NAME, but received " + 
+					nextTokens.get(currentToken).getFirst());
 
 		if (currentToken == nextTokens.size()) {
 			nextTokens = getNextTokens(reader);
@@ -200,7 +212,6 @@ public enum LazyParser {
 		
 		if(nextTokens.get(currentToken).getFirst() == LazyToken.EQUAL)
 		{
-			tokens.addAll(nextTokens);
 			return constructHeadSymbol(symbolName, alternateStartString, selector, tokens);
 		}
 		
