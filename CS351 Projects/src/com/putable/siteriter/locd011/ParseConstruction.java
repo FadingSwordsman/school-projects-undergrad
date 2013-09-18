@@ -578,7 +578,7 @@ public enum ParseConstruction
 	{
 	    public String evaluate(Random r)
 	    {
-		Evaluable passOnResponsibility = parser.getDefinition(nameDefinition);
+		Evaluable passOnResponsibility = null;//parser.getDefinition(nameDefinition);
 		if (passOnResponsibility != null)
 		    return passOnResponsibility.evaluate(r);
 		return nameDefinition + "?";

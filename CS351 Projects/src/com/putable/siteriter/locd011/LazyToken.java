@@ -28,7 +28,7 @@ public enum LazyToken {
 	public static List<Tuple<LazyToken, String>> lexUntil(Reader reader, LazyToken... endConditions) throws IOException
 	{
 	    List<Tuple<LazyToken, String>> nextTokens = getNextTokens(reader);
-	    while(nextTokens.size() == 0 || nextTokens.get(nextTokens.size()-1).getFirst() != LazyToken.EOI);
+	    while(nextTokens.size() == 0 || nextTokens.get(nextTokens.size()-1).getFirst() != LazyToken.EOI)
 	    {
 		for(LazyToken endToken : endConditions)
 		    for(Tuple<LazyToken, String> tokenToCheck : nextTokens)
@@ -46,7 +46,7 @@ public enum LazyToken {
 			if(toCheck.canStart(nextChar))
 				return toCheck.lex(reader, nextChar);
 		//Empty response (Probably whitespace)
-		return new LinkedList<Tuple<LazyToken, String>>();
+		return new ArrayList<Tuple<LazyToken, String>>();
 	}
 	
 	private boolean canStart(char nextChar)
@@ -65,7 +65,7 @@ public enum LazyToken {
 		{
 			public List<Tuple<LazyToken, String>> lex(Reader reader, char starting) throws SDLParseException
 			{
-				List<Tuple<LazyToken, String>> tokens = new LinkedList<Tuple<LazyToken, String>>();
+				List<Tuple<LazyToken, String>> tokens = new ArrayList<Tuple<LazyToken, String>>();
 				if(starting == value)
 				{
 					tokens.add(new Tuple<LazyToken, String>(LazyToken.valueOf(tokenName), Character.toString(value)));
