@@ -28,7 +28,7 @@ public enum LazyParser {
 	private static boolean notComplete(Iterable<Tuple<LazyToken, String>> rule) {
 		boolean complete = false;
 		for (Tuple<LazyToken, String> next : rule)
-			complete = complete && next.getFirst() == LazyToken.EOI;
+			complete = complete || next.getFirst() == LazyToken.EOI;
 		return !complete;
 	}
 
@@ -86,7 +86,7 @@ public enum LazyParser {
 			tokenList.add(head.getTokenAt(i));
 		tokenList.add(LazyToken.EQUAL);
 		for (int i = 0; i < choices.getTokenLength(); i++)
-			tokenList.add(head.getTokenAt(i));
+			tokenList.add(choices.getTokenAt(i));
 		tokenList.add(LazyToken.SEMICOLON);
 
 		return new Symbolable() {
@@ -124,11 +124,17 @@ public enum LazyParser {
 			}
 
 			@Override
-			public String evaluate(Random r,
-					Map<String, Symbolable> symbolTable,
-					Map<String, Integer> select) {
-				// TODO: Implement the selector and choice interface
-				return null;
+			public String evaluate(Random r, Map<String, Symbolable> symbolTable, Map<String, Integer> select) {
+				if(getSelector() != null)
+				{
+					if(select.containsKey(getSelector()))
+						if(select.get(getSelector()) != null)
+							return getChoiceAt(select.get(getSelector()) % choices.size()).evaluate(r, symbolTable, select);
+					Integer nextInt = r.nextInt(Integer.MAX_VALUE);
+					select.put(getSelector(), nextInt);
+					return getChoiceAt(nextInt % choices.size()).evaluate(r, symbolTable, select);
+				}
+				return choices.get(r.nextInt(choices.size())).evaluate(r, symbolTable, select);
 			}
 
 			@Override

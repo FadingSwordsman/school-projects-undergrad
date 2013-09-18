@@ -385,7 +385,8 @@ public enum ParseConstruction
 		    // C.3.4.2.1.2.2: Selector is looked up, and set if it isn't
 		    // found.
 		    String ruleSelector = ruleSymbol.getSelector();
-		    Integer select = parser.getSelector(ruleSelector);
+//		    Integer select = parser.getSelector(ruleSelector);
+		    Integer select = 0;
 		    if (select == -1)
 		    {
 			// Between 0 and MAX_INT - 1, C.3.4.2.1.2.2.1
