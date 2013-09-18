@@ -39,7 +39,7 @@ public enum ParseConstruction
 
     private interface Parser
     {
-	public Iterable<Evaluable> parse(Iterable<Tuple<Token, String>> tokenValuePairs, SDLParserImpl parser) throws SDLParseException;
+    	public Iterable<Evaluable> parse(Iterable<Tuple<Token, String>> tokenValuePairs, SDLParserImpl parser) throws SDLParseException;
     }
 
     private static Parser programParser()
