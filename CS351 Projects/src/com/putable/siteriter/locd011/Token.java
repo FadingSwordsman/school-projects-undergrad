@@ -2,209 +2,168 @@ package com.putable.siteriter.locd011;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.putable.siteriter.SDLParseException;
 
-/**
- * 
- * Handle token parsing in a way we can easily create, remove, or modify tokens
- * 
- * @author David
- * 
- * 
- */
 public enum Token {
-	EQUAL(singleCharacterLexer('=', "EQUAL")), BAR(singleCharacterLexer('|',
-			"BAR")), COLON(singleCharacterLexer(':', "COLON")), SEMICOLON(
-			singleCharacterLexer(';', "SEMICOLON")), DLITERAL(
-			matchedCharacterLexer('\"', "DLITERAL")), SLITERAL(
-			matchedCharacterLexer('\'', "SLITERAL")), EOI, NAME(
-			anyCharacterLexer("NAME", "NAME"));
+	EQUAL(singleCharacterLexer("EQUAL", '=')),
+	BAR(singleCharacterLexer("BAR", '|')),
+	COLON(singleCharacterLexer("COLON", ':')),
+	SEMICOLON(singleCharacterLexer("SEMICOLON", ';')),
+	DLITERAL(matchedCharacterLexer("DLITERAL", '\'')),
+	SLITERAL(matchedCharacterLexer("SLITERAL", '\"')),
+	EOI(emptyCharacterLexer("EOI")),
+	NAME(anyCharacterLexer("NAME"));
+	
 	private Lexer lexer;
-
-	// A special default constructor for the EOI character
-	private Token() {
-		this.lexer = new Lexer() {
-			@Override
-			public String tokenize(char character, Reader reader) {
-				return "";
-			}
-
-			@Override
-			public char getRepresentation() {
-				return 0;
-			}
-
-			@Override
-			public boolean canStart(char character) {
-				return character == Character.toChars(0)[0];
-			}
-		};
-	}
 	
-	public Iterable<Tuple<Token, String>> lexUntil(Reader reader, Token... untilTokens)
+	private Token(Lexer lexer)
 	{
-		List<Tuple<Token, String>> tokenValuePairs = new LinkedList<Tuple<Token, String>>();
-		
-		return tokenValuePairs;
-	} 
+		this.lexer = lexer;
+	}
 	
-	private Token(Lexer parser) {
-		this.lexer = parser;
+	public static List<Tuple<Token, String>> lexUntil(Reader reader, Token... endConditions) throws IOException
+	{
+	    List<Tuple<Token, String>> tokens = new ArrayList<Tuple<Token, String>>();
+	    List<Tuple<Token, String>> nextTokens = getNextTokens(reader);
+	    
+	    while(nextTokens.size() == 0 || nextTokens.get(nextTokens.size()-1).getFirst() != Token.EOI)
+	    {
+		tokens.addAll(nextTokens);
+		for(Token endToken : endConditions)
+		    for(Tuple<Token, String> tokenToCheck : nextTokens)
+			if(tokenToCheck.getFirst() == endToken)
+			    return tokens;
+		nextTokens = getNextTokens(reader);
+	    }
+	    tokens.addAll(nextTokens);
+	    return tokens;
 	}
-
-	/**
-	 * 
-	 * Return the token that corresponds to the specified input.
-	 * 
-	 * @param input
-	 * 
-	 * @return
-	 * 
-	 * @throws SDLParseException
-	 */
-	public static Token getToken(char input) throws SDLParseException {
-		for (Token next : Token.values())
-			if (next.canStart(input))
-				return next;
-		throw new SDLParseException("No token defined for: <" + input + ">");
+	
+	public static List<Tuple<Token, String>> getNextTokens(Reader reader) throws IOException
+	{
+		char nextChar = Utility.processChar(reader.read());
+		for(Token toCheck : Token.values())
+			if(toCheck.canStart(nextChar))
+				return toCheck.lex(reader, nextChar);
+		//Empty response (Probably whitespace)
+		return new ArrayList<Tuple<Token, String>>();
 	}
-
-	public Lexer getLexer() {
-		return lexer;
+	
+	private boolean canStart(char nextChar)
+	{
+		return lexer.canStart(nextChar);
 	}
-
-	private boolean canStart(char input) {
-		return lexer.canStart(input);
+	
+	private List<Tuple<Token, String>> lex(Reader reader, char nextChar) throws IOException
+	{
+		return lexer.lex(reader, nextChar);
 	}
-
-	/**
-	 * 
-	 * Construct a simple lexer for any standalone token.
-	 * 
-	 * @param tokenValue
-	 * 
-	 * @param tokenName
-	 * 
-	 * @return
-	 */
-	private static Lexer singleCharacterLexer(final char tokenValue,
-			final String tokenName) {
-		return new Lexer() {
-			public String tokenize(char character, Reader reader)
-					throws IOException {
-				if (character == tokenValue)
-					return Character.toString(character);
-				throw new SDLParseException("Invalid recognition of "
-						+ tokenName + " token!");
-			}
-
-			public char getRepresentation() {
-				return tokenValue;
-			}
-
-			public boolean canStart(char character) {
-				return character == tokenValue;
-			}
-		};
-	}
-
-	/**
-	 * 
-	 * Construct a lexer that works with "matched" values, or values that start
-	 * and end with the same character
-	 * 
-	 * @param tokenValue
-	 * 
-	 * @param tokenName
-	 * 
-	 * @return
-	 */
-	private static Lexer matchedCharacterLexer(final char tokenValue,
-			final String tokenName) {
-		return new Lexer() {
-			public String tokenize(char startValue, Reader reader)
-					throws IOException {
-				String tokenValue = Character.toString(startValue);
-				boolean continuing = true;
-				while (continuing) {
-					// Simple processor that takes any input, and only kicks
-					// out if the read token matches the first
-					char nextChar = Utility.processChar(reader.read());
-					tokenValue += nextChar;
-					if (nextChar == startValue)
-						return tokenValue;
-					if (nextChar == Utility.undefinedChar)
-						throw new SDLParseException(
-								"Did not find matching character <"
-										+ startValue + ">");
+	
+	private static Lexer singleCharacterLexer(final String tokenName, final char value)
+	{
+		return new Lexer()
+		{
+			public List<Tuple<Token, String>> lex(Reader reader, char starting) throws SDLParseException
+			{
+				List<Tuple<Token, String>> tokens = new ArrayList<Tuple<Token, String>>();
+				if(starting == value)
+				{
+					tokens.add(new Tuple<Token, String>(Token.valueOf(tokenName), Character.toString(value)));
+					return tokens;
 				}
-				// Our lexing has failed, since we found no match, and
-				// reached the end of our stream:
-				throw new SDLParseException("Did not find matching character <"
-						+ startValue + ">");
+				throw new SDLParseException("Could not properly lex " + tokenName + "! Expected " + value + " but was " + starting + "!");
 			}
-
-			public char getRepresentation() {
-				return tokenValue;
-			}
-
-			public boolean canStart(char character) {
-				return character == tokenValue;
+			
+			public boolean canStart(char toCheck)
+			{
+				return toCheck == value;
 			}
 		};
 	}
-
-	/**
-	 * 
-	 * Construct a lexer that takes any other non-token, non-whitespace
-	 * character and terminates on non-specified tokens
-	 * 
-	 * @param tokenName
-	 * 
-	 * @param ignorableTokens
-	 *            Tokens that, if found within this token, doesn't stop lexing
-	 *            this token
-	 * 
-	 * @return
-	 */
-	private static Lexer anyCharacterLexer(final String tokenName, final String... ignorableTokens) {
-		return new Lexer() {
-			public String tokenize(char value, Reader reader)
-					throws IOException {
-				String name = "" + value;
-				boolean continuing = true;
-				while (continuing) {
-					reader.mark(1);
-					char nextChar = Utility.processChar(reader.read());
-					if (Character.isWhitespace(nextChar)
-							|| Utility.undefinedChar == nextChar)
-						return name;
-					Token tokenCheck = Token.getToken(nextChar);
-					boolean continueToken = false;
-					// Ensure that we haven't ended the current Token
-					for (int x = 0; x < ignorableTokens.length && !continueToken; x++)
-						continueToken = tokenCheck == Token.valueOf(ignorableTokens[x]);
-					if (!continueToken)
+	
+	private static Lexer matchedCharacterLexer(final String tokenName, final char value)
+	{
+		return new Lexer()
+		{
+			@Override
+			public List<Tuple<Token, String>> lex(Reader reader, char starting) throws IOException {
+				int nextInt = reader.read();
+				String returnValue = "" + starting;
+				List<Tuple<Token, String>> literal = new LinkedList<Tuple<Token, String>>();
+				while(nextInt != -1)
+				{
+					char nextChar = Utility.processChar(nextInt);
+					returnValue += nextChar;
+					if(nextChar == starting)
 					{
-						//TODO: Return an Iterable with the next Token and this one.
-						reader.reset();
-						return name;
+						literal.add(new Tuple<Token, String>(Token.valueOf(tokenName), returnValue));
+						return literal;
 					}
-					name += nextChar;
+					nextInt = reader.read();
 				}
-				throw new SDLParseException(
-						"Expected end of name, but none found");
+				throw new SDLParseException("Could not find matching " + returnValue + "!");
+			}
+			
+			public boolean canStart(char toCheck)
+			{
+				return toCheck == value;
+			}
+		};
+	}
+	
+	private static Lexer emptyCharacterLexer(final String tokenName)
+	{
+		final char value = (char) -1;
+		return new Lexer()
+		{
+			public List<Tuple<Token, String>> lex(Reader reader, char starting)
+			{
+				List<Tuple<Token, String>> toReturn = new LinkedList<Tuple<Token, String>>();
+				toReturn.add(new Tuple<Token, String>(Token.valueOf(tokenName), Character.toString(value)));
+				return toReturn;
+			}
+			
+			public boolean canStart(char toCheck)
+			{
+				return toCheck == value;
+			}
+		};
+	}
+	
+	private static Lexer anyCharacterLexer(final String tokenName)
+	{
+		return new Lexer()
+		{
+
+			@Override
+			public List<Tuple<Token, String>> lex(Reader reader, char starting) throws IOException {
+				char nextChar = Utility.processChar(reader.read());
+				String output = Character.toString(starting);
+				List<Tuple<Token, String>> values = new LinkedList<Tuple<Token, String>>();
+				Token thisToken = Token.valueOf(tokenName);
+				while(canStart(nextChar))
+				{
+					for(Token token : Token.values())
+						if(token != thisToken && token.canStart(nextChar))
+						{
+							values.add(new Tuple<Token, String>(thisToken, output));
+							values.addAll(token.lex(reader, nextChar));
+							return values;
+						}
+					output += nextChar;
+					nextChar = Utility.processChar(reader.read());
+				}
+				values.add(new Tuple<Token, String>(thisToken, output));
+				return values;
 			}
 
-			public char getRepresentation() {
-				return '*';
-			}
-
-			public boolean canStart(char character) {
-				return !Character.isWhitespace(character);
+			@Override
+			public boolean canStart(char toCheck) {
+				return !Character.isWhitespace(toCheck);
 			}
 		};
 	}

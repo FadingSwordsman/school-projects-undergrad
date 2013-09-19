@@ -10,7 +10,7 @@ import java.util.Random;
 
 import com.putable.siteriter.SDLParseException;
 
-public enum LazyParser {
+public enum HighLevelTokens {
 	RULE(ruleParser()),
 	HEAD(headParser()),
 	CHOICE(choiceParser()),
@@ -39,13 +39,13 @@ public enum LazyParser {
 		return rules;
 	}
 
-	private static boolean notComplete(Iterable<Tuple<LazyToken, String>> rule) {
-	    for (Tuple<LazyToken, String> next : rule)
-		complete = complete || next.getFirst() == LazyToken.EOI;
+	private static boolean notComplete(Iterable<Tuple<Token, String>> rule) {
+	    for (Tuple<Token, String> next : rule)
+		complete = complete || next.getFirst() == Token.EOI;
 	    return !complete;
 	}
 
-	private LazyParser(Parser parser) {
+	private HighLevelTokens(Parser parser) {
 		this.parser = parser;
 	}
 
@@ -95,7 +95,7 @@ public enum LazyParser {
 
 		final List<Symbol> choiceList = choices.getChoices();
 
-		final List<LazyToken> tokenList = new ArrayList<LazyToken>();
+		final List<Token> tokenList = new ArrayList<Token>();
 		// Aggregate the tokens, and add the ones we removed as a byproduct of
 		// parsing:
 		for (int i = 0; i < head.getTokenLength(); i++)
@@ -105,7 +105,7 @@ public enum LazyParser {
 
 		return new Symbol() {
 			private List<Symbol> choices = choiceList;
-			private List<LazyToken> tokens = tokenList;
+			private List<Token> tokens = tokenList;
 
 			@Override
 			public String getName() {
@@ -128,7 +128,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public LazyToken getTokenAt(int index) {
+			public Token getTokenAt(int index) {
 				return tokens.get(index);
 			}
 
@@ -160,14 +160,14 @@ public enum LazyParser {
 
 	private static Symbol constructHead(Reader reader) throws IOException {
 		// Grammar: [:]NAME[:NAME]
-		List<Tuple<LazyToken, String>> tokens = new ArrayList<Tuple<LazyToken, String>>();
-		List<Tuple<LazyToken, String>> nextTokens = getNextTokens(reader);
+		List<Tuple<Token, String>> tokens = new ArrayList<Tuple<Token, String>>();
+		List<Tuple<Token, String>> nextTokens = getNextTokens(reader);
 		tokens.addAll(nextTokens);
 
 		if(!notComplete(nextTokens))
 			return null;
 		int currentToken = 0;
-		boolean alternateStartString = nextTokens.get(0).getFirst() == LazyToken.COLON;
+		boolean alternateStartString = nextTokens.get(0).getFirst() == Token.COLON;
 		if (alternateStartString) {
 			currentToken++;
 			if (currentToken == tokens.size()) {
@@ -178,7 +178,7 @@ public enum LazyParser {
 		}
 
 		String symbolName;
-		if (nextTokens.get(currentToken).getFirst() == LazyToken.NAME) {
+		if (nextTokens.get(currentToken).getFirst() == Token.NAME) {
 			symbolName = nextTokens.get(currentToken).getSecond();
 			currentToken++;
 		}
@@ -193,14 +193,14 @@ public enum LazyParser {
 		}
 
 		String selector = null;
-		if (nextTokens.get(currentToken).getFirst() == LazyToken.COLON) {
+		if (nextTokens.get(currentToken).getFirst() == Token.COLON) {
 			currentToken++;
 			if (currentToken == nextTokens.size()) {
 				nextTokens = getNextTokens(reader);
 				tokens.addAll(nextTokens);
 				currentToken = 0;
 			}
-			if (nextTokens.get(currentToken).getFirst() == LazyToken.NAME)
+			if (nextTokens.get(currentToken).getFirst() == Token.NAME)
 			{
 				selector = nextTokens.get(currentToken).getSecond();
 				currentToken++;
@@ -216,7 +216,7 @@ public enum LazyParser {
 			currentToken = 0;
 		}
 		
-		if(nextTokens.get(currentToken).getFirst() == LazyToken.EQUAL)
+		if(nextTokens.get(currentToken).getFirst() == Token.EQUAL)
 		{
 			return constructHeadSymbol(symbolName, alternateStartString, selector, tokens);
 		}
@@ -224,9 +224,9 @@ public enum LazyParser {
 		throw new SDLParseException("Expected EQUAL token, but received " + nextTokens.get(currentToken).getFirst());
 	}
 
-	private static Symbol constructHeadSymbol(final String name, final boolean alternateStartString, final String selector, final List<Tuple<LazyToken, String>> tokenRepresentation) {
+	private static Symbol constructHeadSymbol(final String name, final boolean alternateStartString, final String selector, final List<Tuple<Token, String>> tokenRepresentation) {
 		return new Symbol() {
-			private List<Tuple<LazyToken, String>> tokens = tokenRepresentation;
+			private List<Tuple<Token, String>> tokens = tokenRepresentation;
 
 			@Override
 			public String getName() {
@@ -254,7 +254,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public LazyToken getTokenAt(int index) {
+			public Token getTokenAt(int index) {
 				return tokens.get(index).getFirst();
 			}
 
@@ -274,19 +274,19 @@ public enum LazyParser {
 
 	private static Symbol constructChoice(Reader reader) throws IOException
 	{
-		List<Tuple<LazyToken, String>> nextChoiceTokens = LazyToken.lexUntil(reader, LazyToken.BAR, LazyToken.SEMICOLON);
-		List<LazyToken> tokenList = new ArrayList<LazyToken>();
+		List<Tuple<Token, String>> nextChoiceTokens = Token.lexUntil(reader, Token.BAR, Token.SEMICOLON);
+		List<Token> tokenList = new ArrayList<Token>();
 		List<Symbol> choices = new ArrayList<Symbol>();
 		while(notComplete(nextChoiceTokens))
 		{
-			for(Tuple<LazyToken, String> tokenStringPair : nextChoiceTokens)
+			for(Tuple<Token, String> tokenStringPair : nextChoiceTokens)
 				tokenList.add(tokenStringPair.getFirst());
 			
 			if(nextChoiceTokens.size() == 1)
 			{
 				choices.add(emptySymbol());
-				LazyToken lastToken = nextChoiceTokens.get(0).getFirst();
-				if(lastToken == LazyToken.SEMICOLON)
+				Token lastToken = nextChoiceTokens.get(0).getFirst();
+				if(lastToken == Token.SEMICOLON)
 				{
 				    return constructChoiceSymbol(choices, tokenList);					
 				}
@@ -294,28 +294,28 @@ public enum LazyParser {
 			
 			else
 			{
-				LazyToken lastToken = nextChoiceTokens.get(nextChoiceTokens.size() - 1).getFirst();
-				if(lastToken == LazyToken.BAR)
+				Token lastToken = nextChoiceTokens.get(nextChoiceTokens.size() - 1).getFirst();
+				if(lastToken == Token.BAR)
 					choices.add(constructSequenceSymbol(nextChoiceTokens.subList(0, nextChoiceTokens.size() - 1)));
-				else if(lastToken == LazyToken.SEMICOLON)
+				else if(lastToken == Token.SEMICOLON)
 				{
 					choices.add(constructSequenceSymbol(nextChoiceTokens.subList(0, nextChoiceTokens.size() - 1)));
 					return constructChoiceSymbol(choices, tokenList);
 				}
 			}
-			nextChoiceTokens = LazyToken.lexUntil(reader, LazyToken.BAR, LazyToken.SEMICOLON);
+			nextChoiceTokens = Token.lexUntil(reader, Token.BAR, Token.SEMICOLON);
 		}
 		throw new SDLParseException("SEMICOLON expected, but found EOI!");
 	}
 	
-	private static Symbol constructChoiceSymbol(List<Symbol> choices, List<LazyToken> tokens)
+	private static Symbol constructChoiceSymbol(List<Symbol> choices, List<Token> tokens)
 	{
 	    final List<Symbol> choiceList = choices;
-	    final List<LazyToken> tokenList = tokens; 
+	    final List<Token> tokenList = tokens; 
 		return new Symbol()
 		{
 		    List<Symbol> choices = choiceList;
-		    List<LazyToken> tokens = tokenList;
+		    List<Token> tokens = tokenList;
 		    
 			@Override
 			public String getName()
@@ -348,7 +348,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public LazyToken getTokenAt(int index)
+			public Token getTokenAt(int index)
 			{
 				return tokens.get(index);
 			}
@@ -367,11 +367,11 @@ public enum LazyParser {
 		};
 	}
 	
-	private static List<Tuple<LazyToken, String>> getNextTokens(Reader reader)
+	private static List<Tuple<Token, String>> getNextTokens(Reader reader)
 			throws IOException {
-		List<Tuple<LazyToken, String>> nextTokens = LazyToken.getNextTokens(reader);
+		List<Tuple<Token, String>> nextTokens = Token.getNextTokens(reader);
 		while (nextTokens.size() == 0)
-			nextTokens = LazyToken.getNextTokens(reader);
+			nextTokens = Token.getNextTokens(reader);
 		return nextTokens;
 	}
 
@@ -387,20 +387,20 @@ public enum LazyParser {
 		};
 	}
 
-	private static Symbol constructSequenceSymbol(List<Tuple<LazyToken, String>> input) throws IOException
+	private static Symbol constructSequenceSymbol(List<Tuple<Token, String>> input) throws IOException
 	{
-		for(Tuple<LazyToken, String> next : input)
+		for(Tuple<Token, String> next : input)
 		{
-			LazyToken type = next.getFirst();
-			boolean isValid = type == LazyToken.DLITERAL || type == LazyToken.SLITERAL
-					|| type == LazyToken.NAME;
+			Token type = next.getFirst();
+			boolean isValid = type == Token.DLITERAL || type == Token.SLITERAL
+					|| type == Token.NAME;
 			if(!isValid)
 				throw new SDLParseException("Expected DLITERAL, SLITERAL, or NAME. Received " + type);
 		}
 		
-		final List<Tuple<LazyToken, String>> sequenceValues = input;
+		final List<Tuple<Token, String>> sequenceValues = input;
 		return new Symbol() {
-			private List<Tuple<LazyToken, String>> tokens = sequenceValues;
+			private List<Tuple<Token, String>> tokens = sequenceValues;
 
 			public int getTokenLength() {
 				return tokens.size();
@@ -417,15 +417,15 @@ public enum LazyParser {
 			}
 
 			@Override
-			public LazyToken getTokenAt(int index) {
+			public Token getTokenAt(int index) {
 				return tokens.get(index).getFirst();
 			}
 
 			@Override
 			public String evaluate(Random r, Map<String, Symbol> symbolTable, Map<String, Integer> select) {
 				String output = "";
-				for (Tuple<LazyToken, String> nextToken : sequenceValues) {
-					if (nextToken.getFirst() == LazyToken.NAME) {
+				for (Tuple<Token, String> nextToken : sequenceValues) {
+					if (nextToken.getFirst() == Token.NAME) {
 						if (symbolTable.containsKey(nextToken.getSecond()))
 							output += symbolTable.get(nextToken.getSecond())
 									.evaluate(r, symbolTable, select);
@@ -492,7 +492,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public LazyToken getTokenAt(int index)
+			public Token getTokenAt(int index)
 			{
 				return null;
 			}

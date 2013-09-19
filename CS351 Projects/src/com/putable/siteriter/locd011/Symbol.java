@@ -10,7 +10,7 @@ public interface Symbol {
 	public String getSelector();
 	public List<Symbol> getChoices();
 	public Symbol getChoiceAt(int index);
-	public LazyToken getTokenAt(int index);
+	public Token getTokenAt(int index);
 	public int getTokenLength();
 	public String evaluate(Random r, Map<String, Symbol> symbolTable, Map<String, Integer> select);
 }
