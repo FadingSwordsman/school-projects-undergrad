@@ -169,11 +169,11 @@ public class SDLParserImplTest {
     }
 
     private void testALegalGrammar(String g) throws IOException {
-        try {
+        //try {
             parser.load(makeReader(g));
-        } catch (SDLParseException e) {
-            fail("On grammar \"" + g + "\" load threw " + e);
-        }
+        //} catch (SDLParseException e) {
+          //  fail("On grammar \"" + g + "\" load threw " + e);
+        //}
     }
 
     @Test

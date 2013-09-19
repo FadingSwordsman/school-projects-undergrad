@@ -20,22 +20,29 @@ public enum LazyParser {
 
 	private static boolean complete = false;
 	
- 	public static Iterable<Symbolable> parse(Reader reader) throws IOException {
-		Symbolable ruleSymbol = RULE.parser.parse(reader);
-		List<Symbolable> rules = new LinkedList<Symbolable>();
+ 	public static Iterable<Symbol> parse(Reader reader) throws IOException {
+		List<Symbol> rules = new LinkedList<Symbol>();
+		rules.add(RULE.parser.parse(reader));
+		Symbol ruleSymbol = rules.get(0);
+		if(ruleSymbol == null)
+		{
+		    complete = false;
+		    throw new SDLParseException("Expected RULE, but received nothing");
+		}
 		while(!complete)
 		{
-			rules.add(ruleSymbol);
 			ruleSymbol = RULE.parser.parse(reader);
+			if(ruleSymbol != null)
+			    rules.add(ruleSymbol);
 		}
 		complete = false;
-		return new LinkedList<Symbolable>();
+		return rules;
 	}
 
 	private static boolean notComplete(Iterable<Tuple<LazyToken, String>> rule) {
-		for (Tuple<LazyToken, String> next : rule)
-			complete = complete || next.getFirst() == LazyToken.EOI;
-		return !complete;
+	    for (Tuple<LazyToken, String> next : rule)
+		complete = complete || next.getFirst() == LazyToken.EOI;
+	    return !complete;
 	}
 
 	private LazyParser(Parser parser) {
@@ -43,18 +50,19 @@ public enum LazyParser {
 	}
 
 	private interface Parser {
-		public Symbolable parse(Reader reader) throws IOException;
+		public Symbol parse(Reader reader) throws IOException;
 	}
 
 	private static Parser ruleParser() {
 		return new Parser() {
-			public Symbolable parse(Reader reader) throws IOException
+			public Symbol parse(Reader reader) throws IOException
 			{
-				Symbolable head = HEAD.parser.parse(reader);
+				Symbol head = HEAD.parser.parse(reader);
 				if(head == null)
-					return null;
-				Symbolable choices = CHOICE.parser.parse(reader);
-				return constructRuleSymbol(head, choices);
+				    return null;
+				Symbol choices = CHOICE.parser.parse(reader);
+				Symbol rule = constructRuleSymbol(head, choices);
+				return rule;
 			}
 		};
 	}
@@ -62,7 +70,7 @@ public enum LazyParser {
 	private static Parser headParser() {
 		return new Parser() {
 			@Override
-			public Symbolable parse(Reader reader) throws IOException
+			public Symbol parse(Reader reader) throws IOException
 			{
 				return constructHead(reader);
 			}
@@ -72,33 +80,31 @@ public enum LazyParser {
 	private static Parser choiceParser() {
 		return new Parser() {
 			@Override
-			public Symbolable parse(Reader reader) throws IOException
+			public Symbol parse(Reader reader) throws IOException
 			{
 				return constructChoice(reader);
 			}
 		};
 	}
 
-	private static Symbolable constructRuleSymbol(Symbolable head, Symbolable choices)
+	private static Symbol constructRuleSymbol(Symbol head, Symbol choices)
 	{
 		final String name = head.getName();
 		final boolean isAlternateStart = head.isAlternateStart();
 		final String selector = head.getSelector();
 
-		final List<Symbolable> choiceList = choices.getChoices();
+		final List<Symbol> choiceList = choices.getChoices();
 
 		final List<LazyToken> tokenList = new ArrayList<LazyToken>();
 		// Aggregate the tokens, and add the ones we removed as a byproduct of
 		// parsing:
 		for (int i = 0; i < head.getTokenLength(); i++)
 			tokenList.add(head.getTokenAt(i));
-		tokenList.add(LazyToken.EQUAL);
 		for (int i = 0; i < choices.getTokenLength(); i++)
 			tokenList.add(choices.getTokenAt(i));
-		tokenList.add(LazyToken.SEMICOLON);
 
-		return new Symbolable() {
-			private List<Symbolable> choices = choiceList;
+		return new Symbol() {
+			private List<Symbol> choices = choiceList;
 			private List<LazyToken> tokens = tokenList;
 
 			@Override
@@ -117,7 +123,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public Symbolable getChoiceAt(int index) {
+			public Symbol getChoiceAt(int index) {
 				return choices.get(index);
 			}
 
@@ -132,7 +138,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public String evaluate(Random r, Map<String, Symbolable> symbolTable, Map<String, Integer> select) {
+			public String evaluate(Random r, Map<String, Symbol> symbolTable, Map<String, Integer> select) {
 				if(getSelector() != null)
 				{
 					if(select.containsKey(getSelector()))
@@ -146,13 +152,13 @@ public enum LazyParser {
 			}
 
 			@Override
-			public List<Symbolable> getChoices() {
+			public List<Symbol> getChoices() {
 				return choices;
 			}
 		};
 	}
 
-	private static Symbolable constructHead(Reader reader) throws IOException {
+	private static Symbol constructHead(Reader reader) throws IOException {
 		// Grammar: [:]NAME[:NAME]
 		List<Tuple<LazyToken, String>> tokens = new ArrayList<Tuple<LazyToken, String>>();
 		List<Tuple<LazyToken, String>> nextTokens = getNextTokens(reader);
@@ -218,8 +224,8 @@ public enum LazyParser {
 		throw new SDLParseException("Expected EQUAL token, but received " + nextTokens.get(currentToken).getFirst());
 	}
 
-	private static Symbolable constructHeadSymbol(final String name, final boolean alternateStartString, final String selector, final List<Tuple<LazyToken, String>> tokenRepresentation) {
-		return new Symbolable() {
+	private static Symbol constructHeadSymbol(final String name, final boolean alternateStartString, final String selector, final List<Tuple<LazyToken, String>> tokenRepresentation) {
+		return new Symbol() {
 			private List<Tuple<LazyToken, String>> tokens = tokenRepresentation;
 
 			@Override
@@ -238,12 +244,12 @@ public enum LazyParser {
 			}
 
 			@Override
-			public List<Symbolable> getChoices() {
+			public List<Symbol> getChoices() {
 				return null;
 			}
 
 			@Override
-			public Symbolable getChoiceAt(int index) {
+			public Symbol getChoiceAt(int index) {
 				return null;
 			}
 
@@ -259,18 +265,18 @@ public enum LazyParser {
 
 			@Override
 			public String evaluate(Random r,
-					Map<String, Symbolable> symbolTable,
+					Map<String, Symbol> symbolTable,
 					Map<String, Integer> select) {
 				return null;
 			}
 		};
 	}
 
-	private static Symbolable constructChoice(Reader reader) throws IOException
+	private static Symbol constructChoice(Reader reader) throws IOException
 	{
 		List<Tuple<LazyToken, String>> nextChoiceTokens = LazyToken.lexUntil(reader, LazyToken.BAR, LazyToken.SEMICOLON);
 		List<LazyToken> tokenList = new ArrayList<LazyToken>();
-		List<Symbolable> choices = new ArrayList<Symbolable>();
+		List<Symbol> choices = new ArrayList<Symbol>();
 		while(notComplete(nextChoiceTokens))
 		{
 			for(Tuple<LazyToken, String> tokenStringPair : nextChoiceTokens)
@@ -281,7 +287,9 @@ public enum LazyParser {
 				choices.add(emptySymbol());
 				LazyToken lastToken = nextChoiceTokens.get(0).getFirst();
 				if(lastToken == LazyToken.SEMICOLON)
-					return constructChoiceSymbolable(choices, tokenList);
+				{
+				    return constructChoiceSymbol(choices, tokenList);					
+				}
 			}
 			
 			else
@@ -292,7 +300,7 @@ public enum LazyParser {
 				else if(lastToken == LazyToken.SEMICOLON)
 				{
 					choices.add(constructSequenceSymbol(nextChoiceTokens.subList(0, nextChoiceTokens.size() - 1)));
-					return constructChoiceSymbolable(choices, tokenList);
+					return constructChoiceSymbol(choices, tokenList);
 				}
 			}
 			nextChoiceTokens = LazyToken.lexUntil(reader, LazyToken.BAR, LazyToken.SEMICOLON);
@@ -300,11 +308,15 @@ public enum LazyParser {
 		throw new SDLParseException("SEMICOLON expected, but found EOI!");
 	}
 	
-	private static Symbolable constructChoiceSymbolable(final List<Symbolable> choices, final List<LazyToken> tokens)
+	private static Symbol constructChoiceSymbol(List<Symbol> choices, List<LazyToken> tokens)
 	{
-		return new Symbolable()
+	    final List<Symbol> choiceList = choices;
+	    final List<LazyToken> tokenList = tokens; 
+		return new Symbol()
 		{
-
+		    List<Symbol> choices = choiceList;
+		    List<LazyToken> tokens = tokenList;
+		    
 			@Override
 			public String getName()
 			{
@@ -324,13 +336,13 @@ public enum LazyParser {
 			}
 
 			@Override
-			public List<Symbolable> getChoices()
+			public List<Symbol> getChoices()
 			{
 				return choices;
 			}
 
 			@Override
-			public Symbolable getChoiceAt(int index)
+			public Symbol getChoiceAt(int index)
 			{
 				return choices.get(index);
 			}
@@ -348,7 +360,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public String evaluate(Random r, Map<String, Symbolable> symbolTable, Map<String, Integer> select)
+			public String evaluate(Random r, Map<String, Symbol> symbolTable, Map<String, Integer> select)
 			{
 				return null;
 			}
@@ -366,7 +378,7 @@ public enum LazyParser {
 	private static Parser sequenceParser() {
 		return new Parser() {
 			@Override
-			public Symbolable parse(Reader reader) {
+			public Symbol parse(Reader reader) {
 				// Iterable<Tuple<LazyToken, String>> choice =
 				// LazyToken.lexUntil(reader, LazyToken.BAR,
 				// LazyToken.SEMICOLON);
@@ -375,7 +387,7 @@ public enum LazyParser {
 		};
 	}
 
-	private static Symbolable constructSequenceSymbol(List<Tuple<LazyToken, String>> input) throws IOException
+	private static Symbol constructSequenceSymbol(List<Tuple<LazyToken, String>> input) throws IOException
 	{
 		for(Tuple<LazyToken, String> next : input)
 		{
@@ -387,7 +399,7 @@ public enum LazyParser {
 		}
 		
 		final List<Tuple<LazyToken, String>> sequenceValues = input;
-		return new Symbolable() {
+		return new Symbol() {
 			private List<Tuple<LazyToken, String>> tokens = sequenceValues;
 
 			public int getTokenLength() {
@@ -400,7 +412,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public Symbolable getChoiceAt(int index) {
+			public Symbol getChoiceAt(int index) {
 				return null;
 			}
 
@@ -410,7 +422,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public String evaluate(Random r, Map<String, Symbolable> symbolTable, Map<String, Integer> select) {
+			public String evaluate(Random r, Map<String, Symbol> symbolTable, Map<String, Integer> select) {
 				String output = "";
 				for (Tuple<LazyToken, String> nextToken : sequenceValues) {
 					if (nextToken.getFirst() == LazyToken.NAME) {
@@ -428,7 +440,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public List<Symbolable> getChoices() {
+			public List<Symbol> getChoices() {
 				return null;
 			}
 
@@ -444,9 +456,9 @@ public enum LazyParser {
 		};
 	}
 	
-	private static Symbolable emptySymbol()
+	private static Symbol emptySymbol()
 	{
-		return new Symbolable()
+		return new Symbol()
 		{
 
 			@Override
@@ -468,13 +480,13 @@ public enum LazyParser {
 			}
 
 			@Override
-			public List<Symbolable> getChoices()
+			public List<Symbol> getChoices()
 			{
 				return null;
 			}
 
 			@Override
-			public Symbolable getChoiceAt(int index)
+			public Symbol getChoiceAt(int index)
 			{
 				return null;
 			}
@@ -492,7 +504,7 @@ public enum LazyParser {
 			}
 
 			@Override
-			public String evaluate(Random r, Map<String, Symbolable> symbolTable, Map<String, Integer> select)
+			public String evaluate(Random r, Map<String, Symbol> symbolTable, Map<String, Integer> select)
 			{
 				return "";
 			}

@@ -27,16 +27,20 @@ public enum LazyToken {
 	
 	public static List<Tuple<LazyToken, String>> lexUntil(Reader reader, LazyToken... endConditions) throws IOException
 	{
+	    List<Tuple<LazyToken, String>> tokens = new ArrayList<Tuple<LazyToken, String>>();
 	    List<Tuple<LazyToken, String>> nextTokens = getNextTokens(reader);
+	    
 	    while(nextTokens.size() == 0 || nextTokens.get(nextTokens.size()-1).getFirst() != LazyToken.EOI)
 	    {
+		tokens.addAll(nextTokens);
 		for(LazyToken endToken : endConditions)
 		    for(Tuple<LazyToken, String> tokenToCheck : nextTokens)
 			if(tokenToCheck.getFirst() == endToken)
-			    return nextTokens;
+			    return tokens;
 		nextTokens = getNextTokens(reader);
 	    }
-	    return nextTokens;
+	    tokens.addAll(nextTokens);
+	    return tokens;
 	}
 	
 	public static List<Tuple<LazyToken, String>> getNextTokens(Reader reader) throws IOException
