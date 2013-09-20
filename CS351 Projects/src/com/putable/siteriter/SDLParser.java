@@ -9,8 +9,8 @@ import java.util.Map;
  * program from an arbitrary Reader, and then to {@link #makePage(String, Map)}
  * based on the loaded SDL program.
  */
-public interface SDLParser {
-
+public interface SDLParser
+{
     /**
      * Load an SDL program from a {@link Reader}. Stores defined rules in some
      * form allowing {@link #makePage(String, Map)} to work subsequent to
@@ -53,5 +53,4 @@ public interface SDLParser {
      * 
      */
     String makePage(String key, Map<String, Integer> selectors);
-
 }
