@@ -6,7 +6,7 @@ package com.putable.labs.lab6.enums;
  * 
  * @author BKey
  */
-public enum ConsumptionType
+public enum ConsumptionType implements Comparable<ConsumptionType>
 {
 	// omnivore has a weightFactor of 2
 	OMNIVORE(2),
@@ -22,13 +22,20 @@ public enum ConsumptionType
 	 *            the {@code int} value that is the weightFactor used in the
 	 *            fight formula
 	 */
-	ConsumptionType(int weightFactor)
+	private ConsumptionType(int weightFactor)
+	{
+		this(weightFactor, Unit.POUND);
+	}
+	
+	private ConsumptionType(int weightFactor, Unit unitType)
 	{
 		this.weightFactor = weightFactor;
+		this.unitType = unitType;
 	}
 
 	private int weightFactor;
-
+	private Unit unitType;
+	
 	/**
 	 * Gets the {@code int} weight factor associated with this
 	 * {@code ConsumptionType}.
@@ -40,5 +47,9 @@ public enum ConsumptionType
 	{
 		return weightFactor;
 	}
-
+	
+	public String getWeightDecriptor(double weight)
+	{
+		return weight + " " + unitType.toString();
+	}
 }

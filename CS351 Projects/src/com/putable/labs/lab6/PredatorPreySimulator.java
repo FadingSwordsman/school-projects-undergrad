@@ -31,9 +31,11 @@ public class PredatorPreySimulator {
 		// randomly pick 2 NOTE: must set the seed to a value if you
 		// want repeatability. I don't.
 		Random prng = new Random();
-		animal1 = animalKingdom.get(prng.nextInt(animalKingdom.size()));
-		animal2 = animalKingdom.get(prng.nextInt(animalKingdom.size()));
+		animal1 = AnimalFactory.getAnimal(prng.nextInt());
+		animal2 = AnimalFactory.getAnimal(prng.nextInt());
 
+		System.out.println(FightEngine.fight(animal1, animal2));
+		
 		// compare and display results
 		if (animal1 instanceof Wolf) {
 			// Wolf has a genus of "Canis"
@@ -156,32 +158,5 @@ public class PredatorPreySimulator {
 		}
 
 		System.out.println(output);
-	}
-
-	/**
-	 * Create and fill the animal kingdom.
-	 * 
-	 * @param animalKingdom
-	 *            the {@code ArrayList<Object>} that holds all of the animals in
-	 *            the kingdom
-	 */
-	private static void createKingdom(List<Object> animalKingdom) {
-		Wolf smallWolf = new Wolf(60.5);
-		Wolf mediumWolf = new Wolf(87.2);
-		Wolf largeWolf = new Wolf(105.7);
-		Eagle smallEagle = new Eagle(3.3);
-		Eagle largeEagle = new Eagle(21.0);
-		Rabbit smallRabbit = new Rabbit(1.7);
-		Rabbit mediumRabbit = new Rabbit(2.2);
-		Rabbit largeRabbit = new Rabbit(10);
-
-		animalKingdom.add(smallWolf);
-		animalKingdom.add(mediumWolf);
-		animalKingdom.add(largeWolf);
-		animalKingdom.add(smallEagle);
-		animalKingdom.add(largeEagle);
-		animalKingdom.add(smallRabbit);
-		animalKingdom.add(mediumRabbit);
-		animalKingdom.add(largeRabbit);
 	}
 }

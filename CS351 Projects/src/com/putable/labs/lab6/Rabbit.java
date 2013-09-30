@@ -1,71 +1,28 @@
 package com.putable.labs.lab6;
 
+import com.putable.labs.lab6.abstracts.AbstractHerbivore;
+
 /**
  * This is a concrete {@code Rabbit} class. An instance of this class is used
  * specifically to be compared to other living things by fact of who would win
  * in a fight. A fight outcome is based on the attributes of a {@code Rabbit}
- * including weight and what they consume for food (i.e. meat, plants or both).
+ * including weight and what they cKingdomonsume for food (i.e. meat, plants or both).
  * 
  * @author BKey
  * 
  */
-public class Rabbit {
-	/**
-	 * The {@code Consumption} enum, enumerates the possible type of feeder that
-	 * a living thing is and gives a weight factor accordingly.
-	 * 
-	 * @author BKey
-	 */
-	public enum ConsumptionType {
-		// omnivore has a weightFactor of 2
-		OMNIVORE(2),
-		// carnivore has a weightFactor of 3
-		CARNIVORE(3),
-		// herbivore has a weightFactor of 1
-		HERBIVORE(1);
-
-		/**
-		 * The constructor of a {@code ConsumptionType} enum.
-		 * 
-		 * @param weightFactor
-		 *            the {@code int} value that is the weightFactor used in the
-		 *            fight formula
-		 */
-		ConsumptionType(int weightFactor) {
-			this.weightFactor = weightFactor;
-		}
-
-		private int weightFactor;
-
-		/**
-		 * Gets the {@code int} weight factor associated with this
-		 * {@code ConsumptionType}.
-		 * 
-		 * @return the {@code int} weight factor associated with this
-		 *         {@code ConsumptionType}
-		 */
-		public int getWeightFactor() {
-			return weightFactor;
-		}
-	}
-
-	private double weight;
-	private ConsumptionType consumptionType;
-
-	/**
-	 * The constructor of a {@code Rabbit}.
-	 * 
-	 * @param weight
-	 *            the {@code double} value that is the weight in lbs of the
-	 *            {@code Rabbit}
-	 */
+public class Rabbit extends AbstractHerbivore {
+	private String kingdom = "Sylvilagus";
+	
 	public Rabbit(double weight) {
-		this.weight = weight;
-
-		// Rabbits are herbivores
-		this.consumptionType = ConsumptionType.HERBIVORE;
+		super(weight);
+		kingdom = "";
 	}
 
+	public String getKingdom()
+	{
+		return kingdom;
+	}
 	/**
 	 * This method decides if this animal is able to win a fight against the
 	 * passed in contender. This is done with the highly scientific fight

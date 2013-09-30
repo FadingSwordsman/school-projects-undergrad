@@ -1,5 +1,6 @@
 package com.putable.labs.lab6;
 
+import com.putable.labs.lab6.abstracts.AbstractOmnivore;
 import com.putable.labs.lab6.enums.ConsumptionType;
 
 /**
@@ -11,8 +12,7 @@ import com.putable.labs.lab6.enums.ConsumptionType;
  * @author BKey
  * 
  */
-public class Wolf extends AbstractCarnivore {
-	private ConsumptionType consumptionType;
+public class Wolf extends AbstractOmnivore {
 
 	/**
 	 * The constructor of a {@code Wolf}.
@@ -23,6 +23,11 @@ public class Wolf extends AbstractCarnivore {
 	 */
 	public Wolf(double weight) {
 		super(weight);
+	}
+	
+	public String getKingdom()
+	{
+		return "Canis";
 	}
 
 	/**
@@ -71,26 +76,5 @@ public class Wolf extends AbstractCarnivore {
 			return true;
 		else
 			return false;
-	}
-
-	public double getWeight() {
-		return weight;
-	}
-
-	public void setWeight(double weight) {
-		this.weight = weight;
-	}
-
-	public ConsumptionType getConsumptionType() {
-		return consumptionType;
-	}
-
-	public void setConsumptionType(ConsumptionType consumptionType) {
-		this.consumptionType = consumptionType;
-	}
-
-	@Override
-	public String toString() {
-		return "Wolf";
 	}
 }
