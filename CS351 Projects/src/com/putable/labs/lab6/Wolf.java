@@ -1,5 +1,7 @@
 package com.putable.labs.lab6;
 
+import com.putable.labs.lab6.enums.ConsumptionType;
+
 /**
  * This is a concrete {@code Wolf} class. An instance of this class is used
  * specifically to be compared to other living things by fact of who would win
@@ -9,48 +11,7 @@ package com.putable.labs.lab6;
  * @author BKey
  * 
  */
-public class Wolf {
-
-	/**
-	 * The {@code Consumption} enum, enumerates the possible type of feeder that
-	 * a living thing is and gives a weight factor accordingly.
-	 * 
-	 * @author BKey
-	 */
-	public enum ConsumptionType {
-		// omnivore has a weightFactor of 2
-		OMNIVORE(2),
-		// carnivore has a weightFactor of 3
-		CARNIVORE(3),
-		// herbivore has a weightFactor of 1
-		HERBIVORE(1);
-
-		/**
-		 * The constructor of a {@code ConsumptionType} enum.
-		 * 
-		 * @param weightFactor
-		 *            the {@code int} value that is the weightFactor used in the
-		 *            fight formula
-		 */
-		ConsumptionType(int weightFactor) {
-			this.weightFactor = weightFactor;
-		}
-
-		private int weightFactor;
-
-		/**
-		 * Gets the {@code int} weight factor associated with this
-		 * {@code ConsumptionType}.
-		 * 
-		 * @return the {@code int} weight factor associated with this
-		 *         {@code ConsumptionType}
-		 */
-		public int getWeightFactor() {
-			return weightFactor;
-		}
-	}
-
-	private double weight;
+public class Wolf extends AbstractCarnivore {
 	private ConsumptionType consumptionType;
 
 	/**
@@ -61,10 +22,7 @@ public class Wolf {
 	 *            {@code Wolf}
 	 */
 	public Wolf(double weight) {
-		this.weight = weight;
-
-		// Wolves are omnivores
-		this.consumptionType = ConsumptionType.OMNIVORE;
+		super(weight);
 	}
 
 	/**
