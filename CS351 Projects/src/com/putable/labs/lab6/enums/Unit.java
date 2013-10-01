@@ -11,7 +11,9 @@ public enum Unit {
 	{
 		this.descriptor = descriptor;
 	}
-	
+	/**
+	 * Provides the short version of the Unit in question
+	 */
 	public String toString()
 	{
 		return descriptor;

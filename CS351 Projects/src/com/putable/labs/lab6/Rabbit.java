@@ -16,75 +16,12 @@ public class Rabbit extends AbstractHerbivore {
 	
 	public Rabbit(double weight) {
 		super(weight);
-		kingdom = "";
 	}
 
+	@Override
 	public String getKingdom()
 	{
-		return kingdom;
-	}
-	/**
-	 * This method decides if this animal is able to win a fight against the
-	 * passed in contender. This is done with the highly scientific fight
-	 * formula which gives a score to both fighters based on their specific
-	 * {@code ConsumptionType} and weight. The score is given as follows: <br>
-	 * score = weightFactor * weight <br>
-	 * where weightFactor is 1 for {@code ConsumptionType.HERBIVORE}, 2 for
-	 * {@code ConsumptionType.OMNIVORE} and 3 for
-	 * {@code ConsumptionType.CARNIVORE}.
-	 * 
-	 * @param contender
-	 *            the {@code Object} that is to fight this animal
-	 * @return {@code true} if the score of this animal is greater than the
-	 *         score of the contender, {@code false} otherwise.
-	 */
-	public boolean winsFight(Object contender) {
-		double thisScore;
-		double contenderScore;
-
-		// figure out what type of contender this is and cast to get weight and
-		// consumption type...gah, that's ugly.
-		if (contender instanceof Wolf) {
-			Wolf wolfContender = (Wolf) contender;
-			contenderScore = wolfContender.getConsumptionType()
-					.getWeightFactor() * wolfContender.getWeight();
-		} else if (contender instanceof Eagle) {
-			Eagle eagleContender = (Eagle) contender;
-			contenderScore = eagleContender.getConsumptionType()
-					.getWeightFactor() * eagleContender.getWeight();
-		} else if (contender instanceof Rabbit) {
-			Rabbit rabbitContender = (Rabbit) contender;
-			contenderScore = rabbitContender.getConsumptionType()
-					.getWeightFactor() * rabbitContender.getWeight();
-		} else {
-			// I don't know what the crap this contender is...automatically run
-			// away.
-			return false;
-		}
-
-		thisScore = this.consumptionType.getWeightFactor() * this.weight;
-
-		// compare scores
-		if (thisScore > contenderScore)
-			return true;
-		else
-			return false;
-	}
-
-	public double getWeight() {
-		return weight;
-	}
-
-	public void setWeight(double weight) {
-		this.weight = weight;
-	}
-
-	public ConsumptionType getConsumptionType() {
-		return consumptionType;
-	}
-
-	public void setConsumptionType(ConsumptionType consumptionType) {
-		this.consumptionType = consumptionType;
+	    return kingdom;
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package com.putable.labs.lab6;
 
 import com.putable.labs.lab6.abstracts.AbstractCarnivore;
-import com.putable.labs.lab6.enums.ConsumptionType;
 
 /**
  * This is a concrete {@code Eagle} class. An instance of this class is used
@@ -14,7 +13,7 @@ import com.putable.labs.lab6.enums.ConsumptionType;
  */
 public class Eagle extends AbstractCarnivore
 {
-	private String genus = "";
+	private String kingdom = "Haliaeetus";
 	/**
 	 * The constructor of a {@code Eagle}.
 	 * 
@@ -29,6 +28,12 @@ public class Eagle extends AbstractCarnivore
 	@Override
 	public String getKingdom()
 	{
-		return genus;
+		return kingdom;
+	}
+	
+	@Override
+	public String toString()
+	{
+	    return "Eagle";
 	}
 }
