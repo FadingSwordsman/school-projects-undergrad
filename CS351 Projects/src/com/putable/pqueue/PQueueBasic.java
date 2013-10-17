@@ -27,7 +27,7 @@ public class PQueueBasic implements PQueue
     public PQAble remove()
     {	
 	PQAble value = clearIndex(1);
-	heapifyDown();
+	heapifyDown(1);
 	size--;
 	value.setPQueue(null);
 	return value;
@@ -81,9 +81,9 @@ public class PQueueBasic implements PQueue
     /**
      * Heapify down, assuming the first element has already been removed
      */
-    private void heapifyDown()
+    private void heapifyDown(int startIndex)
     {
-	int forIndex = 1;
+	int forIndex = startIndex;
 	int[] childNodeIndices = getChildrenIndices(forIndex);
 	while(childNodeIndices[1] <= size)
 	{
@@ -107,7 +107,18 @@ public class PQueueBasic implements PQueue
 	    set(forIndex, clearIndex(size));
 	    heapifyUp(forIndex);
 	}
-	
+    }
+    
+    private void heapifyDown(int startIndex, PQAble insert)
+    {
+	int forIndex = startIndex;
+	int[] childNodeIndices = getChildrenIndices(forIndex);
+	PQAble left = getPQAbleAt(childNodeIndices[0]);
+	PQAble right = getPQAbleAt(childNodeIndices[1]);
+	while(true)
+	{
+	    
+	}
     }
     
     /**
