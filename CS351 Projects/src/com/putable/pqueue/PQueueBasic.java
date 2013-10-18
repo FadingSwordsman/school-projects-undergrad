@@ -59,8 +59,12 @@ public class PQueueBasic implements PQueue
     @Override
     public void delete(PQAble p)
     {
-	//This is not an advanced PQueue:
-	throw new UnsupportedOperationException(); 
+	int index = p.getIndex();
+	clearIndex(p.getIndex());
+	PQAble moved = getPQAbleAt(size);
+	clearIndex(size);
+	size--;
+	insert(index, moved);
     }
 
     @Override
@@ -109,15 +113,34 @@ public class PQueueBasic implements PQueue
 	}
     }
     
+    private void insert(int startIndex, PQAble insert)
+    {
+	int parent = getParentIndex(startIndex);
+	if(insert.compareTo(getPQAbleAt(parent)) > 0)
+	{
+	    set(startIndex, insert);
+	    heapifyUp(startIndex);
+	}
+	else
+	{
+	    int[] childIndices = getChildIndices(startIndex);
+	    PQAble left = getPQAbleAt(childIndices[0]);
+	    PQAble right = getPQAbleAt(childIndices[1]);
+	    if(insert.compareTo(left) < 0 || insert.compareTo(right) < 0)
+		heapifyDown(startIndex, insert);
+	}
+    }
+    
     private void heapifyDown(int startIndex, PQAble insert)
     {
 	int forIndex = startIndex;
-	int[] childNodeIndices = getChildrenIndices(forIndex);
-	PQAble left = getPQAbleAt(childNodeIndices[0]);
-	PQAble right = getPQAbleAt(childNodeIndices[1]);
-	while(true)
+	boolean canMove = true;
+	while(canMove)
 	{
-	    
+	    int[] childNodeIndices = getChildrenIndices(forIndex);
+	    PQAble left = getPQAbleAt(childNodeIndices[0]);
+	    PQAble right = getPQAbleAt(childNodeIndices[1]);
+	    PQAble toMove = left.compareTo(right) > 0 ? left : right;
 	}
     }
     
