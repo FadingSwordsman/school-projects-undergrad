@@ -6,7 +6,7 @@ import com.putable.frobworld.locd011.WorldSetting;
 public class SimulationSettings
 {
     private final WorldSetting worldSettings;
-    private final MiscSetting miscSettings;
+	private final MiscSetting miscSettings;
     private final FrobSetting frobSettings;
     private final GrassSetting grassSettings;
     
@@ -17,4 +17,24 @@ public class SimulationSettings
 	this.frobSettings = frobSettings;
 	this.grassSettings = grassSettings;
     }
+    
+    public WorldSetting getWorldSettings()
+	{
+		return worldSettings;
+	}
+    
+	public MiscSetting getMiscSettings()
+	{
+		return miscSettings;
+	}
+
+	public FrobSetting getFrobSettings()
+	{
+		return frobSettings;
+	}
+
+	public GrassSetting getGrassSettings()
+	{
+		return grassSettings;
+	}
 }

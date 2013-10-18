@@ -7,4 +7,5 @@ public interface Liveable extends Placeable
     public GraphicsDelta takeTurn();
     public boolean applyCollision(CollisionResult result);
     public void spawn();
+    public int getHealth();
 }
