@@ -123,7 +123,7 @@ public class PQueueBasic implements PQueue
 	}
 	else
 	{
-	    int[] childIndices = getChildIndices(startIndex);
+	    int[] childIndices = getChildrenIndices(startIndex);
 	    PQAble left = getPQAbleAt(childIndices[0]);
 	    PQAble right = getPQAbleAt(childIndices[1]);
 	    if(insert.compareTo(left) < 0 || insert.compareTo(right) < 0)
