@@ -24,4 +24,14 @@ public class SimulationWorld
 	{
 		return settings;
 	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuffer sb = new StringBuffer();
+		for(int x = 0; x < grid.length; x++)
+			sb.append("--");
+		String separator = sb.toString();
+		return separator;
+	}
 }
