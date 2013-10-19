@@ -1,11 +1,12 @@
 package com.putable.frobworld.locd011.simulation;
 
+import com.putable.frobworld.locd011.Liveable;
 import com.putable.frobworld.locd011.Placeable;
 import com.putable.pqueue.PQueue;
 
 public class SimulationWorld
 {
-	private PQueue Moveables;
+	private PQueue interestings;
 	private Placeable[][] grid;
 
 	private final SimulationSettings settings;
@@ -17,7 +18,14 @@ public class SimulationWorld
 
 	public SimulationResult runSimulation()
 	{
-		return null;
+		int day = 0;
+		while(day < settings.getMiscSettings().getMaxRunTime())
+		{
+			// =(
+			Liveable nextThing = (Liveable)interestings.remove();
+			day = nextThing.getNextMove();
+		}
+		return SimulationResult.makeResult(this);
 	}
 
 	public SimulationSettings getSimulationSettings()

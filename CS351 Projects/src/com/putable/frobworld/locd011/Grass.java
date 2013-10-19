@@ -6,6 +6,8 @@ import com.putable.frobworld.locd011.simulation.SimulationWorld;
 
 public class Grass extends AbstractPlaceable implements Liveable
 {
+	private int health;
+	
 	public Grass(SimulationWorld world)
 	{
 		super(PlaceType.GRASS, world);
@@ -14,8 +16,7 @@ public class Grass extends AbstractPlaceable implements Liveable
 	@Override
 	public CollisionResult collideInto(Frob collider)
 	{
-		CollisionResult = new CollisionResult(-health, true);
-		
+		return new CollisionResult(-health, true);
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class Grass extends AbstractPlaceable implements Liveable
 
 	public void spawn()
 	{
-
+		
 	}
 
 	@Override
@@ -42,5 +43,10 @@ public class Grass extends AbstractPlaceable implements Liveable
 	{
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	public int getHealth()
+	{
+		return health;
 	}
 }

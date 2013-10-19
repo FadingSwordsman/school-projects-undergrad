@@ -8,4 +8,5 @@ public interface Liveable extends Placeable
     public boolean applyCollision(CollisionResult result);
     public void spawn();
     public int getHealth();
+    public int getNextMove();
 }
