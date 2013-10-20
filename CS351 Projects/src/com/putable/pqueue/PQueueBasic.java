@@ -2,276 +2,277 @@ package com.putable.pqueue;
 
 public class PQueueBasic implements PQueue
 {
-	private int size;
-	private int capacity;
+    private int size;
+    private int capacity;
+    private PQAble[] tree;
+    // Temporary storage for when we expand:
+    private PQAble[] oldElements;
+    private int nextOldElement;
 
-	private PQAble[] tree;
+    public PQueueBasic()
+    {
+	this(15);
+    }
 
-	// Temporary storage for when we expand:
-	private PQAble[] oldElements;
-	private int nextOldElement;
+    public PQueueBasic(int capacity)
+    {
+	size = 0;
+	tree = new PQAble[capacity];
+	this.capacity = capacity;
+    }
 
-	public PQueueBasic()
+    @Override
+    public PQAble remove()
+    {
+	PQAble value = clearIndex(1);
+	heapifyDown(1);
+	size--;
+	value.setPQueue(null);
+	return value;
+    }
+
+    @Override
+    public PQAble top()
+    {
+	if (size > 0)
+	    return getPQAbleAt(1);
+	return null;
+    }
+
+    @Override
+    public void insert(PQAble p)
+    {
+	// Ensure we have some space:
+	if (capacity == size + 1)
+	    expand();
+	else if (oldElements != null)
+	    copyNextElementToTree();
+	// Add our element:
+	tree[size + 1] = p;
+	heapifyUp(size + 1);
+	// Update our trackers:
+	size++;
+    }
+
+    @Override
+    public void delete(PQAble p)
+    {
+	if(p == null)
+	    throw new NullPointerException();
+	int index = p.getIndex();
+	clearIndex(p.getIndex());
+	PQAble moved = getPQAbleAt(size);
+	clearIndex(size);
+	size--;
+	insert(index, moved);
+    }
+
+    @Override
+    public int size()
+    {
+	return size;
+    }
+
+    /**
+     * This Implementation of PQueue is not advanced.
+     */
+    @Override
+    public boolean isAdvanced()
+    {
+	return false;
+    }
+
+    /**
+     * Heapify down, assuming the first element has already been removed
+     */
+    private void heapifyDown(int startIndex)
+    {
+	int forIndex = startIndex;
+	int[] childNodeIndices = getChildrenIndices(forIndex);
+	while (childNodeIndices[1] <= size)
 	{
-		this(15);
+	    PQAble left = getPQAbleAt(childNodeIndices[0]);
+	    PQAble right = getPQAbleAt(childNodeIndices[1]);
+	    if (left.compareTo(right) > 0)
+	    {
+		set(forIndex, clearIndex(childNodeIndices[0]));
+		forIndex = childNodeIndices[0];
+	    }
+	    else
+	    {
+		set(forIndex, clearIndex(childNodeIndices[1]));
+		forIndex = childNodeIndices[1];
+	    }
+	    childNodeIndices = getChildrenIndices(forIndex);
 	}
-
-	public PQueueBasic(int capacity)
+	// Make sure the heap is not missing a space:
+	if (forIndex != size)
 	{
-		size = 0;
-		tree = new PQAble[capacity];
-		this.capacity = capacity;
+	    set(forIndex, clearIndex(size));
+	    heapifyUp(forIndex);
 	}
+    }
 
-	@Override
-	public PQAble remove()
+    private void insert(int startIndex, PQAble insert)
+    {
+	int parent = getParentIndex(startIndex);
+	if (insert.compareTo(getPQAbleAt(parent)) > 0)
 	{
-		PQAble value = clearIndex(1);
-		heapifyDown(1);
-		size--;
-		value.setPQueue(null);
-		return value;
+	    set(startIndex, insert);
+	    heapifyUp(startIndex);
 	}
+	else
+	{
+	    int[] childIndices = getChildrenIndices(startIndex);
+	    PQAble left = getPQAbleAt(childIndices[0]);
+	    PQAble right = getPQAbleAt(childIndices[1]);
+	    if (insert.compareTo(left) < 0 || insert.compareTo(right) < 0)
+		heapifyDown(startIndex, insert);
+	}
+    }
 
-	@Override
-	public PQAble top()
+    private void heapifyDown(int startIndex, PQAble insert)
+    {
+	int forIndex = startIndex;
+	boolean canMove = true;
+	while (canMove)
 	{
-		if (size > 0)
-			return getPQAbleAt(1);
-		return null;
+	    int[] childNodeIndices = getChildrenIndices(forIndex);
+	    PQAble left = getPQAbleAt(childNodeIndices[0]);
+	    PQAble right = getPQAbleAt(childNodeIndices[1]);
+	    PQAble toMove = left.compareTo(right) > 0 ? left : right;
+	    if (canMove = insert.compareTo(toMove) < 0)
+	    {
+		forIndex = toMove.getIndex();
+		set(forIndex, toMove);
+	    }
 	}
+    }
 
-	@Override
-	public void insert(PQAble p)
+    /**
+     * Heapify up starting from the specified index.
+     * 
+     * @param newChild
+     */
+    private void heapifyUp(int index)
+    {
+	PQAble newChild = getPQAbleAt(index);
+	int newChildIndex = index;
+	int parentIndex = getParentIndex(newChildIndex);
+	PQAble parent = getPQAbleAt(parentIndex);
+	while (parent != null && newChild.compareTo(parent) > 0)
 	{
-		// Ensure we have some space:
-		if (capacity == size + 1)
-			expand();
-		else if (oldElements != null)
-			copyNextElementToTree();
-		// Add our element:
-		tree[size + 1] = p;
-		heapifyUp(size + 1);
-		// Update our trackers:
-		size++;
+	    set(newChildIndex, parent);
+	    clearOldElement(parentIndex);
+	    newChildIndex = parentIndex;
+	    parentIndex = getParentIndex(newChildIndex);
+	    parent = getPQAbleAt(parentIndex);
 	}
+	set(newChildIndex, newChild);
+	newChild.setPQueue(this);
+    }
 
-	@Override
-	public void delete(PQAble p)
-	{
-		int index = p.getIndex();
-		clearIndex(p.getIndex());
-		PQAble moved = getPQAbleAt(size);
-		clearIndex(size);
-		size--;
-		insert(index, moved);
-	}
+    /**
+     * Add or move an element to a spot, and update that element
+     * 
+     * @param index
+     * 
+     * @param element
+     */
+    private void set(int index, PQAble element)
+    {
+	element.setIndex(index);
+	tree[index] = element;
+    }
 
-	@Override
-	public int size()
-	{
-		return size;
-	}
+    /**
+     * Clear the specified element, and return it
+     */
+    private PQAble clearIndex(int index)
+    {
+	PQAble element = getPQAbleAt(index);
+	tree[index] = null;
+	if (oldElements != null && index < oldElements.length)
+	    oldElements[index] = null;
+	return element;
+    }
 
-	/**
-	 * This Implementation of PQueue is not advanced.
-	 */
-	@Override
-	public boolean isAdvanced()
-	{
-		return false;
-	}
+    /**
+     * Handle all getting, picking between oldElements and tree
+     * 
+     * @param index
+     * @return
+     */
+    private PQAble getPQAbleAt(int index)
+    {
+	PQAble toReturn = tree[index];
+	if (toReturn == null && oldElements != null && index < oldElements.length)
+	    toReturn = oldElements[index];
+	return toReturn;
+    }
 
-	/**
-	 * Heapify down, assuming the first element has already been removed
-	 */
-	private void heapifyDown(int startIndex)
-	{
-		int forIndex = startIndex;
-		int[] childNodeIndices = getChildrenIndices(forIndex);
-		while (childNodeIndices[1] <= size)
-		{
-			PQAble left = getPQAbleAt(childNodeIndices[0]);
-			PQAble right = getPQAbleAt(childNodeIndices[1]);
-			if (left.compareTo(right) > 0)
-			{
-				set(forIndex, clearIndex(childNodeIndices[0]));
-				forIndex = childNodeIndices[0];
-			}
-			else
-			{
-				set(forIndex, clearIndex(childNodeIndices[1]));
-				forIndex = childNodeIndices[1];
-			}
-			childNodeIndices = getChildrenIndices(forIndex);
-		}
-		// Make sure the heap is not missing a space:
-		if (forIndex != size)
-		{
-			set(forIndex, clearIndex(size));
-			heapifyUp(forIndex);
-		}
-	}
+    /**
+     * Expand the tree space, since we've run out of address space
+     */
+    private void expand()
+    {
+	// Make absolutely sure we aren't losing anything:
+	while (copyNextElementToTree())
+	    ;
+	oldElements = tree;
+	tree = new PQAble[oldElements.length << 1];
+	capacity = tree.length;
+	nextOldElement = 1;
+    }
 
-	private void insert(int startIndex, PQAble insert)
+    /**
+     * Copy an element from the oldElements to the tree sometimes. Over N
+     * iterations, the entire tree is copied. Naively moves forwards in the list
+     * and copies that element down. In the event that that element was affected
+     * by Heapify up or down, no element will be present, since it will have
+     * been placed in the tree already.
+     * 
+     * @return True if the tree is not complete copying, and false if the old
+     *         tree has been cleared
+     */
+    private boolean copyNextElementToTree()
+    {
+	if (oldElements == null)
+	    return false;
+	if (nextOldElement < oldElements.length && oldElements[nextOldElement] != null)
 	{
-		int parent = getParentIndex(startIndex);
-		if (insert.compareTo(getPQAbleAt(parent)) > 0)
-		{
-			set(startIndex, insert);
-			heapifyUp(startIndex);
-		}
-		else
-		{
-			int[] childIndices = getChildrenIndices(startIndex);
-			PQAble left = getPQAbleAt(childIndices[0]);
-			PQAble right = getPQAbleAt(childIndices[1]);
-			if (insert.compareTo(left) < 0 || insert.compareTo(right) < 0)
-				heapifyDown(startIndex, insert);
-		}
+	    set(nextOldElement, oldElements[nextOldElement]);
+	    oldElements[nextOldElement] = null;
 	}
+	nextOldElement++;
+	if (nextOldElement == oldElements.length)
+	    oldElements = null;
+	return true;
+    }
 
-	private void heapifyDown(int startIndex, PQAble insert)
-	{
-		int forIndex = startIndex;
-		boolean canMove = true;
-		while (canMove)
-		{
-			int[] childNodeIndices = getChildrenIndices(forIndex);
-			PQAble left = getPQAbleAt(childNodeIndices[0]);
-			PQAble right = getPQAbleAt(childNodeIndices[1]);
-			PQAble toMove = left.compareTo(right) > 0 ? left : right;
-			if(canMove = insert.compareTo(toMove) < 0)
-			{
-				forIndex = toMove.getIndex();
-				set(forIndex, toMove);
-			}
-		}
-	}
+    private void clearOldElement(int index)
+    {
+	if (oldElements != null && index < oldElements.length)
+	    oldElements[index] = null;
+    }
 
-	/**
-	 * Heapify up starting from the specified index.
-	 * 
-	 * @param newChild
-	 */
-	private void heapifyUp(int index)
-	{
-		PQAble newChild = getPQAbleAt(index);
-		int newChildIndex = index;
-		int parentIndex = getParentIndex(newChildIndex);
-		PQAble parent = getPQAbleAt(parentIndex);
-		while (parent != null && newChild.compareTo(parent) > 0)
-		{
-			set(newChildIndex, parent);
-			clearOldElement(parentIndex);
-			newChildIndex = parentIndex;
-			parentIndex = getParentIndex(newChildIndex);
-			parent = getPQAbleAt(parentIndex);
-		}
-		set(newChildIndex, newChild);
-		newChild.setPQueue(this);
-	}
+    private int getParentIndex(int index)
+    {
+	return index >> 1;
+    }
 
-	/**
-	 * Add or move an element to a spot, and update that element
-	 * 
-	 * @param index
-	 * 
-	 * @param element
-	 */
-	private void set(int index, PQAble element)
-	{
-		element.setIndex(index);
-		tree[index] = element;
-	}
+    private int[] getChildrenIndices(int index)
+    {
+	int firstChild = index << 1;
+	return new int[] { firstChild, firstChild + 1 };
+    }
 
-	/**
-	 * Clear the specified element, and return it
-	 */
-	private PQAble clearIndex(int index)
-	{
-		PQAble element = getPQAbleAt(index);
-		tree[index] = null;
-		if (oldElements != null && index < oldElements.length)
-			oldElements[index] = null;
-		return element;
-	}
-
-	/**
-	 * Handle all getting, picking between oldElements and tree
-	 * 
-	 * @param index
-	 * @return
-	 */
-	private PQAble getPQAbleAt(int index)
-	{
-		PQAble toReturn = tree[index];
-		if (toReturn == null && oldElements != null && index < oldElements.length)
-			toReturn = oldElements[index];
-		return toReturn;
-	}
-
-	/**
-	 * Expand the tree space, since we've run out of address space
-	 */
-	private void expand()
-	{
-		// Make absolutely sure we aren't losing anything:
-		while (copyNextElementToTree());
-		oldElements = tree;
-		tree = new PQAble[oldElements.length << 1];
-		capacity = tree.length;
-		nextOldElement = 1;
-	}
-
-	/**
-	 * Copy an element from the oldElements to the tree sometimes. Over N
-	 * iterations, the entire tree is copied. Naively moves forwards in the list
-	 * and copies that element down. In the event that that element was affected
-	 * by Heapify up or down, no element will be present, since it will have
-	 * been placed in the tree already.
-	 * 
-	 * @return True if the tree is not complete copying, and false if the old
-	 *         tree has been cleared
-	 */
-	private boolean copyNextElementToTree()
-	{
-		if (oldElements == null)
-			return false;
-		if (nextOldElement < oldElements.length && oldElements[nextOldElement] != null)
-		{
-			set(nextOldElement, oldElements[nextOldElement]);
-			oldElements[nextOldElement] = null;
-		}
-		nextOldElement++;
-		if (nextOldElement == oldElements.length)
-			oldElements = null;
-		return true;
-	}
-
-	private void clearOldElement(int index)
-	{
-		if (oldElements != null && index < oldElements.length)
-			oldElements[index] = null;
-	}
-
-	private int getParentIndex(int index)
-	{
-		return index >> 1;
-	}
-
-	private int[] getChildrenIndices(int index)
-	{
-		int firstChild = index << 1;
-		return new int[] { firstChild, firstChild + 1 };
-	}
-
-	@Override
-	public String toString()
-	{
-		StringBuilder sb = new StringBuilder();
-		for (int x = 1; x <= size; x++)
-			sb.append(getPQAbleAt(x) + " ");
-		return sb.toString();
-	}
+    @Override
+    public String toString()
+    {
+	StringBuilder sb = new StringBuilder();
+	for (int x = 1; x <= size; x++)
+	    sb.append(getPQAbleAt(x) + " ");
+	return sb.toString();
+    }
 }

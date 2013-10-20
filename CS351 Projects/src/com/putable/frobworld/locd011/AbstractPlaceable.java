@@ -3,7 +3,7 @@ package com.putable.frobworld.locd011;
 import com.putable.frobworld.locd011.graphics.Drawable;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
 
-public abstract class AbstractPlaceable
+public abstract class AbstractPlaceable implements Placeable
 {
 	private final int id;
 	private static int nextId = 0;
@@ -16,6 +16,12 @@ public abstract class AbstractPlaceable
 		this.type = type;
 		id = getNextId();
 		this.world = world;
+	}
+	
+	public AbstractPlaceable(PlaceType type, SimulationWorld world, int[] location)
+	{
+	    this(type, world);
+	    this.location = location;
 	}
 
 	public abstract CollisionResult collideInto(Frob collider);
@@ -44,10 +50,15 @@ public abstract class AbstractPlaceable
 	{
 		return type;
 	}
-
-	public final int[] getCoordinates()
+	
+	public final void setLocation(int x, int y)
 	{
-		return location;
+	    location = new int[]{x,y};
+	}
+	
+	public final int[] getLocation()
+	{
+	    return location;
 	}
 	
 	public final SimulationWorld getWorld()

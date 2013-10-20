@@ -80,9 +80,7 @@ public class PQueueTest
 	    underTest.insert(value);
 	
 	for(PQAble value : values)
-	{
 	    assertEquals(value, underTest.remove());
-	}
     }
     
     @Test
@@ -116,5 +114,12 @@ public class PQueueTest
 	    assertEquals(value, next);
 	    assertEquals(1, value.getIndex());
 	}
+    }
+    
+    @Test
+    public void deleteTest()
+    {
+	createPQueue();
+	List<PQAble> values = generatePQAbles(1,5,67,78,2,3,5,2,5,57,23,2,5,6,32,2,5,57,68,97,5,6,657,4,3,2,45,2,576,6,4,3,23);
     }
 }

@@ -2,16 +2,18 @@ package com.putable.frobworld.locd011;
 
 import com.putable.frobworld.locd011.graphics.Drawable;
 import com.putable.frobworld.locd011.graphics.GraphicsDelta;
+import com.putable.frobworld.locd011.simulation.FrobSetting;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
 
-public class Frob extends AbstractPlaceable implements Liveable
-{
-	private int health; 
+public class Frob extends AbstractLiveable
+{ 
+	private FrobSetting settings;
 	
 	public Frob(SimulationWorld world)
 	{
-		super(PlaceType.FROB, world);
-		health = 10;
+		super(PlaceType.FROB, world, world.getSimulationSettings().getFrobSettings().getGenesisMass());
+		settings = world.getSimulationSettings().getFrobSettings();
+		setMass(settings.getGenesisMass());
 	}
 
 	@Override
@@ -31,26 +33,21 @@ public class Frob extends AbstractPlaceable implements Liveable
 	@Override
 	public boolean applyCollision(CollisionResult result)
 	{
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public CollisionResult collideInto(Frob collider)
 	{
-		health -= collider.getHealth();
+		setMass(getMass() - settings.getFrobHitPenalty());
+		if(getMass() <= 0)
+		    die();
 		return new CollisionResult(0, false);
 	}
-
-	@Override
-	public void spawn()
-	{
-		// TODO Auto-generated method stub
-
-	}
 	
-	public int getHealth()
+	public void die()
 	{
-		return health;
+	    super.die();
+	    getWorld().killLiveable(this);
 	}
 }
