@@ -4,7 +4,6 @@ import org.junit.Test;
 
 public class SimulationWorldTest
 {
-    
     @Test
     public void createWorldTest()
     {

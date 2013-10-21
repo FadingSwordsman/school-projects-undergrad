@@ -18,8 +18,13 @@ public class PQueueAdvanced implements PQueue
      */
     public PQueueAdvanced()
     {
-	size = 0;
-	tree = new PQAble[10];
+	this(10);
+    }
+    
+    public PQueueAdvanced(int capacity)
+    {
+	this.size = 0;
+	tree = new PQAble[capacity];
     }
     
     @Override
@@ -210,5 +215,14 @@ public class PQueueAdvanced implements PQueue
 	    nextCopy++;
 	}
 	return copy;
+    }
+    
+    @Override
+    public String toString()
+    {
+	StringBuffer sb = new StringBuffer();
+	for(int x = 1; x <= size; x++)
+	    sb.append('[').append(getPQAbleAt(x)).append(']');
+	return sb.toString();
     }
 }

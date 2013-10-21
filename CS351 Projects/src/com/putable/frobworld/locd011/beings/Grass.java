@@ -1,4 +1,4 @@
-package com.putable.frobworld.locd011;
+package com.putable.frobworld.locd011.beings;
 
 import java.util.EnumSet;
 
@@ -13,6 +13,10 @@ public class Grass extends AbstractLiveable
 {
     private GrassSetting settings;
 
+    /**
+     * Create a vanilla, start of world grass.
+     * @param world
+     */
     public Grass(SimulationWorld world)
     {
 	super(PlaceType.GRASS, world, world.getSimulationSettings().getGrassSettings().getGrassBirthMass());
@@ -21,24 +25,31 @@ public class Grass extends AbstractLiveable
 	setUpdatePeriod(settings.getGrassInitialUpdatePeriod());
 	updateNextMove(settings.getGrassInitialUpdatePeriod());
     }
-    
-    public Grass(SimulationWorld world, int[] location, int updatePeriod, int mass)
+
+    /**
+     * Create a new Grass object at the specified location on the world. 
+     * @param world
+     * @param location
+     * @param mass
+     */
+    public Grass(SimulationWorld world, int[] location, int mass)
     {
-	super(PlaceType.GRASS, world, location, updatePeriod, world.getSimulationSettings().getGrassSettings().getGrassBirthMass(), mass);
+	super(PlaceType.GRASS, world, location, world.getSimulationSettings().getGrassSettings().getGrassInitialUpdatePeriod(),
+		world.getSimulationSettings().getGrassSettings().getGrassBirthMass(), mass);
 	settings = world.getSimulationSettings().getGrassSettings();
     }
 
     @Override
     public CollisionResult collideInto(Frob collider)
     {
-	getWorld().killLiveable(this);
+	die();
 	return new CollisionResult(-getMass(), true);
     }
 
     @Override
     public Drawable getRepresentation()
     {
-	// TODO Auto-generated method stub
+	//TODO: Implement the actual drawing of a grass.
 	return null;
     }
 
@@ -70,11 +81,14 @@ public class Grass extends AbstractLiveable
 		setUpdatePeriod(nextUpdate);
 	    }
 	}
-	updateNextMove(getNextUpdate());
+	updateNextMove(getUpdatePeriod());
 	return graphicsChange;
     }
 
-
+    /**
+     * Check to see if a grass can split: There's an adjacent, empty area, and it isn't crowded out.
+     * @return
+     */
     private boolean canSplit()
     {
 	PlaceType[] adjacent = getWorld().getAdjacent(getLocation());
@@ -90,6 +104,10 @@ public class Grass extends AbstractLiveable
 	return emptySpace > 0 && adjacentGrass < settings.getGrassCrowdLimit();
     }
     
+    /**
+     * Create the grass offspring, which will add itself to the world.
+     * @return
+     */
     private Grass doSplit()
     {
 	PlaceType[] adjacent = getWorld().getAdjacent(getLocation());
@@ -104,22 +122,16 @@ public class Grass extends AbstractLiveable
 	int newGrassMass = getOffspringMass();
 	setMass(getMass() - newGrassMass);
 	
-	return new Grass(getWorld(), newLocation, getOffspringUpdatePeriod(), newGrassMass);
+	return new Grass(getWorld(), newLocation, newGrassMass);
     }
     
-    private int getOffspringUpdatePeriod()
-    {
-	return settings.getGrassInitialUpdatePeriod();
-    }
-    
+    /**
+     * Calculate the new grass' mass
+     * @return
+     */
     private int getOffspringMass()
     {
-	return (40 * getBirthMass())/100;
-    }
-    
-    public int getNextUpdate()
-    {
-	return this.getUpdatePeriod();
+	return (settings.getGrassBirthPercent() * getMass())/100;
     }
     
     @Override

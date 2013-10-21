@@ -1,4 +1,4 @@
-package com.putable.frobworld.locd011;
+package com.putable.frobworld.locd011.beings;
 
 /**
  * A holder for collision results
@@ -9,20 +9,28 @@ package com.putable.frobworld.locd011;
  */
 public class CollisionResult
 {
-	private int healthResult;
+	private int massResult;
 	private boolean moveAllowed;
 	
 	public CollisionResult(int healthResult, boolean moveAllowed)
 	{
-		this.healthResult = healthResult;
+		this.massResult = healthResult;
 		this.moveAllowed = moveAllowed;
 	}
 
-	public int getHealthResult()
+	/**
+	 * The change of mass on the collidee
+	 * @return
+	 */
+	public int getMassResult()
 	{
-		return healthResult;
+		return massResult;
 	}
 
+	/**
+	 * Notifies the Frob whether it can complete its attempted move
+	 * @return
+	 */
 	public boolean isMoveAllowed()
 	{
 		return moveAllowed;

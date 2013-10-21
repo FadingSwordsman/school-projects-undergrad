@@ -2,11 +2,26 @@ package com.putable.frobworld.locd011.graphics;
 
 import java.awt.Graphics;
 
-import com.putable.frobworld.locd011.Liveable;
+import com.putable.frobworld.locd011.beings.interfaces.Liveable;
 import com.putable.frobworld.locd011.graphics.SimulationPanel.Translation;
 
-public class GraphicsDeltaHelper
+/**
+ * A factory for graphics deltas.
+ * @author David
+ */
+public final class GraphicsDeltaHelper
 {
+    /**
+     * There is no reason to instantiate this.
+     */
+    private GraphicsDeltaHelper()
+    {}
+    
+    /**
+     * Create a GraphicsDelta which removes the current object
+     * @param location
+     * @return
+     */
     public static GraphicsDelta removeAt(final int[] location)
     {
 	return new GraphicsDelta()
@@ -20,17 +35,25 @@ public class GraphicsDeltaHelper
 	};
     }
     
+    /**
+     * Create a Graphics Delta that indicates no change
+     * @return
+     */
     public static GraphicsDelta nothing()
     {
 	return new GraphicsDelta()
 	{
 	    @Override
 	    public void updateMap(Graphics g, Translation t)
-	    {
-	    }
+	    {}
 	};
     }
     
+    /**
+     * Create a graphics object which updates the interaction between two Liveables
+     * @param updates
+     * @return
+     */
     public static GraphicsDelta updateLiveables(final Liveable... updates)
     {
 	return new GraphicsDelta()

@@ -1,5 +1,10 @@
 package com.putable.frobworld.locd011.simulation;
 
+/**
+ * A holder for simulation results
+ * @author David
+ *
+ */
 public class SimulationResult
 {
     String mapResult;
@@ -15,11 +20,19 @@ public class SimulationResult
 	this.remainingObjects = remainingObjects;
     }
     
+    /**
+     * Make a SimulationResult for a completed SimulationWorld.
+     * This could be called from outside of the SimulationWorld!
+     * @param runSimulation
+     * @return
+     */
     public static SimulationResult makeSimulationResult(SimulationWorld runSimulation)
     {
 	return new SimulationResult(runSimulation.toString(), runSimulation.getLiveableStatus(),
 		runSimulation.getSimulationSettings().getWorldSettings().getMaxSimulationLength(), runSimulation.getDay());
     }
+    
+    //TODO: Implement operations (Add, average, etc) on sets of these items.
     
     public String toString()
     {

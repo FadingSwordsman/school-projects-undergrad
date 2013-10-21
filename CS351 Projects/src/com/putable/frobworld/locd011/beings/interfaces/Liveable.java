@@ -1,5 +1,6 @@
-package com.putable.frobworld.locd011;
+package com.putable.frobworld.locd011.beings.interfaces;
 
+import com.putable.frobworld.locd011.beings.CollisionResult;
 import com.putable.frobworld.locd011.graphics.GraphicsDelta;
 import com.putable.pqueue.PQAble;
 

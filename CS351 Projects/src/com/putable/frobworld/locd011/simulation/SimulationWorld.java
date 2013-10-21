@@ -2,16 +2,16 @@ package com.putable.frobworld.locd011.simulation;
 
 import java.util.Random;
 
-import com.putable.frobworld.locd011.AbstractPlaceable;
-import com.putable.frobworld.locd011.Liveable;
-import com.putable.frobworld.locd011.PlaceType;
-import com.putable.frobworld.locd011.Placeable;
+import com.putable.frobworld.locd011.beings.AbstractPlaceable;
+import com.putable.frobworld.locd011.beings.PlaceType;
+import com.putable.frobworld.locd011.beings.interfaces.Liveable;
+import com.putable.frobworld.locd011.beings.interfaces.Placeable;
 import com.putable.pqueue.PQueue;
 import com.putable.pqueue.PQueueAdvanced;
 
 /**
  * A SimulationWorld represents an instance of FrobWorld, and handles all World-level events,
- * 	such as genesis, rules of the overacrhing world, etc.
+ * 	such as genesis, rules of the overarching world, etc.
  * For batch mode, it implements Runnable, to allow multiple threads simulating at the same time.
  *  
  * @author David
@@ -30,21 +30,41 @@ public class SimulationWorld implements Runnable
     
     private LiveableStatus liveablesRemaining = new LiveableStatus();
     
+    /**
+     * Make a simple, random, non-batch run:
+     * @param settings
+     */
     public SimulationWorld(SimulationSettings settings)
     {
 	this(settings, false, new Random());
     }
     
+    /**
+     * Specify the batch run settings:
+     * @param settings
+     * @param batchMode
+     */
     public SimulationWorld(SimulationSettings settings, boolean batchMode)
     {
 	this(settings, batchMode, new Random());
     }
     
+    /**
+     * Select a specific random seed:
+     * @param settings
+     * @param randomSeed
+     */
     public SimulationWorld(SimulationSettings settings, int randomSeed)
     {
 	this(settings, false, new Random(randomSeed));
     }
     
+    /**
+     * Set batch mode, and a random seed:
+     * @param settings
+     * @param batchMode
+     * @param randomSeed
+     */
     public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed)
     {
 	this(settings, batchMode, new Random(randomSeed));
@@ -76,7 +96,6 @@ public class SimulationWorld implements Runnable
 	Initializer init = new Initializer(this);
 	init.initSimulation();
 	init = null;
-	System.out.println(this);
 	day = 0;
 	//TODO: Cause the simulation to end if all Frobs are dead.
 	while (day < settings.getWorldSettings().getMaxSimulationLength())
@@ -84,7 +103,6 @@ public class SimulationWorld implements Runnable
 	    Liveable nextThing = (Liveable)interestings.remove();
 	    if(day != nextThing.getNextMove())
 	    {
-		System.out.println("Day is now " + nextThing.getNextMove());
 		day = nextThing.getNextMove();
 	    }
 	    nextThing.takeTurn();
@@ -430,6 +448,16 @@ public class SimulationWorld implements Runnable
     public LiveableStatus getLiveableStatus()
     {
 	return liveablesRemaining;
+    }
+    
+    /**
+     * Get the placeable at a specific location
+     * @param location
+     * @return
+     */
+    public Placeable getPlaceableAt(int[] location)
+    {
+	return grid[location[1]][location[0]];
     }
     
     @Override

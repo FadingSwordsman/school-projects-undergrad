@@ -1,5 +1,6 @@
-package com.putable.frobworld.locd011;
+package com.putable.frobworld.locd011.beings;
 
+import com.putable.frobworld.locd011.beings.interfaces.Liveable;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
 import com.putable.pqueue.PQAble;
 import com.putable.pqueue.PQueue;
@@ -31,6 +32,7 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	world.createLiveable(this);
     }
     
+    @Override
     public int getNextMove()
     {
 	return nextMovement;
@@ -41,6 +43,7 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	this.nextMovement += offset;
     }
     
+    @Override
     public int compareTo(PQAble p)
     {
 	AbstractLiveable otherObject = (AbstractLiveable) p;
@@ -55,6 +58,7 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	this.mass = mass;
     }
     
+    @Override
     public int getMass()
     {
 	return mass;
@@ -99,6 +103,7 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	return birthMass;
     }
     
+    @Override
     public boolean isDead()
     {
 	return dead;
@@ -107,5 +112,6 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
     public void die()
     {
 	dead = true;
+	getWorld().killLiveable(this);
     }
 }

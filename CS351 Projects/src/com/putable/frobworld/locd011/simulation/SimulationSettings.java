@@ -2,6 +2,11 @@ package com.putable.frobworld.locd011.simulation;
 
 import java.util.HashMap;
 
+/**
+ * A holder for the various settings involved in a simulation.
+ * @author David
+ *
+ */
 public class SimulationSettings
 {
     private final WorldSetting worldSettings;
@@ -17,26 +22,47 @@ public class SimulationSettings
 	this.grassSettings = grassSettings;
     }
 
+    /**
+     * Return all of the world parameter settings.
+     * @return
+     */
     public WorldSetting getWorldSettings()
     {
 	return worldSettings;
     }
 
+    /**
+     * Return Miscellaneous settings -- Mostly just the Rock Bump penalty.
+     * @return
+     */
     public MiscSetting getMiscSettings()
     {
 	return miscSettings;
     }
 
+    /**
+     * Return all of the Frob specific settings
+     * @return
+     */
     public FrobSetting getFrobSettings()
     {
 	return frobSettings;
     }
 
+    /**
+     * Return all of the Grass-specific settings
+     * @return
+     */
     public GrassSetting getGrassSettings()
     {
 	return grassSettings;
     }
     
+    /**
+     * Create a SimulationSettings with premade settings, other than the runtime.
+     * @param runTime
+     * @return
+     */
     public static SimulationSettings createSettings(int runTime)
     {
 	HashMap<String, Integer> settingMap = createSettingsMap(runTime);
@@ -48,6 +74,11 @@ public class SimulationSettings
 	return new SimulationSettings(worldSettings, miscSettings, frobSettings, grassSettings);
     }
     
+    /**
+     * The dirty part of creating each setting object...
+     * @param runTime
+     * @return
+     */
     private static HashMap<String, Integer> createSettingsMap(int runTime)
     {
 	HashMap<String, Integer> settingsMap = new HashMap<String, Integer>();
