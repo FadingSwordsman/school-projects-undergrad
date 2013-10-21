@@ -30,16 +30,13 @@ public class PQueueBasicTest
 		public int compareTo(PQAble o)
 		{
 			MockPQAble obj = (MockPQAble) o;
-			int value = obj.getValue() - getValue();
-			if (value == 0)
-				return -1;
-			return value;
+			return 0;
 		}
 
 		@Override
 		public String toString()
 		{
-			return Integer.toString(priority) + " : " + Integer.toString(getIndex());
+			return Integer.toString(priority);
 		}
 
 		@Override

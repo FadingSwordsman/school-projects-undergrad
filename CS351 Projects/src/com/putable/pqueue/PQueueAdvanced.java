@@ -29,7 +29,11 @@ public class PQueueAdvanced implements PQueue
 	{
 	    PQAble value = getPQAbleAt(1);
 	    value.setPQueue(null);
-	    heapifyDown(1);
+	    PQAble newHead = getPQAbleAt(size);
+	    set(size, null);
+	    size--;
+	    if(size > 0)
+		heapifyDown(1, newHead);
 	    return value;
 	}
 	return null;
@@ -90,65 +94,18 @@ public class PQueueAdvanced implements PQueue
     
     private void heapifyUp(int fromIndex)
     {
-	PQAble newChild = getPQAbleAt(fromIndex);
-	int newChildIndex = fromIndex;
-	int parentIndex = getParentIndex(newChildIndex);
+	int currentIndex = fromIndex;
+	PQAble moving = getPQAbleAt(currentIndex);
+	int parentIndex = getParentIndex(currentIndex);
 	PQAble parent = getPQAbleAt(parentIndex);
-	while (parent != null && parent.compareTo(newChild) < 0)
+	while(parentIndex > 0 && isHigherPriority(moving, parent))
 	{
-	    set(newChildIndex, parent);
-	    newChildIndex = parentIndex;
-	    parentIndex = getParentIndex(newChildIndex);
+	    set(currentIndex, parent);
+	    currentIndex = parentIndex;
+	    parentIndex = getParentIndex(currentIndex);
 	    parent = getPQAbleAt(parentIndex);
 	}
-	set(newChildIndex, newChild);
-	newChild.setPQueue(this);
-    }
-    
-    /**
-     * Heapify up, clobbering the element in fromIndex
-     * @param fromIndex
-     */
-    private void heapifyDown(int fromIndex)
-    {
-	int currentIndex = fromIndex;
-	set(currentIndex, getPQAbleAt(size));
-	set(size, null);
-	int[] currentChildIndices = getChildIndices(currentIndex);
-	while (currentChildIndices[0] <= size)
-	{
-	    PQAble parent = getPQAbleAt(currentIndex);
-	    currentChildIndices = getChildIndices(currentIndex);
-	    PQAble left = getPQAbleAt(currentChildIndices[0]);
-	    PQAble right = getPQAbleAt(currentChildIndices[1]);
-	    PQAble nextIndex = getHighestPriority(left, right);
-	    nextIndex = getHighestPriority(nextIndex, parent);
-	    if(nextIndex.getIndex() != parent.getIndex())
-	    {
-		
-	    }
-	}
-	/**int currentIndex = fromIndex;
-	PQAble nextItem = getPQAbleAt(fromIndex);
-	int[] currentChildIndices = getChildIndices(currentIndex);
-	while(currentChildIndices[0] <= size)
-	{
-	    PQAble left = getPQAbleAt(currentChildIndices[0]);
-	    PQAble right = getPQAbleAt(currentChildIndices[1]);
-	    PQAble higherPriority = getHighestPriority(left, right);
-	    int newIndex = higherPriority.getIndex();
-	    currentChildIndices = getChildIndices(newIndex);
-	    set(currentIndex, higherPriority);
-	    currentIndex = newIndex;
-	}
-	PQAble moveElement = getPQAbleAt(size);
-	set(size, null);
-	size--;
-	if(currentIndex <= size)
-	{
-	    heapifyDown(currentIndex, moveElement);
-	    heapifyUp(currentIndex);
-	}*/
+	set(currentIndex, moving);
     }
     
     /**
@@ -158,36 +115,45 @@ public class PQueueAdvanced implements PQueue
      */
     private void heapifyDown(int fromIndex, PQAble insert)
     {
-	
-	/*
 	int currentIndex = fromIndex;
 	int[] currentChildIndices = getChildIndices(currentIndex);
-	boolean heapified = false;
-	while(!heapified && currentChildIndices[0] < size)
+	PQAble left = getPQAbleAt(currentChildIndices[0]);
+	PQAble right = getPQAbleAt(currentChildIndices[1]);
+	while(currentChildIndices[0] <= size && !(isHighestPriority(insert, left, right)))
 	{
-	    PQAble left = getPQAbleAt(currentChildIndices[0]);
-	    PQAble right = getPQAbleAt(currentChildIndices[1]);
-	    PQAble higherPriority = getHighestPriority(left, right);
-	    higherPriority = getHighestPriority(higherPriority, insert);
-	    int newIndex = higherPriority.getIndex();
-	    set(currentIndex, higherPriority);
-	    set(newIndex, null);
-	    heapified = higherPriority == insert;
-	    currentIndex = newIndex;
+	    if(isHigherPriority(left, right))
+	    {
+		set(currentIndex, left);
+		currentIndex = currentChildIndices[0];
+	    }
+	    else
+	    {
+		set(currentIndex, right);
+		currentIndex = currentChildIndices[1];
+	    }
 	    currentChildIndices = getChildIndices(currentIndex);
+	    left = getPQAbleAt(currentChildIndices[0]);
+	    right = getPQAbleAt(currentChildIndices[1]);
 	}
-	if(currentChildIndices[0] > size)
-	    set(currentIndex, insert);*/
+	set(currentIndex, insert);
     }
     
-    private PQAble getHighestPriority(PQAble first, PQAble second)
+    private boolean isHigherPriority(PQAble first, PQAble second)
     {
 	if(first == null)
-	    return second;
+	    return false;
 	else if(second == null)
-	    return first;
+	    return true;
 	
-	return first.compareTo(second) < 0 ? first : second;
+	return first.compareTo(second) < 0;
+    }
+    
+    private boolean isHighestPriority(PQAble first, PQAble...seconds)
+    {
+	boolean result = true;
+	for(PQAble next : seconds)
+	    result = result && isHigherPriority(first, next);
+	return result;
     }
     
     private int getParentIndex(int ofIndex)
