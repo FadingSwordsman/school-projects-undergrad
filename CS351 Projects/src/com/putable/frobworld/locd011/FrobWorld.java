@@ -1,13 +1,23 @@
 package com.putable.frobworld.locd011;
 
+import com.putable.frobworld.locd011.simulation.SimulationResult;
 import com.putable.frobworld.locd011.simulation.SimulationSettings;
+import com.putable.frobworld.locd011.simulation.SimulationWorld;
+
 
 public class FrobWorld
 {
     private static boolean batchMode = false;
-    private static Integer batchRuns = null;
     private static Integer randomSeed = null;
-    private static SimulationSettings settings;
+    
+    private static void simpleRun(int randomSeed)
+    {
+	SimulationSettings runSettings = SimulationSettings.createSettings(25000);
+	SimulationWorld simulation = new SimulationWorld(runSettings, randomSeed);
+	simulation.run();
+	SimulationResult results = simulation.getResult();
+	
+    }
     
     private static void runInteractive()
     {
@@ -30,6 +40,7 @@ public class FrobWorld
      */
     public static void main(String[] args)
     {
+	int numberRuns = 1;
 	for(int x = 0; x < args.length; x++)
 	{
 	    if(args[x].equals("batch"))
@@ -43,7 +54,7 @@ public class FrobWorld
 		String runNumber = args[x+1];
 		try
 		{
-		    batchRuns = Integer.parseInt(runNumber);
+		     numberRuns = Integer.parseInt(runNumber);
 		}
 		catch(NumberFormatException e)
 		{
@@ -67,7 +78,7 @@ public class FrobWorld
 	}
 	if(randomSeed != null && !batchMode)
 	{
-	    runWithSeed();
+	    simpleRun(randomSeed);
 	}
 	else if(batchMode && randomSeed == null)
 	{

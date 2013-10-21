@@ -2,8 +2,6 @@ package com.putable.frobworld.locd011;
 
 import java.util.EnumSet;
 
-import javax.xml.stream.Location;
-
 import com.putable.frobworld.locd011.graphics.Drawable;
 import com.putable.frobworld.locd011.graphics.GraphicsDelta;
 import com.putable.frobworld.locd011.graphics.GraphicsDeltaHelper;
@@ -20,6 +18,7 @@ public class Grass extends AbstractLiveable
 	super(PlaceType.GRASS, world, world.getSimulationSettings().getGrassSettings().getGrassBirthMass());
 	settings = world.getSimulationSettings().getGrassSettings();
 	setMass(settings.getGenesisMass());
+	setUpdatePeriod(settings.getGrassInitialUpdatePeriod());
 	updateNextMove(settings.getGrassInitialUpdatePeriod());
     }
     
@@ -61,7 +60,6 @@ public class Grass extends AbstractLiveable
 	    {
 		Grass newGrass = doSplit();
 		graphicsChange = GraphicsDeltaHelper.updateLiveables(this, newGrass);
-		getWorld().createLiveable(newGrass);
 	    }
 	    else
 	    {
@@ -96,26 +94,32 @@ public class Grass extends AbstractLiveable
     {
 	PlaceType[] adjacent = getWorld().getAdjacent(getLocation());
 	EnumSet<Direction> nextPlaces = EnumSet.noneOf(Direction.class);
-	int empty = 0;
 	for(int x = 0; x < 4; x++)
-	{
 	    if(adjacent[x] == null)
-	    {
-		empty++;
 		nextPlaces.add(Direction.getDirection(x));
-	    }
-	}
 	Direction[] moves = new Direction[nextPlaces.size()];
 	nextPlaces.toArray(moves);
 	Direction nextPlace = moves[getWorld().getRandom().nextInt(moves.length)];
 	int[] newLocation = nextPlace.getLocationFrom(getLocation());
+	int newGrassMass = getOffspringMass();
+	setMass(getMass() - newGrassMass);
 	
-	return new Grass(getWorld(), newLocation, empty, empty);
+	return new Grass(getWorld(), newLocation, getOffspringUpdatePeriod(), newGrassMass);
+    }
+    
+    private int getOffspringUpdatePeriod()
+    {
+	return settings.getGrassInitialUpdatePeriod();
+    }
+    
+    private int getOffspringMass()
+    {
+	return (40 * getBirthMass())/100;
     }
     
     public int getNextUpdate()
     {
-	return getWorld().getDay() + this.getUpdatePeriod();
+	return this.getUpdatePeriod();
     }
     
     @Override

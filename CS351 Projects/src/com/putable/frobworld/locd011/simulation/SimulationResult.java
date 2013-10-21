@@ -2,23 +2,36 @@ package com.putable.frobworld.locd011.simulation;
 
 public class SimulationResult
 {
-    String result;
+    String mapResult;
+    LiveableStatus remainingObjects;
+    int expectedRunTime;
+    int actualRunTime;
     
-    private SimulationResult(String... result)
+    String resultString;
+    
+    private SimulationResult(String mapResult, LiveableStatus remainingObjects, int expectedRunTime, int actualRunTime)
     {
-	StringBuffer resultBuffer = new StringBuffer();
-	for(String resultPart : result)
-	    resultBuffer.append(resultPart);
-	this.result = resultBuffer.toString();
+	this.mapResult = mapResult;
+	this.remainingObjects = remainingObjects;
     }
     
     public static SimulationResult makeSimulationResult(SimulationWorld runSimulation)
     {
-	return new SimulationResult(runSimulation.toString());
+	return new SimulationResult(runSimulation.toString(), runSimulation.getLiveableStatus(),
+		runSimulation.getSimulationSettings().getWorldSettings().getMaxSimulationLength(), runSimulation.getDay());
     }
     
     public String toString()
     {
-	return result;
+	if(resultString == null)
+	{
+	    StringBuffer builder = new StringBuffer();
+	    builder.append(mapResult);
+	    builder.append("\nThe simulation ended because ").append(expectedRunTime == actualRunTime ? "the simulation max run time was reached." : "all of the frobs died at " + actualRunTime + " days.");
+	    builder.append("\nFrobs alive at simulation end: ").append(remainingObjects.getRemainingFrobs());
+	    builder.append("\nGrass alive at simulation end: ").append(remainingObjects.getRemainingGrass());
+	    resultString = builder.toString();
+	}
+	return resultString;
     }
 }

@@ -27,6 +27,7 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	this.updatePeriod = updatePeriod;
 	setLocation(location[0], location[1]);
 	this.mass = mass;
+	this.nextMovement = world.getDay() + updatePeriod;
 	world.createLiveable(this);
     }
     
@@ -43,7 +44,7 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
     public int compareTo(PQAble p)
     {
 	AbstractLiveable otherObject = (AbstractLiveable) p;
-	int difference = otherObject.getNextMove() - getNextMove();
+	int difference = getNextMove() - otherObject.getNextMove();
 	if(difference == 0)
 	    difference = -1;
 	return difference;

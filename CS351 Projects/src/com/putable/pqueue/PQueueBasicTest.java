@@ -1,17 +1,12 @@
 package com.putable.pqueue;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
-
-import com.putable.pqueue.AbstractPQAble;
-import com.putable.pqueue.PQAble;
-import com.putable.pqueue.PQueue;
-import com.putable.pqueue.PQueueBasic;
 
 public class PQueueBasicTest
 {
@@ -67,7 +62,7 @@ public class PQueueBasicTest
 
 	private void createPQueue()
 	{
-		underTest = new PQueueBasic();
+		underTest = new PQueueAdvanced();
 	}
 
 	@Test
@@ -132,5 +127,15 @@ public class PQueueBasicTest
 				assertEquals(value, underTest.remove());
 				
 		}
+	}
+	
+	@Test
+	public void deleteTest()
+	{
+	    createPQueue();
+	    List<PQAble> values = generatePQAbles(39,9,9,3,12,2,1);
+	    for(PQAble value : values)
+		underTest.insert(value);
+	    underTest.delete(values.get(1));
 	}
 }

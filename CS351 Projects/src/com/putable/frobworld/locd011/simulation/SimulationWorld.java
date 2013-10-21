@@ -9,18 +9,26 @@ import com.putable.frobworld.locd011.Placeable;
 import com.putable.pqueue.PQueue;
 import com.putable.pqueue.PQueueAdvanced;
 
+/**
+ * A SimulationWorld represents an instance of FrobWorld, and handles all World-level events,
+ * 	such as genesis, rules of the overacrhing world, etc.
+ * For batch mode, it implements Runnable, to allow multiple threads simulating at the same time.
+ *  
+ * @author David
+ *
+ */
 public class SimulationWorld implements Runnable
 {
     private PQueue interestings;
     private Placeable[][] grid;
-    private int width, height, totalItems, totalSpace;
+    private int width, height;
     private boolean batchMode;
     private final SimulationSettings settings;
+    private SimulationResult result;
     private Random prng;
     private int day;
-    private int startingObjects = 0;
-    private int grass = 0;
-    private int frobs = 0;
+    
+    private LiveableStatus liveablesRemaining = new LiveableStatus();
     
     public SimulationWorld(SimulationSettings settings)
     {
@@ -42,6 +50,12 @@ public class SimulationWorld implements Runnable
 	this(settings, batchMode, new Random(randomSeed));
     }
 
+    /**
+     * Create a SimulationWorld given the appropriate settings
+     * @param settings
+     * @param batchMode
+     * @param prng
+     */
     public SimulationWorld(SimulationSettings settings, boolean batchMode, Random prng)
     {
 	this.settings = settings;
@@ -51,6 +65,12 @@ public class SimulationWorld implements Runnable
 	init.initSimulation();
     }
 
+    /**
+     * Runs a simulation in its entirety. On finishing, returns a simulation result.
+     * 
+     * @return
+     * 		A SimulationResult describing what happened in the simulation, and the state of the world at its end.
+     */
     public SimulationResult runSimulation()
     {
 	Initializer init = new Initializer(this);
@@ -58,56 +78,73 @@ public class SimulationWorld implements Runnable
 	init = null;
 	System.out.println(this);
 	day = 0;
+	//TODO: Cause the simulation to end if all Frobs are dead.
 	while (day < settings.getWorldSettings().getMaxSimulationLength())
 	{
 	    Liveable nextThing = (Liveable)interestings.remove();
-	    day = nextThing.getNextMove();
+	    if(day != nextThing.getNextMove())
+	    {
+		System.out.println("Day is now " + nextThing.getNextMove());
+		day = nextThing.getNextMove();
+	    }
 	    nextThing.takeTurn();
+	    if(!batchMode); //TODO: push the GraphicsDelta into the JPanel
 	    if(!nextThing.isDead())
 		interestings.insert(nextThing);
 	}
 	return SimulationResult.makeSimulationResult(this);
     }
 
-    public SimulationSettings getSimulationSettings()
-    {
-	return settings;
-    }
-    
-
+    /**
+     * An initializer for the simulation. This is an internal class for a number of reasons.
+     * 	First, many of these setting should not be changeable outside of this class.
+     * 	Second, it's easier to drop all references to a single object instead of all of the things involved separately.
+     * 
+     * @author David
+     *
+     */
     private class Initializer
     {
 	private SimulationWorld world;
 	
+	int totalItems, totalSpace;
+	
+	/**
+	 * Create an initializer for the given SimulationWorld.
+	 * @param world
+	 */
 	public Initializer(SimulationWorld world)
 	{
 	    this.world = world;
 	}
 	
+	/**
+	 * Initialize the SimulationWorld, placing all of the appropriate Rocks, Grass, and Frobs. 
+	 */
 	public void initSimulation()
 	{
 	    world.interestings = new PQueueAdvanced();
 	    world.width = settings.getWorldSettings().getWorldWidth();
 	    world.height = settings.getWorldSettings().getWorldHeight();
-	    world.totalSpace = width * height;
+	    totalSpace = width * height;
 	    world.grid = new Placeable[height][width];
 	    for (int x = 0; x < world.width; x++)
 	    {
 		world.put(x, 0, makeRock());
 		world.put(x, world.height - 1, makeRock());
-		world.addItem(2);
+		addItem(2);
 	    }
 	    for (int y = 1; y < world.height - 1; y++)
 	    {
 		world.put(0, y, makeRock());
 		world.put(world.width - 1, y, makeRock());
-		world.addItem(2);
+		addItem(2);
 	    }
 	    for (int x = 0; x < settings.getWorldSettings().getInitRocks(); x++)
 	    {
 		int[] location = getRandomLocation();
 		world.put(location[0], location[1], makeRock());
-		world.addItem();
+		addItem();
 	    }
 	    for (int x = 0; x < settings.getWorldSettings().getInitGrasses(); x++)
 	    {
@@ -125,21 +162,60 @@ public class SimulationWorld implements Runnable
 	    }
 	}
 	
+	/**
+	 * A helper for creating Rocks
+	 * @return
+	 * 	A default instance of rock.
+	 */
 	private Placeable makeRock()
 	{
 	    return PlaceType.ROCK.create(world);
 	}
 
+	/**
+	 * A helper for creating Frobs
+	 * @return
+	 * 	A default version of a Frob, specified in S.9.1.5
+	 */
 	private Placeable makeFrob()
 	{
 	    return PlaceType.FROB.create(world);
 	}
 
+	/**
+	 * A helper for creating Grass
+	 * @return
+	 * 	A default version of a Grass, specified in S.9.1.4
+	 */
 	private Placeable makeGrass()
 	{
 	    return PlaceType.GRASS.create(world);
 	}
 	
+	/**
+	 * A helper to keep track of items
+	 */
+	public void addItem()
+	{
+	    addItem(1);
+	}
+
+	/**
+	 * Another helper, still for keeping track of items.
+	 * @param number
+	 */
+	public void addItem(int number)
+	{
+	    totalItems += number;
+	}
+	
+	/**
+	 * Generate the next random location, if there is one.
+	 * @throws IllegalStateException
+	 * 	If there are no more spaces.
+	 * @return
+	 * 	The next randomly generated location
+	 */
 	private int[] getRandomLocation()
 	{
 	    if (totalItems >= totalSpace)
@@ -155,6 +231,22 @@ public class SimulationWorld implements Runnable
 	}
     }
 
+    /**
+     * Get the settings for this simulation run
+     * @return
+     * 		A SimulationSettings object representing the current simulation settings.
+     */
+    public SimulationSettings getSimulationSettings()
+    {
+	return settings;
+    }
+
+    /**
+     * Place the specified object at the appropriate x, y coordinates
+     * @param x
+     * @param y
+     * @param toPut
+     */
     private void put(int x, int y, Placeable toPut)
     {
 	grid[y][x] = toPut;
@@ -162,54 +254,58 @@ public class SimulationWorld implements Runnable
 	    toPut.setLocation(x, y);
     }
     
-    private void move(int x, int y, Liveable toMove)
-    {
-	int[] currentLocation = toMove.getLocation();
-	put(currentLocation[0], currentLocation[1], null);
-	put(x, y, toMove);
-    }
-
-    public void addItem()
-    {
-	addItem(1);
-    }
-
-    public void addItem(int number)
-    {
-	totalItems += number;
-    }
-    
+    /**
+     * Kill a Liveable in the event it is eaten by a Frob, keeps running into rocks,
+     * 	or can't find anything to eat.
+     * @param toKill
+     * 		The Liveable which should no longer be referenced by this object.
+     */
     public void killLiveable(Liveable toKill)
     {
 	int[] location = toKill.getLocation();
 	put(location[0], location[1], null);
 	interestings.delete(toKill);
-	addItem(-1);
 	updateTypes(toKill.getType(), -1);
     }
-    
+   
+    /**
+     * Notify the world that a new Liveable now exists, and should be tracked from now on.
+     * @param toAdd
+     * 		A Liveable object spawned somewhere not on this board.
+     */
     public void createLiveable(Liveable toAdd)
     {
 	interestings.insert(toAdd);
-	addItem();
 	updateTypes(toAdd.getType(), 1);
+	int[] newLocation = toAdd.getLocation();
+	put(newLocation[0], newLocation[1], toAdd);
     }
     
+    /**
+     * Update the liveablesRemaining object with the specified information
+     * @param type
+     * 		The PlaceType that corresponds with the updated information
+     * @param change
+     * 		The change in that information
+     */
     private void updateTypes(PlaceType type, int change)
     {
 	switch(type)
 	{
 		case FROB:
-		    frobs += change;
-		    System.out.println("Added a frob! " + change);
+		    liveablesRemaining.updateFrobs(change);
 		    break;
 		case GRASS:
-		    grass += change;
-		    System.out.println("Added a grass! " + change);
+		    liveablesRemaining.updateGrass(change);
 		    break;
 	}
     }
     
+    /**
+     * Get the type of objects at all of the locations adjacent to the specified one.
+     * @param location
+     * @return
+     */
     public PlaceType[] getAdjacent(int[] location)
     {
 	PlaceType[] adjacent = new PlaceType[4];
@@ -221,6 +317,12 @@ public class SimulationWorld implements Runnable
 	return adjacent;
     }
     
+    /**
+     * Get the type of the placeable at a certain location
+     * @param x
+     * @param y
+     * @return
+     */
     private PlaceType getPlaceableTypeAt(int x, int y)
     {
 	Placeable object = grid[y][x];
@@ -246,11 +348,14 @@ public class SimulationWorld implements Runnable
 	    if(y != grid.length - 1)
 		sb.append("\n");
 	}
-	sb.append("\nRemaining Frobs: ").append(frobs);
-	sb.append("\nRemaining Grass: ").append(grass);
 	return sb.toString();
     }
     
+    /**
+     * A handler for directions for the SimulationWorld.
+     * @author David
+     *
+     */
     public enum Direction
     {
 	NORTH(new int[]{0,-1}),
@@ -265,6 +370,11 @@ public class SimulationWorld implements Runnable
 	    this.delta = delta;
 	}
 	
+	/**
+	 * Get a direction from the index in an adjacency list.
+	 * @param arrayLocation
+	 * @return
+	 */
 	public static Direction getDirection(int arrayLocation)
 	{
 	    switch (arrayLocation)
@@ -282,6 +392,11 @@ public class SimulationWorld implements Runnable
 	    }
 	}
 	
+	/**
+	 * Translate the direction from the given location into a new location
+	 * @param location
+	 * @return
+	 */
 	public int[] getLocationFrom(int[] location)
 	{
 	    int x = location[0] + delta[0];
@@ -290,21 +405,48 @@ public class SimulationWorld implements Runnable
 	}
     }
 
+    /**
+     * Return the current Random object
+     * @return
+     */
     public Random getRandom()
     {
 	return prng;
     }
     
+    /**
+     * Return the current, or final day in the SimulationWorld
+     * @return
+     */
     public int getDay()
     {
 	return day;
+    }
+    
+    /**
+     * Return a LiveableStatus representing the statistics of living Frobs/Grasses at the current or final time.
+     * @return
+     */
+    public LiveableStatus getLiveableStatus()
+    {
+	return liveablesRemaining;
     }
     
     @Override
     public void run()
     {
 	SimulationResult result = runSimulation();
-	if (!batchMode)
-	    System.out.println(result);
+	this.result = result;
+    }
+    
+    /**
+     * Return the result of this simulation if it has already completed, or null otherwise.
+     * @return
+     */
+    public SimulationResult getResult()
+    {
+	if(result != null)
+	    return result;
+	return null;
     }
 }
