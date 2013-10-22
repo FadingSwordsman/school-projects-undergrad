@@ -6,6 +6,7 @@ import com.putable.frobworld.locd011.beings.AbstractPlaceable;
 import com.putable.frobworld.locd011.beings.PlaceType;
 import com.putable.frobworld.locd011.beings.interfaces.Liveable;
 import com.putable.frobworld.locd011.beings.interfaces.Placeable;
+import com.putable.frobworld.locd011.graphics.SimulationPanel;
 import com.putable.pqueue.PQueue;
 import com.putable.pqueue.PQueueAdvanced;
 
@@ -27,6 +28,7 @@ public class SimulationWorld implements Runnable
     private SimulationResult result;
     private Random prng;
     private int day;
+    private SimulationPanel panel;
     
     private LiveableStatus liveablesRemaining = new LiveableStatus();
     

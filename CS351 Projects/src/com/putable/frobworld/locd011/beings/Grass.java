@@ -43,7 +43,7 @@ public class Grass extends AbstractLiveable
     public CollisionResult collideInto(Frob collider)
     {
 	die();
-	return new CollisionResult(-getMass(), true);
+	return new CollisionResult(-getMass(), true, GraphicsDeltaHelper.removeAt(getLocation()));
     }
 
     @Override

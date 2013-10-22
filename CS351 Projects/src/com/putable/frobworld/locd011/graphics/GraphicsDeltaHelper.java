@@ -71,4 +71,17 @@ public final class GraphicsDeltaHelper
 	    }
 	};
     }
+    
+    public static GraphicsDelta append(final GraphicsDelta... deltas)
+    {
+	return new GraphicsDelta()
+	{
+	    @Override
+	    public void updateMap(Graphics g, Translation t)
+	    {
+		for(GraphicsDelta next : deltas)
+		    next.updateMap(g, t);
+	    }
+	};
+    }
 }

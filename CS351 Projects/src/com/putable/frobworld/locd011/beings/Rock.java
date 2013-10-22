@@ -1,6 +1,7 @@
 package com.putable.frobworld.locd011.beings;
 
 import com.putable.frobworld.locd011.graphics.Drawable;
+import com.putable.frobworld.locd011.graphics.GraphicsDeltaHelper;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
 
 /**
@@ -22,7 +23,7 @@ public final class Rock extends AbstractPlaceable
     @Override
     public CollisionResult collideInto(Frob collider)
     {
-	return new CollisionResult(-getWorld().getSimulationSettings().getMiscSettings().getRockBumpPenalty(), false);
+	return new CollisionResult(-getWorld().getSimulationSettings().getMiscSettings().getRockBumpPenalty(), false, GraphicsDeltaHelper.nothing());
     }
 
     @Override
