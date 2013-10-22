@@ -24,15 +24,15 @@ public final class GraphicsDeltaHelper
      */
     public static GraphicsDelta removeAt(final int[] location)
     {
-	return new GraphicsDelta()
-	{
-	    @Override
-	    public void updateMap(Graphics g, Translation t)
-	    {
-		int[] xyPairs = t.translateCoordinates(location);
-		g.clearRect(xyPairs[0], xyPairs[1], xyPairs[2], xyPairs[3]);
-	    }
-	};
+		return new GraphicsDelta()
+		{
+		    @Override
+		    public void updateMap(Graphics g, Translation t)
+		    {
+			int[] xyPairs = t.translateCoordinates(location);
+			g.clearRect(xyPairs[0], xyPairs[1], xyPairs[2], xyPairs[3]);
+		    }
+		};
     }
     
     /**
@@ -41,12 +41,12 @@ public final class GraphicsDeltaHelper
      */
     public static GraphicsDelta nothing()
     {
-	return new GraphicsDelta()
-	{
-	    @Override
-	    public void updateMap(Graphics g, Translation t)
-	    {}
-	};
+		return new GraphicsDelta()
+		{
+		    @Override
+		    public void updateMap(Graphics g, Translation t)
+		    {}
+		};
     }
     
     /**
@@ -56,32 +56,44 @@ public final class GraphicsDeltaHelper
      */
     public static GraphicsDelta updateLiveables(final Liveable... updates)
     {
-	return new GraphicsDelta()
-	{
-	    @Override
-	    public void updateMap(Graphics g, Translation t)
-	    {
-		for(Liveable next : updates)
+		return new GraphicsDelta()
 		{
-		    int[] xyPairs = t.translateCoordinates(next.getLocation());
-		    g.clearRect(xyPairs[0], xyPairs[1], xyPairs[2], xyPairs[3]);
-		    next.getType().getRepresentation().drawItem(g, t);
-		    
-		}
-	    }
-	};
+		    @Override
+		    public void updateMap(Graphics g, Translation t)
+		    {
+				for(Liveable next : updates)
+				{
+				    int[] xyPairs = t.translateCoordinates(next.getLocation());
+				    g.clearRect(xyPairs[0], xyPairs[1], xyPairs[2], xyPairs[3]);
+				    next.getType().getRepresentation().drawItem(g, t, next.getLocation());
+				}
+		    }
+		};
+    }
+    
+    public static GraphicsDelta move(final Liveable toMove, final int[] oldCoordinate)
+    {
+    	return new GraphicsDelta()
+    	{
+			@Override
+			public void updateMap(Graphics g, Translation t) {
+				int[] oldCoordinates = t.translateCoordinates(oldCoordinate);
+				g.clearRect(oldCoordinates[0], oldCoordinates[1], oldCoordinates[2], oldCoordinates[3]);
+				toMove.getRepresentation().drawItem(g, t, toMove.getLocation());
+			}
+    	};
     }
     
     public static GraphicsDelta append(final GraphicsDelta... deltas)
     {
-	return new GraphicsDelta()
-	{
-	    @Override
-	    public void updateMap(Graphics g, Translation t)
-	    {
-		for(GraphicsDelta next : deltas)
-		    next.updateMap(g, t);
-	    }
-	};
+		return new GraphicsDelta()
+		{
+		    @Override
+		    public void updateMap(Graphics g, Translation t)
+		    {
+				for(GraphicsDelta next : deltas)
+					next.updateMap(g, t);
+		    }
+		};
     }
 }

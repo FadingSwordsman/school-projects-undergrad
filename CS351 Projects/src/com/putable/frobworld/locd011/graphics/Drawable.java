@@ -15,5 +15,5 @@ public interface Drawable
      * @param g
      * @param t
      */
-    public void drawItem(Graphics g, Translation t);
+    public void drawItem(Graphics g, Translation t, int[] location);
 }

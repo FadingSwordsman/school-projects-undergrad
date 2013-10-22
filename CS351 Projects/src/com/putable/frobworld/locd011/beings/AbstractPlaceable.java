@@ -48,7 +48,7 @@ public abstract class AbstractPlaceable implements Placeable
      */
     public Drawable getRepresentation()
     {
-	return type.getRepresentation();
+    	return type.getRepresentation();
     }
 
     /**

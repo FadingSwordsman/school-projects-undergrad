@@ -3,6 +3,7 @@ package com.putable.frobworld.locd011.beings.interfaces;
 import com.putable.frobworld.locd011.beings.CollisionResult;
 import com.putable.frobworld.locd011.beings.Frob;
 import com.putable.frobworld.locd011.beings.PlaceType;
+import com.putable.frobworld.locd011.graphics.Drawable;
 
 public interface Placeable
 {
@@ -25,5 +26,17 @@ public interface Placeable
      * 		PlaceType.FROB if this is a Frob.
      */
     public PlaceType getType();
+    
+    /**
+     * 
+     * @param frob
+     * @return
+     */
     public CollisionResult collideInto(Frob frob);
+    
+    /**
+     * Return the representation of the current Placeable.
+     * @return
+     */
+    public Drawable getRepresentation();
 }

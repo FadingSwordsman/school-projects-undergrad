@@ -1,7 +1,11 @@
 package com.putable.frobworld.locd011.beings;
 
+import java.awt.Color;
+import java.awt.Graphics;
+
 import com.putable.frobworld.locd011.beings.interfaces.Placeable;
 import com.putable.frobworld.locd011.graphics.Drawable;
+import com.putable.frobworld.locd011.graphics.SimulationPanel.Translation;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
 
 /**
@@ -11,9 +15,9 @@ import com.putable.frobworld.locd011.simulation.SimulationWorld;
  */
 public enum PlaceType
 {
-    ROCK('R', null, rockCreator()),
-    FROB('F', null, frobCreator()),
-    GRASS('G', null, grassCreator());
+    ROCK('R', rockRepresentation(), rockCreator()),
+    FROB('F', frobRepresentation(), frobCreator()),
+    GRASS('G', grassRepresentation(), grassCreator());
     
     //TODO: Implement Drawables for each of these types.
     private char asciiRepresentation;
@@ -109,5 +113,34 @@ public enum PlaceType
 		return new Rock(inWorld);
 	    }
 	};
+    }
+    
+    private static Drawable rockRepresentation()
+    {
+    	return filledBlock(Color.GRAY);
+    }
+    
+    private static Drawable frobRepresentation()
+    {
+    	return filledBlock(Color.RED);
+    }
+    
+    private static Drawable grassRepresentation()
+    {
+    	return filledBlock(Color.GREEN);
+    }
+    
+    private static Drawable filledBlock(final Color color)
+    {
+    	return new Drawable()
+    	{
+    		@Override
+			public void drawItem(Graphics g, Translation t, int[] location)
+			{
+				int[] translatedLocation = t.translateCoordinates(location);
+				g.setColor(color);
+				g.fillRect(translatedLocation[0], translatedLocation[1], translatedLocation[2], translatedLocation[3]);
+			}
+    	};
     }
 }
