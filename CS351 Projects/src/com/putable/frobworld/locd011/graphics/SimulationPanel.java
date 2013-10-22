@@ -8,7 +8,9 @@ import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
+import com.putable.frobworld.locd011.beings.interfaces.Placeable;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
+import com.putable.frobworld.locd011.simulation.WorldSetting;
 
 /**
  * A fancy SimulationPanel.
@@ -64,6 +66,28 @@ public class SimulationPanel extends JPanel implements ActionListener
     {
 	if(!initialized)
 	{
+		WorldSetting settings = world.getSimulationSettings().getWorldSettings();
+		Translation translator = getCoordinateTranslation();
+		int height = settings.getWorldHeight();
+		int width = settings.getWorldWidth();
+		for(int x = 0; x < width; x++)
+		{
+			int[] top = translator.translateCoordinates(new int[]{x,0});
+			int[] bottom = new int[]{top[0], getHeight()};
+			g.drawLine(top[0], top[1], bottom[0], bottom[1]);
+			for(int y = 0; y < height; y++)
+			{
+				Placeable object = world.getPlaceableAt(new int[]{x,y});
+				if(object != null)
+				{
+					
+				}
+			}
+		}
+		for(int y = 0; y < height; y++)
+		{
+			
+		}
 	}
 	else
 	{
@@ -81,6 +105,6 @@ public class SimulationPanel extends JPanel implements ActionListener
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-	repaint();
+    	repaint();
     }
 }
