@@ -95,24 +95,29 @@ public class SimulationWorld implements Runnable
      */
     public SimulationResult runSimulation()
     {
-	Initializer init = new Initializer(this);
-	init.initSimulation();
-	init = null;
-	day = 0;
-	//TODO: Cause the simulation to end if all Frobs are dead.
-	while (day < settings.getWorldSettings().getMaxSimulationLength())
-	{
-	    Liveable nextThing = (Liveable)interestings.remove();
-	    if(day != nextThing.getNextMove())
-	    {
-		day = nextThing.getNextMove();
-	    }
-	    nextThing.takeTurn();
-	    if(!batchMode); //TODO: push the GraphicsDelta into the JPanel
-	    if(!nextThing.isDead())
-		interestings.insert(nextThing);
-	}
-	return SimulationResult.makeSimulationResult(this);
+		Initializer init = new Initializer(this);
+		init.initSimulation();
+		init = null;
+		day = 0;
+		if(!batchMode)
+			panel = new SimulationPanel(this);
+		//TODO: Cause the simulation to end if all Frobs are dead.
+			while (day < settings.getWorldSettings().getMaxSimulationLength())
+			{
+			    Liveable nextThing = (Liveable)interestings.remove();
+			    if(day != nextThing.getNextMove())
+			    {
+			    	day = nextThing.getNextMove();
+			    }
+			    nextThing.takeTurn();
+			    if(!batchMode)
+			    {
+			    	
+			    }
+			    if(!nextThing.isDead())
+			    	interestings.insert(nextThing);
+			}
+		return SimulationResult.makeSimulationResult(this);
     }
 
     /**

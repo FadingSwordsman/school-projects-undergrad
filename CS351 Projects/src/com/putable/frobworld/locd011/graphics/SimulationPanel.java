@@ -24,16 +24,16 @@ public class SimulationPanel extends JPanel implements ActionListener
     private Deque<GraphicsDelta> updates;
     private Translation translation;
     private boolean initialized = false;
-    private SimulationWorld world;
+    private final SimulationWorld world;
     
     /**
      * Start up the SimulationPanel.
      */
     public SimulationPanel(SimulationWorld world)
     {
-	super();
-	updates = new LinkedList<GraphicsDelta>();
-	this.world = world;
+    	super();
+		updates = new LinkedList<GraphicsDelta>();
+		this.world = world;
     }
     
     public void addGraphicsDelta(GraphicsDelta toAdd)
@@ -49,57 +49,64 @@ public class SimulationPanel extends JPanel implements ActionListener
     {
 	//TODO: Implement a way to clear translation on resize, translate i,j coordinates to x,y
 	//TODO: Make it recalculate on resize
-	if(translation == null)
-	{
-	    translation = new Translation(){
-		public int[] translateCoordinates(int[] xyPair)
+		if(translation == null)
 		{
-		    return xyPair;
+			WorldSetting worldSetting = world.getSimulationSettings().getWorldSettings();
+			final int widthPerCell = worldSetting.getWorldWidth();
+			final int heightPerCell = worldSetting.getWorldHeight();
+		    translation = new Translation(){
+				public int[] translateCoordinates(int[] xyPair)
+				{
+				    int x = widthPerCell * xyPair[0] + 1;
+				    int y = heightPerCell * xyPair[1] + 1;
+				    int width = widthPerCell - 1;
+				    int height = heightPerCell - 1;
+				    return new int[]{x, y, width, height};
+				}
+		    };
 		}
-	    };
-	}
-	return translation;
+		return translation;
     }
     
     //TODO: Implement actual drawing of items on the panel
     public void paintComponent(Graphics g)
     {
-	if(!initialized)
-	{
-		WorldSetting settings = world.getSimulationSettings().getWorldSettings();
-		Translation translator = getCoordinateTranslation();
-		int height = settings.getWorldHeight();
-		int width = settings.getWorldWidth();
-		for(int x = 0; x < width; x++)
+		if(!initialized)
 		{
-			int[] top = translator.translateCoordinates(new int[]{x,0});
-			int[] bottom = new int[]{top[0], getHeight()};
-			g.drawLine(top[0], top[1], bottom[0], bottom[1]);
-			for(int y = 0; y < height; y++)
+			WorldSetting settings = world.getSimulationSettings().getWorldSettings();
+			Translation translator = getCoordinateTranslation();
+			int height = settings.getWorldHeight();
+			int width = settings.getWorldWidth();
+			for(int x = 0; x < width; x++)
 			{
-				Placeable object = world.getPlaceableAt(new int[]{x,y});
-				if(object != null)
+				int[] top = translator.translateCoordinates(new int[]{x,0});
+				int[] bottom = new int[]{top[0], getHeight()};
+				g.drawLine(top[0]-1, top[1], bottom[0]-1, bottom[1]);
+				for(int y = 0; y < height; y++)
 				{
-					object.getRepresentation().drawItem(g, translator, new int[]{x,y});
+					Placeable object = world.getPlaceableAt(new int[]{x,y});
+					if(object != null)
+					{
+						object.getRepresentation().drawItem(g, translator, new int[]{x,y});
+					}
 				}
 			}
+			for(int y = 0; y < height; y++)
+			{
+				
+			}
 		}
-		for(int y = 0; y < height; y++)
+		else
 		{
-			
+		    Translation coordinateTranslation = getCoordinateTranslation();
+		    while(!updates.isEmpty())
+			updates.pop().updateMap(g, coordinateTranslation);
 		}
-	}
-	else
-	{
-	    Translation coordinateTranslation = getCoordinateTranslation();
-	    while(!updates.isEmpty())
-		updates.pop().updateMap(g, coordinateTranslation);
-	}
     }
     
     public interface Translation
     {
-	public int[] translateCoordinates(int[] xyPair);
+    	public int[] translateCoordinates(int[] xyPair);
     }
 
     @Override
