@@ -40,7 +40,7 @@ public class SimulationResult
 	{
 	    StringBuffer builder = new StringBuffer();
 	    builder.append(mapResult);
-	    builder.append("\nThe simulation ended because ").append(expectedRunTime == actualRunTime ? "the simulation max run time was reached." : "all of the frobs died at " + actualRunTime + " days.");
+	    builder.append("\nThe simulation ended because ").append(expectedRunTime == actualRunTime ? "the simulation max run time was reached at " + actualRunTime + " days." : "all of the frobs died at " + actualRunTime + " days.");
 	    builder.append("\nFrobs alive at simulation end: ").append(remainingObjects.getRemainingFrobs());
 	    builder.append("\nGrass alive at simulation end: ").append(remainingObjects.getRemainingGrass());
 	    resultString = builder.toString();
