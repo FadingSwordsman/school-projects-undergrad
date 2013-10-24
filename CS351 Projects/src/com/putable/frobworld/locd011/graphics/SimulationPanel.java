@@ -1,10 +1,9 @@
 package com.putable.frobworld.locd011.graphics;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Deque;
-import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
@@ -21,9 +20,10 @@ public class SimulationPanel extends JPanel implements ActionListener
 {
     private static final long serialVersionUID = 8763315806409185943L;
 
-    private Deque<GraphicsDelta> updates;
+    private Iterable<GraphicsDelta> updates;
     private Translation translation;
     private boolean initialized = false;
+    private boolean completedUpdate = false; 
     private final SimulationWorld world;
     
     /**
@@ -32,13 +32,12 @@ public class SimulationPanel extends JPanel implements ActionListener
     public SimulationPanel(SimulationWorld world)
     {
     	super();
-		updates = new LinkedList<GraphicsDelta>();
 		this.world = world;
     }
     
-    public void addGraphicsDelta(GraphicsDelta toAdd)
+    public void setDeltaList(Iterable<GraphicsDelta> updates)
     {
-	updates.push(toAdd);
+    	this.updates = updates;
     }
     
     /**
@@ -52,9 +51,12 @@ public class SimulationPanel extends JPanel implements ActionListener
 		if(translation == null)
 		{
 			WorldSetting worldSetting = world.getSimulationSettings().getWorldSettings();
-			final int widthPerCell = worldSetting.getWorldWidth();
-			final int heightPerCell = worldSetting.getWorldHeight();
+			final int cellWidth = getWidth() / worldSetting.getWorldWidth();
+			final int cellHeight = getHeight() / worldSetting.getWorldHeight();
 		    translation = new Translation(){
+		    	private int widthPerCell = cellWidth;
+		    	private int heightPerCell = cellHeight;
+		    	
 				public int[] translateCoordinates(int[] xyPair)
 				{
 				    int x = widthPerCell * xyPair[0] + 1;
@@ -71,6 +73,7 @@ public class SimulationPanel extends JPanel implements ActionListener
     //TODO: Implement actual drawing of items on the panel
     public void paintComponent(Graphics g)
     {
+    	completedUpdate = false;
 		if(!initialized)
 		{
 			WorldSetting settings = world.getSimulationSettings().getWorldSettings();
@@ -80,8 +83,8 @@ public class SimulationPanel extends JPanel implements ActionListener
 			for(int x = 0; x < width; x++)
 			{
 				int[] top = translator.translateCoordinates(new int[]{x,0});
-				int[] bottom = new int[]{top[0], getHeight()};
-				g.drawLine(top[0]-1, top[1], bottom[0]-1, bottom[1]);
+				g.setColor(Color.black);
+				g.drawLine(top[0]-1, 0, top[0]-1, getHeight() - 1);
 				for(int y = 0; y < height; y++)
 				{
 					Placeable object = world.getPlaceableAt(new int[]{x,y});
@@ -89,17 +92,25 @@ public class SimulationPanel extends JPanel implements ActionListener
 						object.getRepresentation().drawItem(g, translator, new int[]{x,y});
 				}
 			}
+			g.setColor(Color.BLACK);
 			for(int y = 0; y < height; y++)
 			{
-				
+				int[] ys = translator.translateCoordinates(new int[]{0,y});
+				g.drawLine(0, ys[1] - 1, getWidth() - 1, ys[1] - 1);
 			}
 		}
 		else
 		{
 		    Translation coordinateTranslation = getCoordinateTranslation();
-		    while(!updates.isEmpty())
-			updates.pop().updateMap(g, coordinateTranslation);
+		    for(GraphicsDelta update : updates)
+		    	update.updateMap(g, coordinateTranslation);
 		}
+		completedUpdate = true;
+    }
+    
+    public boolean hasCompletedUpdate()
+    {
+    	return completedUpdate;
     }
     
     public interface Translation

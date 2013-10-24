@@ -117,7 +117,7 @@ public enum PlaceType
     
     private static Drawable rockRepresentation()
     {
-    	return filledBlock(Color.GRAY);
+    	return filledBlock(Color.ORANGE);
     }
     
     private static Drawable frobRepresentation()
