@@ -86,9 +86,7 @@ public class SimulationPanel extends JPanel implements ActionListener
 				{
 					Placeable object = world.getPlaceableAt(new int[]{x,y});
 					if(object != null)
-					{
 						object.getRepresentation().drawItem(g, translator, new int[]{x,y});
-					}
 				}
 			}
 			for(int y = 0; y < height; y++)

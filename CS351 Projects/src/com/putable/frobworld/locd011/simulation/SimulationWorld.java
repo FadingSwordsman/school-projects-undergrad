@@ -1,11 +1,17 @@
 package com.putable.frobworld.locd011.simulation;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.util.Random;
+
+import javax.swing.JFrame;
 
 import com.putable.frobworld.locd011.beings.AbstractPlaceable;
 import com.putable.frobworld.locd011.beings.PlaceType;
 import com.putable.frobworld.locd011.beings.interfaces.Liveable;
 import com.putable.frobworld.locd011.beings.interfaces.Placeable;
+import com.putable.frobworld.locd011.graphics.GraphicsDelta;
 import com.putable.frobworld.locd011.graphics.SimulationPanel;
 import com.putable.pqueue.PQueue;
 import com.putable.pqueue.PQueueAdvanced;
@@ -100,7 +106,16 @@ public class SimulationWorld implements Runnable
 		init = null;
 		day = 0;
 		if(!batchMode)
+		{
+			JFrame outerPanel = new JFrame();
+			outerPanel.setPreferredSize(new Dimension(600, 800));
 			panel = new SimulationPanel(this);
+			outerPanel.getContentPane().add(panel, BorderLayout.CENTER);
+			outerPanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			outerPanel.pack();
+			outerPanel.setResizable(false);
+			outerPanel.setVisible(true);
+		}
 		//TODO: Cause the simulation to end if all Frobs are dead.
 			while (day < settings.getWorldSettings().getMaxSimulationLength())
 			{
@@ -108,11 +123,12 @@ public class SimulationWorld implements Runnable
 			    if(day != nextThing.getNextMove())
 			    {
 			    	day = nextThing.getNextMove();
+			    	panel.actionPerformed(new ActionEvent(panel, 0, ""));
 			    }
-			    nextThing.takeTurn();
+			    GraphicsDelta toAdd = nextThing.takeTurn();
 			    if(!batchMode)
 			    {
-			    	
+			    	panel.addGraphicsDelta(toAdd);
 			    }
 			    if(!nextThing.isDead())
 			    	interestings.insert(nextThing);
