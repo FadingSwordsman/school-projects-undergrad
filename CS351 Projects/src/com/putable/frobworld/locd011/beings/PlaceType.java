@@ -117,20 +117,19 @@ public enum PlaceType
     
     private static Drawable rockRepresentation()
     {
-    	return filledBlock(Color.ORANGE);
+    	return new Drawable()
+    	{
+    		@Override
+			public void drawItem(Graphics g, Translation t, int[] location)
+			{
+				int[] translatedLocation = t.translateCoordinates(location);
+				g.setColor(Color.GRAY);
+				g.fillRect(translatedLocation[0], translatedLocation[1], translatedLocation[2], translatedLocation[3]);
+			}
+    	};
     }
     
     private static Drawable frobRepresentation()
-    {
-    	return filledBlock(Color.RED);
-    }
-    
-    private static Drawable grassRepresentation()
-    {
-    	return filledBlock(Color.GREEN);
-    }
-    
-    private static Drawable filledBlock(final Color color)
     {
     	return new Drawable()
     	{
@@ -138,7 +137,21 @@ public enum PlaceType
 			public void drawItem(Graphics g, Translation t, int[] location)
 			{
 				int[] translatedLocation = t.translateCoordinates(location);
-				g.setColor(color);
+				g.setColor(Color.RED);
+				g.fillRect(translatedLocation[0], translatedLocation[1], translatedLocation[2], translatedLocation[3]);
+			}
+    	};
+    }
+    
+    private static Drawable grassRepresentation()
+    {
+    	return new Drawable()
+    	{
+    		@Override
+			public void drawItem(Graphics g, Translation t, int[] location)
+			{
+				int[] translatedLocation = t.translateCoordinates(location);
+				g.setColor(Color.RED);
 				g.fillRect(translatedLocation[0], translatedLocation[1], translatedLocation[2], translatedLocation[3]);
 			}
     	};
