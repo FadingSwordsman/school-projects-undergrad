@@ -5,98 +5,125 @@ import com.putable.frobworld.locd011.simulation.SimulationWorld;
 import com.putable.pqueue.PQAble;
 import com.putable.pqueue.PQueue;
 
-public abstract class AbstractLiveable extends AbstractPlaceable implements
-		Liveable {
-	private int nextMovement;
-	private PQueue queue = null;
-	private int index = 0;
-	private int mass;
-	private int updatePeriod;
-	private int birthMass;
-	private boolean dead;
+public abstract class AbstractLiveable extends AbstractPlaceable implements Liveable
+{
+    private int nextMovement;
+    private PQueue queue = null;
+    private int index = 0;
+    private int mass;
+    private int updatePeriod;
+    private int birthMass;
+    private boolean dead;
 
-	public AbstractLiveable(PlaceType type, SimulationWorld world, int birthMass) {
-		super(type, world);
-		this.birthMass = birthMass;
-		dead = false;
-	}
+    public AbstractLiveable(PlaceType type, SimulationWorld world)
+    {
+	super(type, world);
+	dead = false;
+    }
 
-	public AbstractLiveable(PlaceType type, SimulationWorld world,
-			int[] location, int updatePeriod, int birthMass, int mass) {
-		this(type, world, birthMass);
-		this.updatePeriod = updatePeriod;
-		setLocation(location[0], location[1]);
-		this.mass = mass;
-		this.nextMovement = world.getDay() + updatePeriod;
-		world.createLiveable(this);
-	}
+    public AbstractLiveable(PlaceType type, SimulationWorld world, int birthMass)
+    {
+	super(type, world);
+	nextMovement = world.getDay();
+	dead = false;
+    }
 
-	@Override
-	public int getNextMove() {
-		return nextMovement;
-	}
+    public AbstractLiveable(PlaceType type, SimulationWorld world, int[] location, int updatePeriod, int birthMass, int mass)
+    {
+	this(type, world, birthMass);
+	this.updatePeriod = updatePeriod;
+	setLocation(location[0], location[1]);
+	this.mass = mass;
+	this.nextMovement = world.getDay() + world.getRandom().nextInt(updatePeriod) + 1;
+	dead = false;
+	world.createLiveable(this);
+    }
 
-	protected void updateNextMove(int offset) {
-		this.nextMovement += offset;
-	}
+    @Override
+    public int getNextMove()
+    {
+	return nextMovement;
+    }
 
-	@Override
-	public int compareTo(PQAble p) {
-		AbstractLiveable otherObject = (AbstractLiveable) p;
-		int difference = getNextMove() - otherObject.getNextMove();
-		if (difference == 0)
-			difference = -1;
-		return difference;
-	}
+    protected void updateNextMove(int offset)
+    {
+	this.nextMovement += offset;
+    }
 
-	public void setMass(int mass) {
-		this.mass = mass;
-	}
+    @Override
+    public int compareTo(PQAble p)
+    {
+	AbstractLiveable otherObject = (AbstractLiveable) p;
+	int difference = getNextMove() - otherObject.getNextMove();
+	if (difference == 0)
+	    difference = -1;
+	return difference;
+    }
 
-	@Override
-	public int getMass() {
-		return mass;
-	}
+    public void setMass(int mass)
+    {
+	this.mass = mass;
+    }
 
-	@Override
-	public void setPQueue(PQueue queue) {
-		this.queue = queue;
-	}
+    @Override
+    public int getMass()
+    {
+	return mass;
+    }
 
-	@Override
-	public PQueue getPQueue() {
-		return queue;
-	}
+    @Override
+    public void setPQueue(PQueue queue)
+    {
+	this.queue = queue;
+    }
 
-	@Override
-	public int getIndex() {
-		return index;
-	}
+    @Override
+    public PQueue getPQueue()
+    {
+	return queue;
+    }
 
-	@Override
-	public void setIndex(int index) {
-		this.index = index;
-	}
+    @Override
+    public int getIndex()
+    {
+	return index;
+    }
 
-	public int getUpdatePeriod() {
-		return updatePeriod;
-	}
+    @Override
+    public void setIndex(int index)
+    {
+	this.index = index;
+    }
 
-	public void setUpdatePeriod(int newUpdatePeriod) {
-		this.updatePeriod = newUpdatePeriod;
-	}
+    public int getUpdatePeriod()
+    {
+	return updatePeriod;
+    }
 
-	public int getBirthMass() {
-		return birthMass;
-	}
+    public void setUpdatePeriod(int newUpdatePeriod)
+    {
+	this.updatePeriod = newUpdatePeriod;
+    }
+    
+    public void setBirthMass(int birthMass)
+    {
+	this.birthMass = birthMass;
+    }
 
-	@Override
-	public boolean isDead() {
-		return dead;
-	}
+    public int getBirthMass()
+    {
+	return birthMass;
+    }
 
-	public void die() {
-		dead = true;
-		getWorld().killLiveable(this);
-	}
+    @Override
+    public boolean isDead()
+    {
+	return dead;
+    }
+
+    public void die()
+    {
+	dead = true;
+	getWorld().killLiveable(this);
+    }
 }

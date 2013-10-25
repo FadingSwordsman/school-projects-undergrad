@@ -151,7 +151,7 @@ public enum PlaceType
 			public void drawItem(Graphics g, Translation t, int[] location)
 			{
 				int[] translatedLocation = t.translateCoordinates(location);
-				g.setColor(Color.RED);
+				g.setColor(Color.GREEN);
 				g.fillRect(translatedLocation[0], translatedLocation[1], translatedLocation[2], translatedLocation[3]);
 			}
     	};

@@ -6,7 +6,7 @@ import com.putable.frobworld.locd011.simulation.SimulationWorld.Direction;
 
 public class Genome
 {
-    private final static short DNA_BIRTH_MASS = 0,
+    private final static byte DNA_BIRTH_MASS = 0,
 	    DNA_BIRTH_PERCENT = 1,
 	    DNA_UPDATE_PERIOD = 2,
 	    DNA_NORTH_PREFS = 3,
@@ -26,6 +26,23 @@ public class Genome
 	genome = new byte[DNA_LENGTH];
 	for(int x = 0; x < DNA_LENGTH; x++)
 	    r.nextBytes(genome);
+    }
+    
+    public Genome(Random r, Genome parentGenome, int mutationOdds)
+    {
+	genome = new byte[DNA_LENGTH];
+	for(int i = 0; i < DNA_LENGTH; i++)
+	{
+	    byte nextStrand = parentGenome.getByteAt(i);
+	    int mutationChance = r.nextInt(mutationOdds);
+	    if(mutationChance == 0)
+	    {
+		byte mask = mutateRandomBitMask(r);
+		nextStrand = (byte)(nextStrand ^ mask);
+	    }
+	    genome[i] = nextStrand;
+	    
+	}
     }
     
     public short getBirthMass()
@@ -88,5 +105,16 @@ public class Genome
 	    	break;
 	}
 	return positiveShort(genome[preferenceOffset]);
+    }
+    
+    private byte mutateRandomBitMask(Random r)
+    {
+	int randomByte = r.nextInt(8);
+	return (byte)(1 << randomByte);
+    }
+    
+    private byte getByteAt(int i)
+    {
+	return genome[i];
     }
 }

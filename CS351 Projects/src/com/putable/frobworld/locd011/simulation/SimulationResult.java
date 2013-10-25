@@ -18,6 +18,8 @@ public class SimulationResult
     {
 	this.mapResult = mapResult;
 	this.remainingObjects = remainingObjects;
+	this.expectedRunTime = expectedRunTime;
+	this.actualRunTime = actualRunTime;
     }
     
     /**
@@ -42,6 +44,9 @@ public class SimulationResult
 	    builder.append(mapResult);
 	    builder.append("\nThe simulation ended because ").append(expectedRunTime == actualRunTime ? "the simulation max run time was reached at " + actualRunTime + " days." : "all of the frobs died at " + actualRunTime + " days.");
 	    builder.append("\nFrobs alive at simulation end: ").append(remainingObjects.getRemainingFrobs());
+	    builder.append("\n\tAverage Frob life-span: ").append(remainingObjects.getFrobLifeAverage()).append(" days.");
+	    builder.append("\n\tLongest Frob life: ").append(remainingObjects.getLongestLivedFrob()).append(" days.");
+	    builder.append("\n\tShortest Frob life: ").append(remainingObjects.getShortestLivedFrob()).append(" days.");
 	    builder.append("\nGrass alive at simulation end: ").append(remainingObjects.getRemainingGrass());
 	    resultString = builder.toString();
 	}

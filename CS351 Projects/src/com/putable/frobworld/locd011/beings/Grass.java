@@ -33,10 +33,8 @@ public class Grass extends AbstractLiveable {
 	 * @param mass
 	 */
 	public Grass(SimulationWorld world, int[] location, int mass) {
-		super(PlaceType.GRASS, world, location, world.getSimulationSettings()
-				.getGrassSettings().getGrassInitialUpdatePeriod(),
-				world.getSimulationSettings().getGrassSettings()
-						.getGrassBirthMass(), mass);
+		super(PlaceType.GRASS, world, location, world.getSimulationSettings().getGrassSettings().getGrassInitialUpdatePeriod(),
+				world.getSimulationSettings().getGrassSettings().getGrassBirthMass(), mass);
 		settings = world.getSimulationSettings().getGrassSettings();
 	}
 
