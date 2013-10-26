@@ -1,9 +1,13 @@
 package com.putable.frobworld.locd011.beings;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.EnumSet;
 
+import com.putable.frobworld.locd011.graphics.Drawable;
 import com.putable.frobworld.locd011.graphics.GraphicsDelta;
 import com.putable.frobworld.locd011.graphics.GraphicsDeltaHelper;
+import com.putable.frobworld.locd011.graphics.SimulationPanel.Translation;
 import com.putable.frobworld.locd011.simulation.GrassSetting;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
 import com.putable.frobworld.locd011.simulation.SimulationWorld.Direction;
@@ -36,6 +40,7 @@ public class Grass extends AbstractLiveable {
 		super(PlaceType.GRASS, world, location, world.getSimulationSettings().getGrassSettings().getGrassInitialUpdatePeriod(),
 				world.getSimulationSettings().getGrassSettings().getGrassBirthMass(), mass);
 		settings = world.getSimulationSettings().getGrassSettings();
+		updateNextMove(world.getRandom().nextInt(getUpdatePeriod()) + 1);
 	}
 
 	@Override
@@ -49,7 +54,7 @@ public class Grass extends AbstractLiveable {
 	@Override
 	public GraphicsDelta takeTurn() {
 		int newMass = getMass();
-		GraphicsDelta graphicsChange = GraphicsDeltaHelper.nothing();
+		GraphicsDelta graphicsChange = GraphicsDeltaHelper.updateLiveables(this);
 		newMass -= (settings.getMassTax() * getUpdatePeriod())
 				/ (1000 + settings.getFixedOverhead());
 		setMass(newMass);
@@ -122,6 +127,28 @@ public class Grass extends AbstractLiveable {
 	 */
 	private int getOffspringMass() {
 		return (settings.getGrassBirthPercent() * getMass()) / 100;
+	}
+	
+	@Override
+	public Drawable getRepresentation()
+	{
+	    final int mass = getMass();
+	    final int birthMass = getBirthMass();
+	    return new Drawable()
+	    {
+		@Override
+		public void drawItem(Graphics g, Translation t, int[] location)
+		{
+		    int[] drawingLocation = t.translateCoordinates(location);
+		    int width = (mass * drawingLocation[2]) / birthMass;
+		    int height = (mass * drawingLocation[3]) / birthMass;
+		    int x = ((drawingLocation[2] - width) >> 1) + drawingLocation[0];
+		    int y = ((drawingLocation[3] - height) >> 1) + drawingLocation[1];
+		    g.setColor(Color.GREEN);
+		    g.fillRoundRect(x, y, width, height, width >> 2, height >>2);
+		}
+		
+	    };
 	}
 
 	@Override

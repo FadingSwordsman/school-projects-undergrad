@@ -1,10 +1,14 @@
 package com.putable.frobworld.locd011.beings;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.Random;
 
 import com.putable.frobworld.locd011.beings.interfaces.Placeable;
+import com.putable.frobworld.locd011.graphics.Drawable;
 import com.putable.frobworld.locd011.graphics.GraphicsDelta;
 import com.putable.frobworld.locd011.graphics.GraphicsDeltaHelper;
+import com.putable.frobworld.locd011.graphics.SimulationPanel.Translation;
 import com.putable.frobworld.locd011.simulation.FrobSetting;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
 import com.putable.frobworld.locd011.simulation.SimulationWorld.Direction;
@@ -37,7 +41,8 @@ public class Frob extends AbstractLiveable
 	settings = world.getSimulationSettings().getFrobSettings();
 	gene = new Genome(randomizer, previousGenome, settings.getDnaMutationOdds());
 	setMass(newMass);
-	updateNextMove((gene.getUpdatePeriod()%32) + 5);
+	setUpdatePeriod((gene.getUpdatePeriod()%32) + 5);
+	updateNextMove(getUpdatePeriod());
 	birthdate = world.getDay();
     }
 
@@ -109,7 +114,7 @@ public class Frob extends AbstractLiveable
     public Direction selectDirection(PlaceType[] surrounding)
     {
 	int currentPreference = 0;
-	short[] preferences = new short[surrounding.length];
+	int[] preferences = new int[surrounding.length];
 	for(int x = 0; x < surrounding.length; x++)
 	{
 	    PlaceType inLocation = surrounding[x];
@@ -124,6 +129,27 @@ public class Frob extends AbstractLiveable
 		return Direction.getDirection(x);
 	}
 	throw new IllegalStateException("Frob selected a direction out of bounds! Choice was " + selection + " but highest choice was " + currentPreference);
+    }
+    
+    @Override
+    public Drawable getRepresentation()
+    {
+	final int birthMass = getBirthMass();
+	final int mass = getMass() > birthMass ? birthMass : getMass();
+	return new Drawable()
+	{
+	    @Override
+	    public void drawItem(Graphics g, Translation t, int[] location)
+	    {
+		int[] drawingCoordinates = t.translateCoordinates(location);
+		int width = (mass * drawingCoordinates[2])/birthMass;
+		int height = (mass * drawingCoordinates[3])/birthMass;
+		int x = (drawingCoordinates[2] - width) + drawingCoordinates[0];
+		int y = (drawingCoordinates[3] - height) + drawingCoordinates[1];
+		g.setColor(Color.RED);
+		g.fillOval(x, y, width, height);
+	    }
+	};
     }
 
     @Override

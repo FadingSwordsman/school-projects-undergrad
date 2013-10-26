@@ -22,6 +22,6 @@ public final class Rock extends AbstractPlaceable
     @Override
     public CollisionResult collideInto(Frob collider)
     {
-	return new CollisionResult(-getWorld().getSimulationSettings().getMiscSettings().getRockBumpPenalty(), false, GraphicsDeltaHelper.nothing());
+	return new CollisionResult(getWorld().getSimulationSettings().getMiscSettings().getRockBumpPenalty(), false, GraphicsDeltaHelper.nothing());
     }
 }

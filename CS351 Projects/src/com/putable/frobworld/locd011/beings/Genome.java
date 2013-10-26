@@ -45,22 +45,22 @@ public class Genome
 	}
     }
     
-    public short getBirthMass()
+    public int getBirthMass()
     {
 	return positiveShort(genome[DNA_BIRTH_MASS]);
     }
     
-    public short getBirthPercent()
+    public int getBirthPercent()
     {
 	return positiveShort(genome[DNA_BIRTH_PERCENT]);
     }
     
-    public short getUpdatePeriod()
+    public int getUpdatePeriod()
     {
 	return positiveShort(genome[DNA_UPDATE_PERIOD]);
     }
     
-    private short positiveShort(short fromShort)
+    private int positiveShort(short fromShort)
     {
 	short result = fromShort;
 	if(result < 0)
@@ -68,7 +68,7 @@ public class Genome
 	return result;
     }
     
-    public short getDirectionPrefs(Direction dir, PlaceType occupying)
+    public int getDirectionPrefs(Direction dir, PlaceType occupying)
     {
 	int preferenceOffset = 0;
 	if(occupying == null)

@@ -1,6 +1,5 @@
 package com.putable.frobworld.locd011.graphics;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 import com.putable.frobworld.locd011.beings.interfaces.Liveable;
@@ -92,7 +91,7 @@ public final class GraphicsDeltaHelper
 		{
 		    int[] xyPairs = t.translateCoordinates(next.getLocation());
 		    g.clearRect(xyPairs[0], xyPairs[1], xyPairs[2], xyPairs[3]);
-		    next.getType().getRepresentation().drawItem(g, t, next.getLocation());
+		    next.getRepresentation().drawItem(g, t, next.getLocation());
 		}
 	    }
 	};

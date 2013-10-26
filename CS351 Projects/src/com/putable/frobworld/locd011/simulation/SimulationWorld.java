@@ -146,7 +146,6 @@ public class SimulationWorld implements Runnable
 	while (interestings.size() > 0 && ((Liveable) interestings.top()).getNextMove() == day)
 	{
 	    Liveable nextThing = (Liveable) interestings.remove();
-	    System.out.println(day);
 	    if(nextThing.getNextMove() < day)
 		throw new IllegalStateException("Goddammit");
 	    int[] oldLocation = nextThing.getLocation();
