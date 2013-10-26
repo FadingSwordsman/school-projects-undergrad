@@ -35,9 +35,8 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	this.updatePeriod = updatePeriod;
 	setLocation(location[0], location[1]);
 	this.mass = mass;
-	this.nextMovement = world.getDay();
+	nextMovement = world.getDay();
 	dead = false;
-	world.createLiveable(this);
     }
 
     @Override

@@ -90,10 +90,10 @@ public class SimulationSettings
     {
 	HashMap<String, Integer> settingsMap = new HashMap<String, Integer>();
 	int WORLD_HEIGHT = 100,
-		WORLD_WIDTH = 100,
+		WORLD_WIDTH = 50,
 		INIT_FROBS = 50,
-		INIT_GRASSES = 1000,
-		INIT_ROCKS = 200;
+		INIT_GRASSES = 250,
+		INIT_ROCKS = 100;
 	int ROCK_BUMP_PENALTY = 30;
 	int FROB_FIXED_OVERHEAD = 2,
 		FROB_MASS_TAX = 100,

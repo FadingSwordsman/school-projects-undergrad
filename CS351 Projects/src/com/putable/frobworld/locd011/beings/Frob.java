@@ -2,6 +2,8 @@ package com.putable.frobworld.locd011.beings;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import com.putable.frobworld.locd011.beings.interfaces.Placeable;
@@ -19,6 +21,7 @@ public class Frob extends AbstractLiveable
     private Genome gene;
     private int birthPercent;
     private int birthdate;
+    private List<Frob> children = new LinkedList<Frob>();
 
     public Frob(SimulationWorld world)
     {
@@ -27,49 +30,46 @@ public class Frob extends AbstractLiveable
 	settings = world.getSimulationSettings().getFrobSettings();
 	setMass(settings.getGenesisMass());
 	gene = new Genome(randomizer);
-	setBirthMass((gene.getBirthMass()>>1) + 20);
-	birthPercent = (gene.getBirthPercent() * 100)/255;
-	setUpdatePeriod((gene.getUpdatePeriod()%32)+5);
+	setBirthMass((gene.getBirthMass() >> 1) + 20);
+	birthPercent = (gene.getBirthPercent() * 100) / 255;
+	setUpdatePeriod((gene.getUpdatePeriod() % 32) + 5);
 	updateNextMove(getUpdatePeriod());
 	birthdate = 0;
     }
-    
-    public Frob(SimulationWorld world, Genome previousGenome, int newMass)
+
+    public Frob(SimulationWorld world, Genome gene, int newMass)
     {
-	super(PlaceType.FROB, world, world.getSimulationSettings().getFrobSettings().getGenesisMass());
-	Random randomizer = world.getRandom();
+	super(PlaceType.FROB, world, gene.getBirthMass());
 	settings = world.getSimulationSettings().getFrobSettings();
-	gene = new Genome(randomizer, previousGenome, settings.getDnaMutationOdds());
+	this.gene = gene;
 	setMass(newMass);
-	setUpdatePeriod((gene.getUpdatePeriod()%32) + 5);
-	updateNextMove(getUpdatePeriod());
+	setUpdatePeriod((gene.getUpdatePeriod() % 32) + 5);
+	updateNextMove(getWorld().getRandom().nextInt(getUpdatePeriod()) + 1);
 	birthdate = world.getDay();
     }
 
     @Override
     public GraphicsDelta takeTurn()
     {
-	// TODO: Implement the turn-taking of a Frob
 	payMassTax();
 	if (isDead())
 	    return GraphicsDeltaHelper.removeAt(getLocation());
 	int[] previousLocation = getLocation();
 	PlaceType[] surrounding = getWorld().getAdjacent(previousLocation);
 	Direction moveAttempt = selectDirection(surrounding);
-	GraphicsDelta moveDelta = attemptMove(moveAttempt);
-	moveDelta = GraphicsDeltaHelper.append(moveDelta, attemptSplit(previousLocation));
+	GraphicsDelta moveDelta = attemptMove(moveAttempt, previousLocation);
 	return isDead() ? GraphicsDeltaHelper.removeAt(getLocation()) : moveDelta;
     }
 
     private void payMassTax()
     {
 	int currentMass = getMass();
-	int newMass = currentMass - ((settings.getMassTax() * getUpdatePeriod()) /(1000) + settings.getFixedOverhead());
+	int newMass = currentMass - ((settings.getMassTax() * getUpdatePeriod()) / (1000) + settings.getFixedOverhead());
 	setMass(newMass);
 	attemptToDie();
     }
 
-    private GraphicsDelta attemptMove(Direction inDirection)
+    private GraphicsDelta attemptMove(Direction inDirection, int[] previousLocation)
     {
 	int[] newLocation = inDirection.getLocationFrom(getLocation());
 	Placeable atLocation = getWorld().getPlaceableAt(newLocation);
@@ -80,19 +80,26 @@ public class Frob extends AbstractLiveable
 	    change = collisionChange.getGraphicsDelta();
 	    if (!applyCollision(collisionChange))
 		return change;
+	    if (atLocation.getType() == PlaceType.GRASS)
+	    {
+		if (getMass() > getBirthMass())
+		    setMass(getBirthMass());
+		change = GraphicsDeltaHelper.append(change, attemptSplit(previousLocation));
+	    }
 	}
 	setLocation(newLocation[0], newLocation[1]);
 	updateNextMove(getUpdatePeriod());
 	return change;
     }
-    
+
     private GraphicsDelta attemptSplit(int[] location)
     {
-	if(getMass() >= getBirthMass())
+	if (getMass() >= getBirthMass())
 	{
-	    int birthMass = (getMass() * this.birthPercent)/100;
+	    int birthMass = (getMass() * this.birthPercent) / 100;
 	    SimulationWorld world = getWorld();
-	    Frob newFrob = new Frob(world, gene, birthMass);
+	    Frob newFrob = new Frob(world, new Genome(getWorld().getRandom(), gene, settings.getDnaMutationOdds()), birthMass);
+	    children.add(newFrob);
 	    newFrob.setLocation(location[0], location[1]);
 	    world.createLiveable(newFrob);
 	    setMass(getMass() - birthMass);
@@ -105,8 +112,6 @@ public class Frob extends AbstractLiveable
     public boolean applyCollision(CollisionResult result)
     {
 	setMass(getMass() - result.getMassResult());
-	if (getMass() > getBirthMass())
-	    setMass(getBirthMass());
 	attemptToDie();
 	return result.isMoveAllowed();
     }
@@ -115,39 +120,47 @@ public class Frob extends AbstractLiveable
     {
 	int currentPreference = 0;
 	int[] preferences = new int[surrounding.length];
-	for(int x = 0; x < surrounding.length; x++)
+	for (int x = 0; x < surrounding.length; x++)
 	{
 	    PlaceType inLocation = surrounding[x];
 	    preferences[x] = gene.getDirectionPrefs(Direction.getDirection(x), inLocation);
 	    currentPreference += preferences[x];
 	}
 	int selection = getWorld().getRandom().nextInt(currentPreference);
-	for(int x = 0; x < preferences.length; x++)
+	for (int x = 0; x < preferences.length; x++)
 	{
 	    selection -= preferences[x];
-	    if(selection < 0)
+	    if (selection < 0)
 		return Direction.getDirection(x);
 	}
 	throw new IllegalStateException("Frob selected a direction out of bounds! Choice was " + selection + " but highest choice was " + currentPreference);
     }
-    
+
     @Override
     public Drawable getRepresentation()
     {
-	final int birthMass = getBirthMass();
+	int tempBirthMass = getBirthMass();
+	final int birthMass = tempBirthMass > 0 ? tempBirthMass : 1;
 	final int mass = getMass() > birthMass ? birthMass : getMass();
 	return new Drawable()
 	{
 	    @Override
 	    public void drawItem(Graphics g, Translation t, int[] location)
 	    {
-		int[] drawingCoordinates = t.translateCoordinates(location);
-		int width = (mass * drawingCoordinates[2])/birthMass;
-		int height = (mass * drawingCoordinates[3])/birthMass;
-		int x = (drawingCoordinates[2] - width) + drawingCoordinates[0];
-		int y = (drawingCoordinates[3] - height) + drawingCoordinates[1];
-		g.setColor(Color.RED);
-		g.fillOval(x, y, width, height);
+		if (birthMass > 0)
+		{
+		    int[] drawingCoordinates = t.translateCoordinates(location);
+		    int width = (mass * drawingCoordinates[2]) / birthMass;
+		    if (width < 1)
+			width = 1;
+		    int height = (mass * drawingCoordinates[3]) / birthMass;
+		    if (height < 1)
+			height = 1;
+		    int x = drawingCoordinates[0] + ((drawingCoordinates[2] - width) >> 1);
+		    int y = drawingCoordinates[1] + ((drawingCoordinates[3] - height) >> 1);
+		    g.setColor(Color.RED);
+		    g.fillOval(x, y, width, height);
+		}
 	    }
 	};
     }
@@ -169,9 +182,19 @@ public class Frob extends AbstractLiveable
 	if (getMass() <= 0)
 	    die();
     }
-    
+
     public int timeAlive()
     {
 	return getWorld().getDay() - birthdate;
+    }
+
+    public List<Frob> getChildren()
+    {
+	return children;
+    }
+
+    public Genome getGenome()
+    {
+	return gene;
     }
 }

@@ -33,11 +33,13 @@ public class SimulationWorld implements Runnable
     private PQueue interestings;
     private Placeable[][] grid;
     private int width, height;
+    private int seed;
     private boolean batchMode;
     private final SimulationSettings settings;
     private SimulationResult result;
     private Random prng;
     private int day;
+    
     private JFrame outerPanel;
     private SimulationPanel panel;
     private Timer simulationUpdateTimer;
@@ -50,7 +52,7 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings)
     {
-	this(settings, false, new Random());
+	this(settings, false, new Random().nextInt());
     }
 
     /**
@@ -61,7 +63,7 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings, boolean batchMode)
     {
-	this(settings, batchMode, new Random());
+	this(settings, batchMode, new Random().nextInt());
     }
 
     /**
@@ -72,19 +74,8 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings, int randomSeed)
     {
-	this(settings, false, new Random(randomSeed));
-    }
-
-    /**
-     * Set batch mode, and a random seed:
-     * 
-     * @param settings
-     * @param batchMode
-     * @param randomSeed
-     */
-    public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed)
-    {
-	this(settings, batchMode, new Random(randomSeed));
+	this(settings, false, randomSeed);
+	seed = randomSeed;
     }
 
     /**
@@ -94,11 +85,12 @@ public class SimulationWorld implements Runnable
      * @param batchMode
      * @param prng
      */
-    public SimulationWorld(SimulationSettings settings, boolean batchMode, Random prng)
+    public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed)
     {
 	this.settings = settings;
 	this.batchMode = batchMode;
-	this.prng = prng;
+	this.prng = new Random(randomSeed);
+	seed = randomSeed;
 	Initializer init = new Initializer(this);
 	init.initSimulation();
     }
@@ -141,13 +133,15 @@ public class SimulationWorld implements Runnable
     {
 	List<GraphicsDelta> changes = new LinkedList<GraphicsDelta>();
 	day = ((Liveable) interestings.top()).getNextMove();
+	if(!batchMode)
+	    outerPanel.setTitle("Frob world day: " + day);
 	if (day > settings.getWorldSettings().getMaxSimulationLength())
 	    return null;
 	while (interestings.size() > 0 && ((Liveable) interestings.top()).getNextMove() == day)
 	{
 	    Liveable nextThing = (Liveable) interestings.remove();
 	    if(nextThing.getNextMove() < day)
-		throw new IllegalStateException("Goddammit");
+		throw new IllegalStateException("Time doesn't go backwards!");
 	    int[] oldLocation = nextThing.getLocation();
 	    changes.add(nextThing.takeTurn());
 	    int[] newLocation = nextThing.getLocation();
@@ -369,7 +363,7 @@ public class SimulationWorld implements Runnable
 	int[] location = toKill.getLocation();
 	put(location[0], location[1], null);
 	if(toKill.getType() == PlaceType.FROB)
-		liveablesRemaining.addFrobDeath(((Frob)toKill).timeAlive());
+		liveablesRemaining.addFrobDeath((Frob)toKill);
 	if (interestings == toKill.getPQueue())
 	    interestings.delete(toKill);
 	updateTypes(toKill.getType(), -1);
@@ -576,8 +570,11 @@ public class SimulationWorld implements Runnable
      */
     public SimulationResult getResult()
     {
-	if (result != null)
-	    return result;
-	return null;
+	return result;
+    }
+    
+    public int getSeed()
+    {
+	return seed;
     }
 }

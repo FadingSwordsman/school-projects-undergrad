@@ -1,5 +1,6 @@
 package com.putable.frobworld.locd011.graphics;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,6 +29,8 @@ public class SimulationPanel extends JPanel implements ActionListener
     private final SimulationWorld world;
     private boolean initialized = false;
     private List<Placeable> rocks = new LinkedList<Placeable>();
+    
+    private int[] statusText;
 
     /**
      * Start up the SimulationPanel.
@@ -77,6 +80,9 @@ public class SimulationPanel extends JPanel implements ActionListener
 		    return new int[] { x, y, width, height };
 		}
 	    };
+	    statusText = translation.translateCoordinates(new int[]{0, worldSetting.getWorldHeight() + 1});
+	    statusText[2] = 0;
+	    statusText[3] = statusText[1] - translation.translateCoordinates(new int[]{0,1})[1];
 	}
 	return translation;
     }
@@ -127,9 +133,18 @@ public class SimulationPanel extends JPanel implements ActionListener
 	    Translation coordinateTranslation = getCoordinateTranslation();
 	    for (GraphicsDelta update : updates)
 		update.updateMap(g, coordinateTranslation);
+	    
 	    updates = null;
 	}
+	drawStatus(g);
 	completedUpdate = true;
+    }
+    
+    private void drawStatus(Graphics g)
+    {
+	g.clearRect(statusText[2], statusText[3], getWidth(), getHeight());
+	g.setColor(Color.BLACK);
+	g.drawString(world.getLiveableStatus().toString(), statusText[0], statusText[1]);
     }
 
     public boolean hasCompletedUpdate()
@@ -148,8 +163,7 @@ public class SimulationPanel extends JPanel implements ActionListener
 	if(world == null)
 	    return;
 	Graphics g = getGraphics();
-
-	repaint();
+	paintComponent(g);
 	paint(g);
     }
 }

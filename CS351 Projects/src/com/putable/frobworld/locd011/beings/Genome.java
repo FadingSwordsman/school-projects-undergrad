@@ -60,11 +60,11 @@ public class Genome
 	return positiveShort(genome[DNA_UPDATE_PERIOD]);
     }
     
-    private int positiveShort(short fromShort)
+    private short positiveShort(short fromShort)
     {
 	short result = fromShort;
 	if(result < 0)
-	    result = (short)-result;
+	    result = (short)(result + 256);
 	return result;
     }
     
@@ -116,5 +116,24 @@ public class Genome
     private byte getByteAt(int i)
     {
 	return genome[i];
+    }
+    
+    public short getRawValue(int index)
+    {
+	return positiveShort(genome[index]);
+    }
+    
+    public static int getGenomeLength()
+    {
+	return DNA_LENGTH;
+    }
+    
+    @Override
+    public String toString()
+    {
+	StringBuffer sb = new StringBuffer();
+	for(int x = 0; x < DNA_LENGTH; x++)
+	    sb.append('[').append(getRawValue(x)).append(']');
+	return sb.toString();
     }
 }
