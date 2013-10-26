@@ -136,7 +136,8 @@ public class SimulationPanel extends JPanel implements ActionListener
 	    
 	    updates = null;
 	}
-	drawStatus(g);
+	if(initialized)
+	    drawStatus(g);
 	completedUpdate = true;
     }
     

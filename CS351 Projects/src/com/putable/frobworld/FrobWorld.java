@@ -19,7 +19,7 @@ public class FrobWorld
     private static void runBatchMode()
     {
 	Scanner input = new Scanner(System.in);
-	SimulationSettings settings = SimulationSettings.createSettings(250000);
+	SimulationSettings settings = SimulationSettings.createSettings(25000);
 	Semaphore threadLimit = new Semaphore(30);
 	String seed = "No input found";
 	int step = Integer.MAX_VALUE >> 20;
@@ -30,14 +30,10 @@ public class FrobWorld
 		List<SimulationThread> threads = new LinkedList<SimulationThread>();
 	    try
 	    {
-		/*
-		 * while (input.hasNext()) {
-		 */
-		for (int x = i; x > end; x--)
+		while (input.hasNext() && (seed = input.nextLine()).matches("\\d+"))
 		{
-		    // seed = input.nextLine();
 		    threadLimit.acquire();
-		    int nextSeed = x;
+		    int nextSeed = Integer.parseInt(seed);
 		    if (nextSeed == 0)
 			break;
 		    SimulationThread nextThread = new SimulationThread(settings, nextSeed, threadLimit);

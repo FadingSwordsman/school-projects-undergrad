@@ -20,7 +20,7 @@ public class LiveableStatus
     private List<Frob> livingFrobs;
     private List<Genome> deadFrobGenomes;
     
-    private Frob lastFrobAlive;
+    private Frob lastFrobToDie;
     
     //Singletons to make calculating statistics quicker:
     private Double averageLife;
@@ -69,7 +69,7 @@ public class LiveableStatus
     {
 	timeAlive.add(dyingFrob.timeAlive());
 	deadFrobGenomes.add(dyingFrob.getGenome());
-	lastFrobAlive = dyingFrob;
+	lastFrobToDie = dyingFrob;
     }
     
     /**
@@ -81,9 +81,9 @@ public class LiveableStatus
 	return remainingFrobs;
     }
     
-    public Frob lastFrobAlive()
+    public Frob getLastFrobToDie()
     {
-	return lastFrobAlive;
+	return lastFrobToDie;
     }
     
     public void addSurvivingFrob(Frob frob)
@@ -180,6 +180,11 @@ public class LiveableStatus
     public int getTotalFrobsEver()
     {
 	return totalFrobs;
+    }
+    
+    public List<Frob> getSurvivingFrobs()
+    {
+	return livingFrobs;
     }
     
     private void createGenomeStats()

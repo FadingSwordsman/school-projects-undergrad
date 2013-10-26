@@ -6,7 +6,7 @@ import com.putable.frobworld.locd011.simulation.SimulationWorld.Direction;
 
 public class Genome
 {
-    private final static byte DNA_BIRTH_MASS = 0,
+    public final static byte DNA_BIRTH_MASS = 0,
 	    DNA_BIRTH_PERCENT = 1,
 	    DNA_UPDATE_PERIOD = 2,
 	    DNA_NORTH_PREFS = 3,

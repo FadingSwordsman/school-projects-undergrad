@@ -125,6 +125,12 @@ public class SimulationWorld implements Runnable
 	    }
 		
 	}
+	while(interestings.size() > 0)
+	{
+	    Liveable next = (Liveable)interestings.remove();
+	    if(next.getType() == PlaceType.FROB)
+		liveablesRemaining.addSurvivingFrob((Frob)next);
+	}
 	result = SimulationResult.makeSimulationResult(this);
 	return result;
     }
@@ -251,7 +257,7 @@ public class SimulationWorld implements Runnable
 	    outerPanel.pack();
 	    outerPanel.setResizable(false);
 	    outerPanel.setVisible(true);
-	    world.simulationUpdateTimer = new Timer(1, panel);
+	    world.simulationUpdateTimer = new Timer(0, panel);
 	    world.simulationUpdateTimer.setRepeats(false);
 	}
 

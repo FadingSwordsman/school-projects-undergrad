@@ -15,7 +15,7 @@ public class SimulationResultSet
 	{
 	    this.result = result;
 	    this.seed = seed;
-	    success = result.actualRunTime >= result.expectedRunTime;
+	    success = result.isSuccess();
 	}
 	
 	public SimulationResult getResult()
@@ -40,6 +40,7 @@ public class SimulationResultSet
     private long averageRun = -1;
     private double averageLifeTime = -1;
     private int successfulRuns = -1;
+    private int longestRunTime = -1;
     
     public void add(SimulationResult result, int seed)
     {
@@ -67,6 +68,13 @@ public class SimulationResultSet
 	return successfulRuns;
     }
     
+    public int getLongestRunTime()
+    {
+	if(longestRunTime < 0)
+	    calculateStatistics();
+	return longestRunTime;
+    }
+    
     private void calculateStatistics()
     {
 	averageLifeTime = 0;
@@ -75,13 +83,20 @@ public class SimulationResultSet
 	int currentItems = 0;
 	for (SimulationSeedPair result : results)
 	{
-	    tempAverage += result.getResult().getRunTime();
+	    int runTime = result.getResult().getRunTime();
+	    tempAverage += runTime;
+	    if(runTime > longestRunTime)
+		longestRunTime = runTime;
 	    currentItems++;
 	    averageLifeTime += result.getResult().getAverageLife();
 	    if (result.isSuccess())
+	    {
+		successfulRuns++;
 		successfulRunSeeds.add(result.getSeed());
+	    }
 	}
-	averageRun = Math.round(tempAverage/currentItems); 
+	averageRun = Math.round(tempAverage/currentItems);
+	averageLifeTime /= currentItems;
     }
     
     public String toString()
@@ -91,6 +106,7 @@ public class SimulationResultSet
 	    sb.append("\n").append(result.getResult());
 	sb.append("\nAverage run time was: ").append(getAverageRun());
 	sb.append("\nAverage frob life was: ").append(getAverageLifeTime());
+	sb.append("\nLongest run was: ").append(getLongestRunTime());
 	sb.append("\nSuccessful runs: ").append(getSuccessfulRuns());
 	if(getSuccessfulRuns() > 0)
 	{

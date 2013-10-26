@@ -21,6 +21,7 @@ public class Frob extends AbstractLiveable
     private Genome gene;
     private int birthPercent;
     private int birthdate;
+    private int deathdate = -1;
     private List<Frob> children = new LinkedList<Frob>();
 
     public Frob(SimulationWorld world)
@@ -182,10 +183,18 @@ public class Frob extends AbstractLiveable
 	if (getMass() <= 0)
 	    die();
     }
+    
+    public void die()
+    {
+	deathdate = getWorld().getDay();
+	super.die();
+    }
 
     public int timeAlive()
     {
-	return getWorld().getDay() - birthdate;
+	if(!isDead())
+	    return getWorld().getDay() - birthdate;
+	return deathdate - birthdate;
     }
 
     public List<Frob> getChildren()

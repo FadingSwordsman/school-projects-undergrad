@@ -1,5 +1,8 @@
 package com.putable.frobworld.locd011.simulation;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.putable.frobworld.locd011.beings.Frob;
 
 /**
@@ -9,11 +12,17 @@ import com.putable.frobworld.locd011.beings.Frob;
  */
 public class SimulationResult
 {
-    String mapResult;
-    LiveableStatus remainingObjects;
-    int simulationSeed;
-    int expectedRunTime;
-    int actualRunTime;
+    private String mapResult;
+    private LiveableStatus remainingObjects;
+    private int simulationSeed;
+    private int actualRunTime;
+    
+    private double averageMetabolism = -1;
+    private double standardDeviationMetabolism = -1;
+    
+    private List<Frob> survivors = new LinkedList<Frob>();
+    
+    private boolean runSuccess;
     
     String resultString;
     
@@ -21,9 +30,11 @@ public class SimulationResult
     {
 	this.mapResult = mapResult;
 	this.remainingObjects = remainingObjects;
-	this.expectedRunTime = expectedRunTime;
 	this.actualRunTime = actualRunTime;
 	this.simulationSeed = simulationSeed;
+	runSuccess = actualRunTime >= expectedRunTime;
+	if(runSuccess)
+	    survivors = remainingObjects.getSurvivingFrobs();
     }
     
     /**
@@ -44,15 +55,76 @@ public class SimulationResult
 	return remainingObjects.getFrobLifeAverage();
     }
     
+    public double getSurvivingMetabolismAverage()
+    {
+	if(averageMetabolism < 0 && runSuccess)
+	{
+	    averageMetabolism = 0;
+	    for(Frob frob : survivors)
+		averageMetabolism += frob.getUpdatePeriod();
+	    averageMetabolism /= survivors.size();
+	}
+	return averageMetabolism;
+    }
+    
+    public double getSurvivingMetabolismDeviation()
+    {
+	if(standardDeviationMetabolism < 0 && runSuccess)
+	{
+	    standardDeviationMetabolism = 0;
+	    double average = getSurvivingMetabolismAverage();
+	    for(Frob frob : survivors)
+	    {
+		double value = frob.getUpdatePeriod() - average;
+		value *= value;
+		standardDeviationMetabolism += value;
+	    }
+	    standardDeviationMetabolism /= survivors.size();
+	    standardDeviationMetabolism = Math.sqrt(standardDeviationMetabolism);
+	}
+	return standardDeviationMetabolism;
+    }
+    
     public int getRunTime()
     {
 	return actualRunTime;
+    }
+    
+    public boolean isSuccess()
+    {
+	return runSuccess;
     }
     
     private void addArray(double[] array, StringBuffer toBuffer)
     {
 	for(int x = 0; x < array.length; x++)
 	    toBuffer.append('[').append(Math.round(array[x])).append(']');
+    }
+    
+    public String mapResult()
+    {
+	return mapResult;
+    }
+    
+    private String frobFocus(String prefixString, Frob frob)
+    {
+	StringBuffer builder = new StringBuffer();
+	builder.append(prefixString).append("Frob ").append(frob.getId());
+	builder.append(prefixString).append("\tMetabolic Rate: ").append(frob.getUpdatePeriod());
+	builder.append(prefixString).append("\tChildren born: ").append(frob.getChildren().size());
+	builder.append(prefixString).append("\tChildren surviving: ");
+	int counter = 0;
+	double avgLife = 0;
+	for(Frob child : frob.getChildren())
+	{
+	    if(!child.isDead())
+		counter++;
+	    avgLife += child.timeAlive();
+	}
+	avgLife /= frob.getChildren().size();
+	builder.append(counter);
+	builder.append(prefixString).append("\tAverage child life: ").append(avgLife);
+	return builder.toString();
     }
     
     public String toString()
@@ -62,7 +134,7 @@ public class SimulationResult
 	    StringBuffer builder = new StringBuffer();
 	    //builder.append(mapResult);
 	    builder.append("Results for simulation starting on seed ").append(simulationSeed);
-	    builder.append("\nThe simulation ended because ").append(expectedRunTime < actualRunTime ? "the simulation max run time was reached at " + actualRunTime + " days." : "all of the frobs died at " + actualRunTime + " days.");
+	    builder.append("\nThe simulation ended because ").append(runSuccess ? "the simulation max run time was reached at " : "all of the frobs died at ").append(actualRunTime).append(" days.");
 	    builder.append("\nFrobs alive at simulation end: ").append(remainingObjects.getRemainingFrobs());
 	    builder.append("\nThere were a total of ").append(remainingObjects.getTotalFrobsEver()).append(" born or created.");
 	    builder.append("\n\tAverage Frob life-span: ").append(remainingObjects.getFrobLifeAverage()).append(" days.");
@@ -73,10 +145,18 @@ public class SimulationResult
 	    addArray(remainingObjects.getAverageGenome(), builder);
 	    builder.append("\n\tDeviation per gene was:\n\t\t");
 	    addArray(remainingObjects.getGenomeDeviation(), builder);
-	    Frob lastFrob = remainingObjects.lastFrobAlive();
-	    builder.append("\n\tThe last Frob to die lived ").append(lastFrob.timeAlive()).append(" days.");
-	    builder.append("\n\tIt had ").append(lastFrob.getChildren().size()).append(" children.");
-	    builder.append("\n\t\tIts genome was: \n\t\t\t").append(lastFrob.getGenome());
+	    if(isSuccess())
+	    {
+		boolean multiple = survivors.size() != 1;
+		builder.append("\n\tThere ").append(multiple ? "were ": "was ").append(survivors.size()).append(multiple ? " Frobs": " Frob").append(" alive at simulation end.");
+		builder.append("\n\t\tThe average surviving Frob moved once every ").append(getSurvivingMetabolismAverage()).append(" days.");
+	    	builder.append("\n\t\tThe standard deviation for each surviving Frob's metabolic rate was ").append(getSurvivingMetabolismDeviation());
+	    	builder.append("\n\t\tThe following Frobs were alive at simulation end: ");
+	    	for(Frob survivor : survivors)
+	    	    builder.append(frobFocus("\n\t\t\t", survivor));
+	    }
+	    Frob lastFrob = remainingObjects.getLastFrobToDie();
+	    builder.append("\n\tThe last Frob to die was:").append(frobFocus("\n\t\t", lastFrob));
 	    builder.append("\nGrass alive at simulation end: ").append(remainingObjects.getRemainingGrass());
 	    resultString = builder.toString();
 	}
