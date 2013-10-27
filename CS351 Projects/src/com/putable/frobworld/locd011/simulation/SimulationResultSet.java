@@ -154,16 +154,12 @@ public class SimulationResultSet
 	    sb.append("\n\tFrob metabolism standard deviation: ").append(getMetabolismStandardDeviation());
 	    sb.append("\n\tMetabolic rates of surviving Frobs:\n\t\t");
 	    int tabs = 0;
+	    int[] freqs = new int[40];
 	    for(Frob survivor : survivingFrobList)
-	    {
-		if(tabs > 10)
-		{
-		    tabs = 0;
-		    sb.append("\n\t\t");
-		}
-		sb.append(survivor.getUpdatePeriod()).append("\t");
-		tabs++;
-	    }
+		freqs[survivor.getUpdatePeriod()]++;
+	    for(int x = 0; x < freqs.length; x++)
+		if(freqs[x] > 0)
+		    sb.append('\n').append(x).append(',').append(freqs[x]);
 	    sb.append("\n\tSuccessful run seeds: \n\t\t");
 	    for(Integer successSeed : successfulRunSeeds)
 	    {
