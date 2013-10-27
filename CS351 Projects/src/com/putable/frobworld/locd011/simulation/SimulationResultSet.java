@@ -3,8 +3,15 @@ package com.putable.frobworld.locd011.simulation;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.putable.frobworld.locd011.beings.Frob;
+
 public class SimulationResultSet
 {
+    private int survivingFrobs = -1;
+    private double metabolismAverage = -1;
+    private double metabolismStandardDeviation = -1;   
+    private List<Frob> survivingFrobList = new LinkedList<Frob>();
+    
     private class SimulationSeedPair
     {
 	private SimulationResult result;
@@ -32,6 +39,38 @@ public class SimulationResultSet
 	{
 	    return success;
 	}
+    }
+    
+    private int getSurvivingFrobs()
+    {
+	if(survivingFrobs < 0)
+	    calculateSurvivorStats();
+	return survivingFrobs;
+    }
+    
+    private double getMetabolismAverage()
+    {
+	if(metabolismAverage < 0)
+	    calculateSurvivorStats();
+	return metabolismAverage;
+    }
+    
+    private double getMetabolismStandardDeviation()
+    {
+	if(metabolismStandardDeviation < 0)
+	    calculateSurvivorStats();
+	return metabolismStandardDeviation;
+    }
+    
+    private void calculateSurvivorStats()
+    {
+	for(SimulationSeedPair result : results)
+	    survivingFrobList.addAll(result.getResult().getSurvivors());
+	
+	double[] stats = StatisticsUtility.calculateMetabolismStats(survivingFrobList);
+	metabolismAverage = stats[0];
+	metabolismStandardDeviation = stats[1];
+	survivingFrobs = survivingFrobList.size();
     }
     
     private List<SimulationSeedPair> results = new LinkedList<SimulationSeedPair>();
@@ -110,9 +149,32 @@ public class SimulationResultSet
 	sb.append("\nSuccessful runs: ").append(getSuccessfulRuns());
 	if(getSuccessfulRuns() > 0)
 	{
-	    sb.append("\n\tSuccessful run seeds: ");
+	    sb.append("\n\tTotal number of surviving Frobs: ").append(getSurvivingFrobs());
+	    sb.append("\n\tAverage Frob metabolism: ").append(getMetabolismAverage()).append(" movements per day");
+	    sb.append("\n\tFrob metabolism standard deviation: ").append(getMetabolismStandardDeviation());
+	    sb.append("\n\tMetabolic rates of surviving Frobs:\n\t\t");
+	    int tabs = 0;
+	    for(Frob survivor : survivingFrobList)
+	    {
+		if(tabs > 10)
+		{
+		    tabs = 0;
+		    sb.append("\n\t\t");
+		}
+		sb.append(survivor.getUpdatePeriod()).append("\t");
+		tabs++;
+	    }
+	    sb.append("\n\tSuccessful run seeds: \n\t\t");
 	    for(Integer successSeed : successfulRunSeeds)
+	    {
+		if(tabs > 5)
+		{
+		    tabs = 0;
+		    sb.append("\n\t\t");
+		}
 		sb.append(successSeed).append("\t");
+		tabs++;
+	    }
 	}
 	return sb.toString();
     }

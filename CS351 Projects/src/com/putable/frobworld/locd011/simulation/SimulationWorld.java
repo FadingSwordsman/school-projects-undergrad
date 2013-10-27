@@ -1,6 +1,7 @@
 package com.putable.frobworld.locd011.simulation;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.putable.frobworld.locd011.beings.interfaces.Liveable;
 import com.putable.frobworld.locd011.beings.interfaces.Placeable;
 import com.putable.frobworld.locd011.graphics.GraphicsDelta;
 import com.putable.frobworld.locd011.graphics.SimulationPanel;
+import com.putable.frobworld.locd011.graphics.SimulationSpeedSlider;
 import com.putable.pqueue.PQueue;
 import com.putable.pqueue.PQueueAdvanced;
 
@@ -40,7 +42,7 @@ public class SimulationWorld implements Runnable
     private Random prng;
     private int day;
     
-    private JFrame outerPanel;
+    private Container outerPanel;
     private SimulationPanel panel;
     private Timer simulationUpdateTimer;
     private LiveableStatus liveablesRemaining = new LiveableStatus();
@@ -52,7 +54,12 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings)
     {
-	this(settings, false, new Random().nextInt());
+	this(settings, false, new Random().nextInt(), null);
+    }
+    
+    public SimulationWorld(SimulationSettings settings, Container container)
+    {
+	this(settings, false, new Random().nextInt(), container);
     }
 
     /**
@@ -63,7 +70,7 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings, boolean batchMode)
     {
-	this(settings, batchMode, new Random().nextInt());
+	this(settings, batchMode, new Random().nextInt(), null);
     }
 
     /**
@@ -74,8 +81,7 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings, int randomSeed)
     {
-	this(settings, false, randomSeed);
-	seed = randomSeed;
+	this(settings, false, randomSeed, null);
     }
 
     /**
@@ -87,6 +93,12 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed)
     {
+	this(settings, batchMode, randomSeed, null);
+    }
+    
+    public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed, Container container)
+    {
+	this.outerPanel = container;
 	this.settings = settings;
 	this.batchMode = batchMode;
 	this.prng = new Random(randomSeed);
@@ -94,6 +106,8 @@ public class SimulationWorld implements Runnable
 	Initializer init = new Initializer(this);
 	init.initSimulation();
     }
+    
+    
 
     /**
      * Runs a simulation in its entirety. On finishing, returns a simulation
@@ -139,8 +153,6 @@ public class SimulationWorld implements Runnable
     {
 	List<GraphicsDelta> changes = new LinkedList<GraphicsDelta>();
 	day = ((Liveable) interestings.top()).getNextMove();
-	if(!batchMode)
-	    outerPanel.setTitle("Frob world day: " + day);
 	if (day > settings.getWorldSettings().getMaxSimulationLength())
 	    return null;
 	while (interestings.size() > 0 && ((Liveable) interestings.top()).getNextMove() == day)
@@ -168,12 +180,17 @@ public class SimulationWorld implements Runnable
 	try
 	{
 	    while (!panel.hasCompletedUpdate())
-		Thread.sleep(1);
+		Thread.sleep(panel.getWaitTime());
 	}
 	catch (InterruptedException e)
 	{
 	}
 	simulationUpdateTimer.stop();
+    }
+    
+    public SimulationPanel getPanel()
+    {
+	return panel;
     }
 
     /**
@@ -249,16 +266,22 @@ public class SimulationWorld implements Runnable
 
 	private void initializeGraphics(SimulationWorld world)
 	{
-	    outerPanel = new JFrame();
-	    outerPanel.setPreferredSize(new Dimension(width * 10, height * 10));
 	    world.panel = new SimulationPanel(world);
-	    outerPanel.getContentPane().add(panel, BorderLayout.CENTER);
-	    outerPanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    outerPanel.pack();
-	    outerPanel.setResizable(false);
-	    outerPanel.setVisible(true);
 	    world.simulationUpdateTimer = new Timer(0, panel);
 	    world.simulationUpdateTimer.setRepeats(false);
+	    if(outerPanel == null)
+	    {
+		SimulationSpeedSlider slider = new SimulationSpeedSlider(1, 500, 250, world.panel);
+		JFrame container = new JFrame();
+		container.setPreferredSize(new Dimension(width * 10, height * 10));
+		container.getContentPane().add(panel, BorderLayout.CENTER);
+		container.getContentPane().add(slider, BorderLayout.SOUTH);
+		container.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		container.pack();
+		container.setResizable(false);
+		container.setVisible(true);
+		outerPanel = container;
+	    }
 	}
 
 	/**
@@ -450,7 +473,7 @@ public class SimulationWorld implements Runnable
     @Override
     public String toString()
     {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for (int y = 0; y < height; y++)
 	{
 	    for (int x = 0; x < width; x++)

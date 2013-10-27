@@ -30,6 +30,8 @@ public class SimulationPanel extends JPanel implements ActionListener
     private boolean initialized = false;
     private List<Placeable> rocks = new LinkedList<Placeable>();
     
+    private int waitTime = 1;
+    
     private int[] statusText;
 
     /**
@@ -49,6 +51,16 @@ public class SimulationPanel extends JPanel implements ActionListener
     public void setCompletedUpdate(boolean completedUpdate)
     {
 	this.completedUpdate = completedUpdate;
+    }
+    
+    public int getWaitTime()
+    {
+	return waitTime;
+    }
+    
+    public void setWaitTime(int waitTime)
+    {
+	this.waitTime = waitTime;
     }
 
     /**

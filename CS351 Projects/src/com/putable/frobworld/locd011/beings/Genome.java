@@ -131,7 +131,7 @@ public class Genome
     @Override
     public String toString()
     {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for(int x = 0; x < DNA_LENGTH; x++)
 	    sb.append('[').append(getRawValue(x)).append(']');
 	return sb.toString();

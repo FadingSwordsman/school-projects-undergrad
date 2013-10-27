@@ -220,7 +220,7 @@ public class PQueueAdvanced implements PQueue
     @Override
     public String toString()
     {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for(int x = 1; x <= size; x++)
 	    sb.append('[').append(getPQAbleAt(x)).append(']');
 	return sb.toString();
