@@ -4,8 +4,16 @@ import java.util.Random;
 
 import com.putable.frobworld.locd011.simulation.SimulationWorld.Direction;
 
+/**
+ * A class for holding genomes, and making the information in that genome available to whatever needs it
+ * @author David
+ *
+ */
 public class Genome
 {
+    /**
+     * Static, constant settings for indexing into the genome
+     */
     public final static byte DNA_BIRTH_MASS = 0,
 	    DNA_BIRTH_PERCENT = 1,
 	    DNA_UPDATE_PERIOD = 2,
@@ -21,6 +29,10 @@ public class Genome
     
     private byte[] genome;
     
+    /**
+     * Create a new, random genome
+     * @param r
+     */
     public Genome(Random r)
     {
 	genome = new byte[DNA_LENGTH];
@@ -28,6 +40,12 @@ public class Genome
 	    r.nextBytes(genome);
     }
     
+    /**
+     * Create a new genome from another, possibly mutating bits 
+     * @param r
+     * @param parentGenome
+     * @param mutationOdds
+     */
     public Genome(Random r, Genome parentGenome, int mutationOdds)
     {
 	genome = new byte[DNA_LENGTH];
@@ -45,21 +63,38 @@ public class Genome
 	}
     }
     
-    public int getBirthMass()
+    /**
+     * Return the raw value for BirthMass
+     * @return
+     */
+    public short getBirthMass()
     {
-	return positiveShort(genome[DNA_BIRTH_MASS]);
+	return getRawValue(DNA_BIRTH_MASS);
     }
     
-    public int getBirthPercent()
+    /**
+     * Return the raw value for BirthPercent
+     * @return
+     */
+    public short getBirthPercent()
     {
-	return positiveShort(genome[DNA_BIRTH_PERCENT]);
+	return getRawValue(DNA_BIRTH_PERCENT);
     }
     
-    public int getUpdatePeriod()
+    /**
+     * Return the raw value for UpdatePeriod
+     * @return
+     */
+    public short getUpdatePeriod()
     {
-	return positiveShort(genome[DNA_UPDATE_PERIOD]);
+	return getRawValue(DNA_UPDATE_PERIOD);
     }
     
+    /**
+     * Make sure the result is positive (Adjust it from the negative value a full byte returns)
+     * @param fromShort
+     * @return
+     */
     private short positiveShort(short fromShort)
     {
 	short result = fromShort;
@@ -68,7 +103,13 @@ public class Genome
 	return result;
     }
     
-    public int getDirectionPrefs(Direction dir, PlaceType occupying)
+    /**
+     * Return the raw value for direction preferences
+     * @param dir
+     * @param occupying
+     * @return
+     */
+    public short getDirectionPrefs(Direction dir, PlaceType occupying)
     {
 	int preferenceOffset = 0;
 	if(occupying == null)
@@ -104,25 +145,44 @@ public class Genome
 	    	preferenceOffset += DNA_WEST_PREFS;
 	    	break;
 	}
-	return positiveShort(genome[preferenceOffset]);
+	return getRawValue(preferenceOffset);
     }
     
+    /**
+     * Choose a random bit to mutate, and make a mask for it
+     * @param r
+     * @return
+     */
     private byte mutateRandomBitMask(Random r)
     {
 	int randomByte = r.nextInt(8);
 	return (byte)(1 << randomByte);
     }
     
+    /**
+     * Return the byte at the specified index
+     * @param i
+     * @return
+     */
     private byte getByteAt(int i)
     {
 	return genome[i];
     }
     
+    /**
+     * Return a partially processed value for the given index
+     * @param index
+     * @return
+     */
     public short getRawValue(int index)
     {
 	return positiveShort(genome[index]);
     }
     
+    /**
+     * Return the length of the genome
+     * @return
+     */
     public static int getGenomeLength()
     {
 	return DNA_LENGTH;

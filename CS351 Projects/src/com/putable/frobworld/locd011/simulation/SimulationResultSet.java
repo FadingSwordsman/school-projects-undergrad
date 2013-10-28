@@ -5,144 +5,166 @@ import java.util.List;
 
 import com.putable.frobworld.locd011.beings.Frob;
 
+/**
+ * A SimulationResultSet allows us to group several SimulationResuls together, and calculate statistics on the set of runs.
+ * 
+ * @author David
+ *
+ */
 public class SimulationResultSet
 {
+    private boolean recalculate = false;
+    
+    private List<SimulationResult> results = new LinkedList<SimulationResult>();
+    private List<Integer> successfulRunSeeds = new LinkedList<Integer>();
+    
     private int survivingFrobs = -1;
     private double metabolismAverage = -1;
     private double metabolismStandardDeviation = -1;   
     private List<Frob> survivingFrobList = new LinkedList<Frob>();
+
+    private long averageRun = -1;
+    private double averageLifeTime = -1;
+    private int successfulRuns = 0;
+    private int longestRunTime = -1;
     
-    private class SimulationSeedPair
+    /**
+     * Get the total number of Frobs surviving at the end of all of the simulations
+     * @return
+     */
+    public int getSurvivingFrobs()
     {
-	private SimulationResult result;
-	private Integer seed;
-	private boolean success;
-	
-	public SimulationSeedPair(SimulationResult result, Integer seed)
-	{
-	    this.result = result;
-	    this.seed = seed;
-	    success = result.isSuccess();
-	}
-	
-	public SimulationResult getResult()
-	{
-	    return result;
-	}
-	
-	public Integer getSeed()
-	{
-	    return seed;
-	}
-	
-	public boolean isSuccess()
-	{
-	    return success;
-	}
-    }
-    
-    private int getSurvivingFrobs()
-    {
-	if(survivingFrobs < 0)
-	    calculateSurvivorStats();
+	if(recalculate)
+	    calculateStatistics();
 	return survivingFrobs;
     }
     
-    private double getMetabolismAverage()
+    /**
+     * Get the average metabolism of all surviving Frobs.
+     * @return
+     */
+    public double getMetabolismAverage()
     {
-	if(metabolismAverage < 0)
-	    calculateSurvivorStats();
+	if(recalculate)
+	    calculateStatistics();
 	return metabolismAverage;
     }
     
-    private double getMetabolismStandardDeviation()
+    /**
+     * Get the standard deviation of the metabolism of all surviving Frobs.
+     * @return
+     */
+    public double getMetabolismStandardDeviation()
     {
-	if(metabolismStandardDeviation < 0)
-	    calculateSurvivorStats();
+	if(recalculate)
+	    calculateStatistics();
 	return metabolismStandardDeviation;
     }
     
+    /**
+     * Calculate and store the statistics related to surviving Frobs.
+     */
     private void calculateSurvivorStats()
     {
-	for(SimulationSeedPair result : results)
-	    survivingFrobList.addAll(result.getResult().getSurvivors());
+	for(SimulationResult result : results)
+	    survivingFrobList.addAll(result.getSurvivors());
 	
 	double[] stats = StatisticsUtility.calculateMetabolismStats(survivingFrobList);
 	metabolismAverage = stats[0];
 	metabolismStandardDeviation = stats[1];
 	survivingFrobs = survivingFrobList.size();
     }
-    
-    private List<SimulationSeedPair> results = new LinkedList<SimulationSeedPair>();
-    private List<Integer> successfulRunSeeds = new LinkedList<Integer>();
 
-    private long averageRun = -1;
-    private double averageLifeTime = -1;
-    private int successfulRuns = -1;
-    private int longestRunTime = -1;
     
+    /**
+     * Add a SimulationResult to this group.
+     * Since our statistic will be wrong at this point, flag the set for recalculation
+     * @param result
+     * @param seed
+     */
     public void add(SimulationResult result, int seed)
     {
-	results.add(new SimulationSeedPair(result, seed));
+	results.add(result);
+	if(result.isSuccess())
+	{
+	    successfulRuns++;
+	    successfulRunSeeds.add(seed);
+	}
+	recalculate = true;
     }
     
+    /**
+     * Get the average time that all of the simulations ran
+     * @return
+     */
     public long getAverageRun()
     {
-	if(averageRun < 0)
+	if(recalculate)
 	    calculateStatistics();
 	return averageRun;
     }
     
+    /**
+     * Get the average of the average of all Frobs in the simulations.
+     * @return
+     */
     public double getAverageLifeTime()
     {
-	if(averageLifeTime < 0)
+	if(recalculate)
 	    calculateStatistics();
 	return averageLifeTime;
     }
     
+    /**
+     * Get the number of runs which ended with a surviving Frob
+     * @return
+     */
     public int getSuccessfulRuns()
     {
-	if(successfulRuns < 0)
+	if(recalculate)
 	    calculateStatistics();
 	return successfulRuns;
     }
     
+    /**
+     * Get the longest runTime in the set of SimulationResults
+     * @return
+     */
     public int getLongestRunTime()
     {
-	if(longestRunTime < 0)
+	if(recalculate)
 	    calculateStatistics();
 	return longestRunTime;
     }
     
+    /**
+     * Calculate and store all of the statistics of interest.
+     */
     private void calculateStatistics()
     {
+	recalculate = false;
 	averageLifeTime = 0;
-	successfulRuns = 0;
 	double tempAverage = 0;
 	int currentItems = 0;
-	for (SimulationSeedPair result : results)
+	for (SimulationResult result : results)
 	{
-	    int runTime = result.getResult().getRunTime();
+	    int runTime = result.getRunTime();
 	    tempAverage += runTime;
 	    if(runTime > longestRunTime)
 		longestRunTime = runTime;
 	    currentItems++;
-	    averageLifeTime += result.getResult().getAverageLife();
-	    if (result.isSuccess())
-	    {
-		successfulRuns++;
-		successfulRunSeeds.add(result.getSeed());
-	    }
+	    averageLifeTime += result.getAverageLife();
 	}
 	averageRun = Math.round(tempAverage/currentItems);
 	averageLifeTime /= currentItems;
+	calculateSurvivorStats();
     }
     
     public String toString()
     {
 	StringBuilder sb = new StringBuilder();
-	for(SimulationSeedPair result : results)
-	    sb.append("\n").append(result.getResult());
+	for(SimulationResult result : results)
+	    sb.append("\n").append(result);
 	sb.append("\nAverage run time was: ").append(getAverageRun());
 	sb.append("\nAverage frob life was: ").append(getAverageLifeTime());
 	sb.append("\nLongest run was: ").append(getLongestRunTime());
@@ -152,14 +174,14 @@ public class SimulationResultSet
 	    sb.append("\n\tTotal number of surviving Frobs: ").append(getSurvivingFrobs());
 	    sb.append("\n\tAverage Frob metabolism: ").append(getMetabolismAverage()).append(" movements per day");
 	    sb.append("\n\tFrob metabolism standard deviation: ").append(getMetabolismStandardDeviation());
-	    sb.append("\n\tMetabolic rates of surviving Frobs:\n\t\t");
+	    sb.append("\n\tMetabolic rates of surviving Frobs:");
 	    int tabs = 0;
 	    int[] freqs = new int[40];
 	    for(Frob survivor : survivingFrobList)
 		freqs[survivor.getUpdatePeriod()]++;
 	    for(int x = 0; x < freqs.length; x++)
 		if(freqs[x] > 0)
-		    sb.append('\n').append(x).append(',').append(freqs[x]);
+		    sb.append("\n\t\t").append(x).append(" - ").append(freqs[x]).append(freqs[x] == 1 ? " Frob" : " Frobs");
 	    sb.append("\n\tSuccessful run seeds: \n\t\t");
 	    for(Integer successSeed : successfulRunSeeds)
 	    {
@@ -174,5 +196,4 @@ public class SimulationResultSet
 	}
 	return sb.toString();
     }
-    
 }

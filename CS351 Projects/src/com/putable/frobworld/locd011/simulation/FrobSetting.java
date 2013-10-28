@@ -2,6 +2,11 @@ package com.putable.frobworld.locd011.simulation;
 
 import java.util.HashMap;
 
+/**
+ * A list of settings specific to Frobs
+ * @author David
+ *
+ */
 public class FrobSetting extends AbstractLivingSetting {
 	private final int DNA_MUTATION_ODDS_PER_BYTE;
 	private final int FROB_HIT_PENALTY;

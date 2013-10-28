@@ -2,6 +2,11 @@ package com.putable.frobworld.locd011.simulation;
 
 import java.util.HashMap;
 
+/**
+ * A list of settings specific to Grass
+ * @author David
+ *
+ */
 public class GrassSetting extends AbstractLivingSetting
 {
     private final int GRASS_BIRTH_MASS;

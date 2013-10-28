@@ -24,6 +24,10 @@ public class Frob extends AbstractLiveable
     private int deathdate = -1;
     private List<Frob> children = new LinkedList<Frob>();
 
+    /**
+     * Create a plain, randomized Frob for genesis
+     * @param world
+     */
     public Frob(SimulationWorld world)
     {
 	super(PlaceType.FROB, world, world.getSimulationSettings().getFrobSettings().getGenesisMass());
@@ -38,6 +42,12 @@ public class Frob extends AbstractLiveable
 	birthdate = 0;
     }
 
+    /**
+     * Create a new Frob, handling mutations and associated assignments
+     * @param world
+     * @param gene
+     * @param newMass
+     */
     public Frob(SimulationWorld world, Genome gene, int newMass)
     {
 	super(PlaceType.FROB, world, gene.getBirthMass());
@@ -62,6 +72,9 @@ public class Frob extends AbstractLiveable
 	return isDead() ? GraphicsDeltaHelper.removeAt(getLocation()) : moveDelta;
     }
 
+    /**
+     * Pay the mass tax for this frob, and attempt to die
+     */
     private void payMassTax()
     {
 	int currentMass = getMass();
@@ -70,6 +83,12 @@ public class Frob extends AbstractLiveable
 	attemptToDie();
     }
 
+    /**
+     * Attempt a move in the given direction
+     * @param inDirection
+     * @param previousLocation
+     * @return
+     */
     private GraphicsDelta attemptMove(Direction inDirection, int[] previousLocation)
     {
 	int[] newLocation = inDirection.getLocationFrom(getLocation());
@@ -93,6 +112,11 @@ public class Frob extends AbstractLiveable
 	return change;
     }
 
+    /**
+     * Attempt to create a child
+     * @param location
+     * @return
+     */
     private GraphicsDelta attemptSplit(int[] location)
     {
 	if (getMass() >= getBirthMass())
@@ -117,7 +141,12 @@ public class Frob extends AbstractLiveable
 	return result.isMoveAllowed();
     }
 
-    public Direction selectDirection(PlaceType[] surrounding)
+    /**
+     * Select a direction for this frob to move, given the things immediately arround it
+     * @param surrounding
+     * @return
+     */
+    private Direction selectDirection(PlaceType[] surrounding)
     {
 	int currentPreference = 0;
 	int[] preferences = new int[surrounding.length];
@@ -184,12 +213,17 @@ public class Frob extends AbstractLiveable
 	    die();
     }
     
+    @Override
     public void die()
     {
 	deathdate = getWorld().getDay();
 	super.die();
     }
 
+    /**
+     * Return the time that this Frob lived, or has lived, so far
+     * @return
+     */
     public int timeAlive()
     {
 	if(!isDead())
@@ -197,11 +231,19 @@ public class Frob extends AbstractLiveable
 	return deathdate - birthdate;
     }
 
+    /**
+     * Return a list of all of the children of this Frob
+     * @return
+     */
     public List<Frob> getChildren()
     {
 	return children;
     }
 
+    /**
+     * Get the genetic structure of this Frob
+     * @return
+     */
     public Genome getGenome()
     {
 	return gene;

@@ -43,21 +43,37 @@ public class SimulationPanel extends JPanel implements ActionListener
 	this.world = world;
     }
 
+    /**
+     * Set the list of changes to make
+     * @param updates
+     */
     public void setDeltaList(Iterable<GraphicsDelta> updates)
     {
 	this.updates = updates;
     }
 
+    /**
+     * Flag all updates to this panel as complete.
+     * @param completedUpdate
+     */
     public void setCompletedUpdate(boolean completedUpdate)
     {
 	this.completedUpdate = completedUpdate;
     }
     
+    /**
+     * Get the time that the containing object should wait for this one to update
+     * @return
+     */
     public int getWaitTime()
     {
 	return waitTime;
     }
     
+    /**
+     * Set the time that the containing object should wait for this one to update
+     * @param waitTime
+     */
     public void setWaitTime(int waitTime)
     {
 	this.waitTime = waitTime;
@@ -70,9 +86,6 @@ public class SimulationPanel extends JPanel implements ActionListener
      */
     private Translation getCoordinateTranslation()
     {
-	// TODO: Implement a way to clear translation on resize, translate i,j
-	// coordinates to x,y
-	// TODO: Make it recalculate on resize
 	if (translation == null)
 	{
 	    WorldSetting worldSetting = world.getSimulationSettings().getWorldSettings();
@@ -108,7 +121,6 @@ public class SimulationPanel extends JPanel implements ActionListener
 	paintComponent(g);
     }
     
-    // TODO: Implement actual drawing of items on the panel
     @Override
     public void paintComponent(Graphics g)
     {
@@ -153,18 +165,33 @@ public class SimulationPanel extends JPanel implements ActionListener
 	completedUpdate = true;
     }
     
+    /**
+     * Draw a simple status on the bottom of the panel
+     * @param g
+     */
     private void drawStatus(Graphics g)
     {
-	g.clearRect(statusText[2], statusText[3], getWidth(), getHeight());
+	g.clearRect(statusText[2], statusText[3], getWidth(), 40);
 	g.setColor(Color.BLACK);
-	g.drawString(world.getLiveableStatus().toString(), statusText[0], statusText[1]);
+	g.drawString("Current Day: " + world.getDay(), statusText[0], statusText[1]);
+	g.drawString(world.getLiveableStatus().toString(), statusText[0], statusText[1] + 14);
+	g.drawString("Update speed: Once every " + getWaitTime() + " ms", statusText[0], statusText[1] + 28);
     }
 
+    /**
+     * Return whether this panel has completed the most recent update or not
+     * @return
+     */
     public boolean hasCompletedUpdate()
     {
 	return completedUpdate;
     }
 
+    /**
+     * Translate i, j coordinates to an x, y, width, height format rectangle on this panel.
+     * @author David
+     *
+     */
     public interface Translation
     {
 	public int[] translateCoordinates(int[] xyPair);

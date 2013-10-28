@@ -4,6 +4,7 @@ import com.putable.frobworld.locd011.beings.CollisionResult;
 import com.putable.frobworld.locd011.beings.Frob;
 import com.putable.frobworld.locd011.beings.PlaceType;
 import com.putable.frobworld.locd011.graphics.Drawable;
+import com.putable.frobworld.locd011.simulation.SimulationWorld;
 
 public interface Placeable
 {
@@ -39,4 +40,10 @@ public interface Placeable
      * @return
      */
     public Drawable getRepresentation();
+    
+    /**
+     * Get the SimulationWorld this Placeable currently exists on
+     * @return
+     */
+    public SimulationWorld getWorld();
 }

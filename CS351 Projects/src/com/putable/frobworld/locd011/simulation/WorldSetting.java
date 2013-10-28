@@ -11,6 +11,15 @@ public class WorldSetting
     private final int INIT_GRASSES;
     private final int INIT_ROCKS;
 
+    /**
+     * A list of parameters specific to the world itself, and its creation/existence
+     * @param worldHeight
+     * @param worldWidth
+     * @param maxSimulationLength
+     * @param initFrobs
+     * @param initGrasses
+     * @param initRocks
+     */
     public WorldSetting(int worldHeight, int worldWidth, int maxSimulationLength, int initFrobs, int initGrasses, int initRocks)
     {
 	WORLD_HEIGHT = worldHeight;

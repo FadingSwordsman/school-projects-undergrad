@@ -26,6 +26,14 @@ public class SimulationResult
     
     String resultString;
     
+    /**
+     * Only allow creation of SimulationResults through makeSimulation
+     * @param mapResult
+     * @param remainingObjects
+     * @param expectedRunTime
+     * @param actualRunTime
+     * @param simulationSeed
+     */
     private SimulationResult(String mapResult, LiveableStatus remainingObjects, int expectedRunTime, int actualRunTime, int simulationSeed)
     {
 	this.mapResult = mapResult;
@@ -50,11 +58,19 @@ public class SimulationResult
 	return result;
     }
     
+    /**
+     * Get the average length of life in the represented simulation
+     * @return
+     */
     public double getAverageLife()
     {
 	return remainingObjects.getFrobLifeAverage();
     }
     
+    /**
+     * Get the average metabolism of any surviving frobs
+     * @return
+     */
     public double getSurvivingMetabolismAverage()
     {
 	if(averageMetabolism < 0 && runSuccess)
@@ -62,6 +78,10 @@ public class SimulationResult
 	return averageMetabolism;
     }
     
+    /**
+     * Get the standard deviation of the metabolism of any surviving frobs
+     * @return
+     */
     public double getSurvivingMetabolismDeviation()
     {
 	if(standardDeviationMetabolism < 0 && runSuccess)
@@ -69,6 +89,9 @@ public class SimulationResult
 	return standardDeviationMetabolism;
     }
     
+    /**
+     * Calculate the metabolism stats for this simulation run
+     */
     private void calculateMetabolismStatistics()
     {
 	double[] metabolismStats = StatisticsUtility.calculateMetabolismStats(survivors);
@@ -91,12 +114,21 @@ public class SimulationResult
 	return survivors;
     }
     
+    /**
+     * Add the specified genome array to the given StringBuilder
+     * @param array
+     * @param toBuffer
+     */
     private void addArray(double[] array, StringBuilder toBuffer)
     {
 	for(int x = 0; x < array.length; x++)
 	    toBuffer.append('[').append(Math.round(array[x])).append(']');
     }
     
+    /**
+     * Return the String representing the final view of the map
+     * @return
+     */
     public String mapResult()
     {
 	return mapResult;

@@ -45,8 +45,14 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	return nextMovement;
     }
 
-    protected void updateNextMove(int offset)
+    /**
+     * Add the specified number to this object's next movement
+     * @param offset
+     */
+    public void updateNextMove(int offset)
     {
+	if(queue != null)
+	    throw new IllegalStateException("Cannot update move while on a queue!");
 	this.nextMovement += offset;
     }
 
@@ -60,6 +66,10 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	return difference;
     }
 
+    /**
+     * Set the mass of this Liveable
+     * @param mass
+     */
     public void setMass(int mass)
     {
 	this.mass = mass;
@@ -95,21 +105,37 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	this.index = index;
     }
 
+    /**
+     * Get the update period of this Liveable
+     * @return
+     */
     public int getUpdatePeriod()
     {
 	return updatePeriod;
     }
 
+    /**
+     * Change the update period of this liveable
+     * @param newUpdatePeriod
+     */
     public void setUpdatePeriod(int newUpdatePeriod)
     {
 	this.updatePeriod = newUpdatePeriod;
     }
     
+    /**
+     * Set the birthmass of this liveable
+     * @param birthMass
+     */
     public void setBirthMass(int birthMass)
     {
 	this.birthMass = birthMass;
     }
 
+    /**
+     * Get the current birthmass of this liveable
+     * @return
+     */
     public int getBirthMass()
     {
 	return birthMass;
@@ -121,6 +147,9 @@ public abstract class AbstractLiveable extends AbstractPlaceable implements Live
 	return dead;
     }
 
+    /**
+     * Kill this Liveable and notify the world.
+     */
     public void die()
     {
 	dead = true;

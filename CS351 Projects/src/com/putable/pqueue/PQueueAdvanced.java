@@ -21,6 +21,11 @@ public class PQueueAdvanced implements PQueue
 	this(10);
     }
     
+    /**
+     * Create a PQueue with a specified capacity, to avoid some of the overhead from either expanding
+     * 		when we know we'll need the extra space, or using too much space when we don't need that space 
+     * @param capacity
+     */
     public PQueueAdvanced(int capacity)
     {
 	this.size = 0;
@@ -97,6 +102,10 @@ public class PQueueAdvanced implements PQueue
 	return true;
     }
     
+    /**
+     * Heapify up, ensuring that the object in fromIndex is of less priority than its ancestors
+     * @param fromIndex
+     */
     private void heapifyUp(int fromIndex)
     {
 	int currentIndex = fromIndex;
@@ -114,7 +123,7 @@ public class PQueueAdvanced implements PQueue
     }
     
     /**
-     * Heapify up, as though inserting insert at the given index
+     * Heapify down, as though adding insert at the given index
      * @param fromIndex
      * @param insert
      */
@@ -143,6 +152,12 @@ public class PQueueAdvanced implements PQueue
 	set(currentIndex, insert);
     }
     
+    /**
+     * Tells us if first is higher priority than second
+     * @param first
+     * @param second
+     * @return
+     */
     private boolean isHigherPriority(PQAble first, PQAble second)
     {
 	if(first == null)
@@ -153,6 +168,12 @@ public class PQueueAdvanced implements PQueue
 	return first.compareTo(second) < 0;
     }
     
+    /**
+     * Tells us if first is higher priority than all of the seconds
+     * @param first
+     * @param seconds
+     * @return
+     */
     private boolean isHighestPriority(PQAble first, PQAble...seconds)
     {
 	boolean result = true;
@@ -161,11 +182,21 @@ public class PQueueAdvanced implements PQueue
 	return result;
     }
     
+    /**
+     * Get the parent index from the given one
+     * @param ofIndex
+     * @return
+     */
     private int getParentIndex(int ofIndex)
     {
 	return ofIndex >> 1;
     }
     
+    /**
+     * Get the children indices from the given one
+     * @param ofIndex
+     * @return
+     */
     private int[] getChildIndices(int ofIndex)
     {
 	int firstChild = ofIndex << 1;
@@ -173,6 +204,11 @@ public class PQueueAdvanced implements PQueue
 	return new int[]{firstChild, secondChild};
     }
     
+    /**
+     * Set the specified index to the given item, and update that item
+     * @param index
+     * @param item
+     */
     private void set(int index, PQAble item)
     {
 	tree[index] = item;
@@ -182,6 +218,11 @@ public class PQueueAdvanced implements PQueue
 	    item.setIndex(index);
     }
     
+    /**
+     * Get the PQAble at the specified index
+     * @param index
+     * @return
+     */
     private PQAble getPQAbleAt(int index)
     {
 	if(index <= size && index > 0)
@@ -194,6 +235,9 @@ public class PQueueAdvanced implements PQueue
 	return null;
     }
     
+    /**
+     * Expand the PQAble capacity by doubling it
+     */
     private void expand()
     {
 	//Clear the list:
@@ -205,6 +249,10 @@ public class PQueueAdvanced implements PQueue
 	nextCopy = 1;
     }
     
+    /**
+     * Copy the next element still in the previous array to the new one
+     * @return
+     */
     private boolean copyOldElement()
     {
 	boolean copy = oldElements != null && nextCopy < oldElements.length;

@@ -19,7 +19,6 @@ public enum PlaceType
     FROB('F', frobRepresentation(), frobCreator()),
     GRASS('G', grassRepresentation(), grassCreator());
     
-    //TODO: Implement Drawables for each of these types.
     private char asciiRepresentation;
     private Drawable representation;
     private Creator creator;
@@ -115,6 +114,10 @@ public enum PlaceType
 	};
     }
     
+    /**
+     * Create a boring, default rock drawable
+     * @return
+     */
     private static Drawable rockRepresentation()
     {
     	return new Drawable()
@@ -129,6 +132,10 @@ public enum PlaceType
     	};
     }
     
+    /**
+     * Create a boring, default frob drawable
+     * @return
+     */
     private static Drawable frobRepresentation()
     {
     	return new Drawable()
@@ -143,11 +150,12 @@ public enum PlaceType
     	};
     }
     
+    /**
+     * Create a boring, default grass drawable
+     * @return
+     */
     private static Drawable grassRepresentation()
     {
-	
-	return null;
-	/*
     	return new Drawable()
     	{
     		@Override
@@ -157,6 +165,6 @@ public enum PlaceType
 				g.setColor(Color.GREEN);
 				g.fillRect(translatedLocation[0], translatedLocation[1], translatedLocation[2], translatedLocation[3]);
 			}
-    	};*/
+    	};
     }
 }

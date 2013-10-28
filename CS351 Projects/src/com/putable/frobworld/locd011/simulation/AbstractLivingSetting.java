@@ -6,6 +6,12 @@ public abstract class AbstractLivingSetting
     private final int MASS_TAX;
     private final int GENESIS_MASS;
     
+    /**
+     * A holder for various Settings that can be applied to any living thing i.n this simulation world.
+     * @param fixedOverhead
+     * @param massTax
+     * @param genesisMass
+     */
     public AbstractLivingSetting(int fixedOverhead, int massTax, int genesisMass)
     {
 	FIXED_OVERHEAD = fixedOverhead;

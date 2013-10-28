@@ -149,6 +149,10 @@ public class SimulationWorld implements Runnable
 	return result;
     }
 
+    /**
+     * Run the next day
+     * @return
+     */
     private Iterable<GraphicsDelta> runDay()
     {
 	List<GraphicsDelta> changes = new LinkedList<GraphicsDelta>();
@@ -173,6 +177,9 @@ public class SimulationWorld implements Runnable
 	return changes;
     }
 
+    /**
+     * Update the graphics panel, if there is one
+     */
     private void updatePanel()
     {
 	panel.setCompletedUpdate(false);
@@ -188,6 +195,10 @@ public class SimulationWorld implements Runnable
 	simulationUpdateTimer.stop();
     }
     
+    /**
+     * Return the associated graphics panel
+     * @return
+     */
     public SimulationPanel getPanel()
     {
 	return panel;

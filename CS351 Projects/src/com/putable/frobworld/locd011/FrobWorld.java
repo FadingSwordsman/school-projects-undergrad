@@ -1,4 +1,4 @@
-package com.putable.frobworld;
+package com.putable.frobworld.locd011;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +20,10 @@ import com.putable.frobworld.locd011.simulation.SimulationWorld;
  */
 public class FrobWorld
 {
+    /**
+     * Run FrobWorld in some sort of batch mode, whether a runcount or runthese instance.
+     * @param input
+     */
     private static void runBatchMode(Scanner input)
     {
 	List<Integer> seeds = new LinkedList<Integer>();
@@ -47,6 +51,10 @@ public class FrobWorld
 	}
     }
 
+    /**
+     * Process a one-lined runthis file.
+     * @param runs
+     */
     private static void runthis(int runs)
     {
 	System.out.println("Running " + runs + " simulations.");
@@ -57,6 +65,13 @@ public class FrobWorld
 	runthese(seeds, false);
     }
 
+    /**
+     * Run a runthese file, or a runthis file after the seeds have been generated.
+     * Run each Simulation on its own thread, for great justice. Avoid using all of the processors, unless
+     * 		there is only one processor, in which case... I hope the kernel is friendly to your other activities.
+     * @param seeds
+     * @param stopAtZero
+     */
     private static void runthese(List<Integer> seeds, boolean stopAtZero)
     {
 	//Try not to completely overload everything with simulation processing:
@@ -100,6 +115,10 @@ public class FrobWorld
 	System.out.println(resultAggregate);
     }
 
+    /**
+     * Run an interactive simulation with the specified seed
+     * @param seed
+     */
     private static void runWithSeed(int seed)
     {
 	SimulationSettings settings = SimulationSettings.createSettings(25000);
@@ -107,11 +126,19 @@ public class FrobWorld
 	System.out.println(world.runSimulation());
     }
 
+    /**
+     * Run a single interactive simulation with a randomized seed 
+     */
     private static void runInteractive()
     {
 	runWithSeed(new Random().nextInt());
     }
 
+    /**
+     * A Simulation-Thread combination. Combines a SimulationWorld ant the Thread running it.
+     * @author David
+     *
+     */
     private static class SimulationThread implements Runnable
     {
 	private SimulationWorld world;
@@ -119,6 +146,12 @@ public class FrobWorld
 	private Semaphore threadLimit;
 	private int seed;
 
+	/**
+	 * Create this object, specifying the resource that limits the number of concurrent threads, settings, and seed.
+	 * @param settings
+	 * @param seed
+	 * @param limit
+	 */
 	public SimulationThread(SimulationSettings settings, int seed, Semaphore limit)
 	{
 	    world = new SimulationWorld(settings, true, seed);
@@ -127,11 +160,19 @@ public class FrobWorld
 	    this.threadLimit = limit;
 	}
 
+	/**
+	 * Get the seed that created this SimulationWorld
+	 * @return
+	 */
 	public int getSeed()
 	{
 	    return seed;
 	}
 
+	/**
+	 * Block for the simulation to complete, then return the result from that simulation.
+	 * @return
+	 */
 	public SimulationResult getResult()
 	{
 	    try
@@ -144,6 +185,9 @@ public class FrobWorld
 	    return world.getResult();
 	}
 
+	/**
+	 * Start this thread. The calling thread needs to acquire a license before doing this, to respect the thread limit.
+	 */
 	public void run()
 	{
 	    thread.start();

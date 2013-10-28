@@ -19,6 +19,11 @@ public abstract class AbstractPlaceable implements Placeable
     private int[] location;
     private final SimulationWorld world;
 
+    /**
+     * Create a placeable of the specified type
+     * @param type
+     * @param world
+     */
     public AbstractPlaceable(PlaceType type, SimulationWorld world)
     {
 	this.type = type;
@@ -26,6 +31,12 @@ public abstract class AbstractPlaceable implements Placeable
 	this.world = world;
     }
 
+    /**
+     * Create a placeable at the specified location, on the specified world
+     * @param type
+     * @param world
+     * @param location
+     */
     public AbstractPlaceable(PlaceType type, SimulationWorld world, int[] location)
     {
 	this(type, world);
@@ -78,21 +89,25 @@ public abstract class AbstractPlaceable implements Placeable
 	return nextId++;
     }
 
+    @Override
     public final PlaceType getType()
     {
 	return type;
     }
 
+    @Override
     public final void setLocation(int x, int y)
     {
 	location = new int[] { x, y };
     }
 
+    @Override
     public final int[] getLocation()
     {
 	return location;
     }
 
+    @Override
     public final SimulationWorld getWorld()
     {
 	return world;

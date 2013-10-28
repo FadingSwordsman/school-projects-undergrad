@@ -2,6 +2,11 @@ package com.putable.frobworld.locd011.simulation;
 
 import java.util.HashMap;
 
+/**
+ * A list of settings that don't really fit anywhere else
+ * @author David
+ *
+ */
 public class MiscSetting
 {
 	private final int ROCK_BUMP_PENALTY;

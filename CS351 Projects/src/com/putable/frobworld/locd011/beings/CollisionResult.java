@@ -40,6 +40,10 @@ public class CollisionResult
 		return moveAllowed;
 	}
 	
+	/**
+	 * Return the change external to the colliding object.
+	 * @return
+	 */
 	public GraphicsDelta getGraphicsDelta()
 	{
 	    return change;

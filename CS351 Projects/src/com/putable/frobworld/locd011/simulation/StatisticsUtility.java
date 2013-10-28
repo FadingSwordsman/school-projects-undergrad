@@ -7,6 +7,11 @@ public final class StatisticsUtility
     private StatisticsUtility()
     {}
     
+    /**
+     * Calculate standard deviation and average for the metabolism of this list of Frobs
+     * @param frobs
+     * @return
+     */
     public static double[] calculateMetabolismStats(Iterable<Frob> frobs)
     {
 	double average = 0;

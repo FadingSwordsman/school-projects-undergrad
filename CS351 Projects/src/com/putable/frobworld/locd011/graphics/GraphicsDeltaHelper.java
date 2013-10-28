@@ -55,6 +55,13 @@ public final class GraphicsDeltaHelper
 	};
     }
     
+    /**
+     * Move the specified object from a location to another, by clearing the previous location and drawing in the new one.
+     * @param fromLocation
+     * @param toLocation
+     * @param object
+     * @return
+     */
     public static GraphicsDelta moveTo(final int[] fromLocation, final int[] toLocation, final Placeable object)
     {
 	return new GraphicsDelta()
@@ -74,7 +81,7 @@ public final class GraphicsDeltaHelper
     }
 
     /**
-     * Create a graphics object which updates the interaction between two
+     * Create a graphics object which updates any changes in the specified Liveables.
      * Liveables
      * 
      * @param updates
@@ -97,20 +104,12 @@ public final class GraphicsDeltaHelper
 	};
     }
 
-    public static GraphicsDelta move(final Liveable toMove, final int[] oldCoordinate)
-    {
-	return new GraphicsDelta()
-	{
-	    @Override
-	    public void updateMap(Graphics g, Translation t)
-	    {
-		int[] oldCoordinates = t.translateCoordinates(oldCoordinate);
-		g.clearRect(oldCoordinates[0], oldCoordinates[1], oldCoordinates[2], oldCoordinates[3]);
-		toMove.getRepresentation().drawItem(g, t, toMove.getLocation());
-	    }
-	};
-    }
-
+    /**
+     * Append two or more deltas together, making them into a single delta
+     * 		that simply executes them in order.
+     * @param deltas
+     * @return
+     */
     public static GraphicsDelta append(final GraphicsDelta... deltas)
     {
 	return new GraphicsDelta()

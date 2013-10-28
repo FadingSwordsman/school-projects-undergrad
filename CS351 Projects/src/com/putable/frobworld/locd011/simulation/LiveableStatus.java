@@ -65,6 +65,10 @@ public class LiveableStatus
 	remainingGrass += offset;
     }
     
+    /**
+     * Add a Frob's death and update the appropriate lists
+     * @param dyingFrob
+     */
     public void addFrobDeath(Frob dyingFrob)
     {
 	timeAlive.add(dyingFrob.timeAlive());
@@ -81,17 +85,29 @@ public class LiveableStatus
 	return remainingFrobs;
     }
     
+    /**
+     * Return the last dead Frob in this simulation
+     * @return
+     */
     public Frob getLastFrobToDie()
     {
 	return lastFrobToDie;
     }
     
+    /**
+     * Add a Frob that survived
+     * @param frob
+     */
     public void addSurvivingFrob(Frob frob)
     {
 	timeAlive.add(frob.timeAlive());
 	livingFrobs.add(frob);
     }
     
+    /**
+     * Add a genome for statistical calculation
+     * @param gene
+     */
     public void addGenome(Genome gene)
     {
 	deadFrobGenomes.add(gene);
@@ -106,6 +122,10 @@ public class LiveableStatus
 	return remainingGrass;
     }
     
+    /**
+     * Get the average life of a frob
+     * @return
+     */
     public double getFrobLifeAverage()
     {
 	if(averageLife == null)
@@ -113,11 +133,19 @@ public class LiveableStatus
 	return averageLife;
     }
     
+    /**
+     * Get the standard deviation of the length of a Frob's life
+     * @return
+     */
     public double getFrobDeviation()
     {
 	return lifeDeviation;
     }
     
+    /**
+     * Get the longest amount of time any Frob lived
+     * @return
+     */
     public int getLongestLivedFrob()
     {
 	if(longestLife == null)
@@ -125,6 +153,10 @@ public class LiveableStatus
 	return longestLife;
     }
     
+    /**
+     * Get the average Genome that any Frob had
+     * @return
+     */
     public double[] getAverageGenome()
     {
 	if(averageGenome == null)
@@ -132,6 +164,10 @@ public class LiveableStatus
 	return averageGenome;
     }
     
+    /**
+     * Get the standard deviation per genome of all frobs
+     * @return
+     */
     public double[] getGenomeDeviation()
     {
 	if(genomeDeviation == null)
@@ -151,6 +187,9 @@ public class LiveableStatus
 	createGenomeStats();
     }
     
+    /**
+     * Create all Life-length related statistics
+     */
     private void createLifeStats()
     {
 	longestLife = shortestLife = timeAlive.get(0);
@@ -177,16 +216,27 @@ public class LiveableStatus
 	lifeDeviation = Math.sqrt(lifeDeviation);
     }
 
+    /**
+     * Return the total number of frobs represented in this status
+     * @return
+     */
     public int getTotalFrobsEver()
     {
 	return totalFrobs;
     }
     
+    /**
+     * Get the list of surviving frobs
+     * @return
+     */
     public List<Frob> getSurvivingFrobs()
     {
 	return livingFrobs;
     }
     
+    /**
+     * Create all statistics related to genomes
+     */
     private void createGenomeStats()
     {
 	if(deadFrobGenomes.size() < 1)
@@ -195,12 +245,9 @@ public class LiveableStatus
 	averageGenome = new double[geneLength];
 	genomeDeviation = new double[geneLength];
 	for(Genome gene : deadFrobGenomes)
-	{
 	    for(int x = 0; x < averageGenome.length; x++)
-	    {
 		averageGenome[x] += gene.getRawValue(x);
-	    }
-	}
+	
 	for(int x = 0; x < averageGenome.length; x++)
 	    averageGenome[x] /= deadFrobGenomes.size();
 	for(Genome gene : deadFrobGenomes)
