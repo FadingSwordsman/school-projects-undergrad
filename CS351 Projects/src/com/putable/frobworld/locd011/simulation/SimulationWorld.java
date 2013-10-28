@@ -107,8 +107,6 @@ public class SimulationWorld implements Runnable
 	init.initSimulation();
     }
     
-    
-
     /**
      * Runs a simulation in its entirety. On finishing, returns a simulation
      * result.
