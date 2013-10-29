@@ -27,11 +27,10 @@ public class SimulationPanel extends JPanel implements ActionListener
     private Translation translation;
     private boolean completedUpdate = false;
     private final SimulationWorld world;
+    private SimulationSpeedSlider slider;
     private boolean initialized = false;
     private List<Placeable> rocks = new LinkedList<Placeable>();
-    
     private int waitTime = 1;
-    
     private int[] statusText;
 
     /**
@@ -45,6 +44,7 @@ public class SimulationPanel extends JPanel implements ActionListener
 
     /**
      * Set the list of changes to make
+     * 
      * @param updates
      */
     public void setDeltaList(Iterable<GraphicsDelta> updates)
@@ -54,24 +54,29 @@ public class SimulationPanel extends JPanel implements ActionListener
 
     /**
      * Flag all updates to this panel as complete.
+     * 
      * @param completedUpdate
      */
     public void setCompletedUpdate(boolean completedUpdate)
     {
 	this.completedUpdate = completedUpdate;
     }
-    
+
     /**
-     * Get the time that the containing object should wait for this one to update
+     * Get the time that the containing object should wait for this one to
+     * update
+     * 
      * @return
      */
     public int getWaitTime()
     {
 	return waitTime;
     }
-    
+
     /**
-     * Set the time that the containing object should wait for this one to update
+     * Set the time that the containing object should wait for this one to
+     * update
+     * 
      * @param waitTime
      */
     public void setWaitTime(int waitTime)
@@ -105,50 +110,53 @@ public class SimulationPanel extends JPanel implements ActionListener
 		    return new int[] { x, y, width, height };
 		}
 	    };
-	    statusText = translation.translateCoordinates(new int[]{0, worldSetting.getWorldHeight() + 1});
+	    statusText = translation.translateCoordinates(new int[] { 0, worldSetting.getWorldHeight() + 1 });
 	    statusText[2] = 0;
-	    statusText[3] = statusText[1] - translation.translateCoordinates(new int[]{0,1})[1];
+	    statusText[3] = statusText[1] - translation.translateCoordinates(new int[] { 0, 1 })[1];
 	}
 	return translation;
     }
-    
+
     @Override
     public void repaint()
     {
-	if(world == null)
+	if (world == null)
 	    return;
 	Graphics g = getGraphics();
 	paintComponent(g);
     }
-    
+
     @Override
     public void paintComponent(Graphics g)
     {
 	Translation translator = getCoordinateTranslation();
-	if(!initialized)
+	if(slider != null)
+	    slider.repaint();
+	if (!initialized)
 	{
-        	WorldSetting settings = world.getSimulationSettings().getWorldSettings();
-        	int height = settings.getWorldHeight();
-        	int width = settings.getWorldWidth();
-        	for (int x = 0; x < width; x++)
-        	    for (int y = 0; y < height; y++)
-        	    {
-        		Placeable object = world.getPlaceableAt(new int[] { x, y });
-        		if (object != null)
-        		{
-        		    object.getRepresentation().drawItem(g, translator, new int[] { x, y });
-        		    if(object.getType() == PlaceType.ROCK)
-        			rocks.add(object);
-        		}
-        	    }
-        	initialized = true;
-        	completedUpdate = true;
+	    g.clearRect(0, 0, getWidth(), getHeight());
+	    WorldSetting settings = world.getSimulationSettings().getWorldSettings();
+	    int height = settings.getWorldHeight();
+	    int width = settings.getWorldWidth();
+	    for (int x = 0; x < width; x++)
+		for (int y = 0; y < height; y++)
+		{
+		    Placeable object = world.getPlaceableAt(new int[] { x, y });
+		    if (object != null)
+		    {
+			object.getRepresentation().drawItem(g, translator, new int[] { x, y });
+			if (object.getType() == PlaceType.ROCK)
+			    rocks.add(object);
+		    }
+		}
+	    initialized = true;
+	    completedUpdate = true;
 	}
 	else
-	    for(Placeable rock : rocks)
+	    for (Placeable rock : rocks)
 		rock.getRepresentation().drawItem(g, translator, rock.getLocation());
     }
-    
+
     @Override
     public void paint(Graphics g)
     {
@@ -157,29 +165,30 @@ public class SimulationPanel extends JPanel implements ActionListener
 	    Translation coordinateTranslation = getCoordinateTranslation();
 	    for (GraphicsDelta update : updates)
 		update.updateMap(g, coordinateTranslation);
-	    
 	    updates = null;
 	}
-	if(initialized)
+	if (initialized)
 	    drawStatus(g);
 	completedUpdate = true;
     }
-    
+
     /**
      * Draw a simple status on the bottom of the panel
+     * 
      * @param g
      */
     private void drawStatus(Graphics g)
     {
 	g.clearRect(statusText[2], statusText[3], getWidth(), 40);
 	g.setColor(Color.BLACK);
-	g.drawString("Current Day: " + world.getDay(), statusText[0], statusText[1]);
-	g.drawString(world.getLiveableStatus().toString(), statusText[0], statusText[1] + 14);
-	g.drawString("Update speed: Once every " + getWaitTime() + " ms", statusText[0], statusText[1] + 28);
+	g.drawString("Current Day: " + world.getDay(), statusText[0], statusText[1] + 12);
+	g.drawString(world.getLiveableStatus().toString(), statusText[0], statusText[1] + 26);
+	g.drawString("Update speed: Once every " + getWaitTime() + " ms", statusText[0], statusText[1] + 40);
     }
 
     /**
      * Return whether this panel has completed the most recent update or not
+     * 
      * @return
      */
     public boolean hasCompletedUpdate()
@@ -188,19 +197,26 @@ public class SimulationPanel extends JPanel implements ActionListener
     }
 
     /**
-     * Translate i, j coordinates to an x, y, width, height format rectangle on this panel.
+     * Translate i, j coordinates to an x, y, width, height format rectangle on
+     * this panel.
+     * 
      * @author David
-     *
+     * 
      */
     public interface Translation
     {
 	public int[] translateCoordinates(int[] xyPair);
     }
+    
+    public void addSlider(SimulationSpeedSlider slider)
+    {
+	this.slider = slider;
+    }
 
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-	if(world == null)
+	if (world == null)
 	    return;
 	Graphics g = getGraphics();
 	paintComponent(g);

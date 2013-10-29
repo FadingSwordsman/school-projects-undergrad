@@ -1,13 +1,10 @@
 package com.putable.frobworld.locd011.simulation;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.JFrame;
 import javax.swing.Timer;
 
 import com.putable.frobworld.locd011.beings.AbstractPlaceable;
@@ -17,7 +14,6 @@ import com.putable.frobworld.locd011.beings.interfaces.Liveable;
 import com.putable.frobworld.locd011.beings.interfaces.Placeable;
 import com.putable.frobworld.locd011.graphics.GraphicsDelta;
 import com.putable.frobworld.locd011.graphics.SimulationPanel;
-import com.putable.frobworld.locd011.graphics.SimulationSpeedSlider;
 import com.putable.pqueue.PQueue;
 import com.putable.pqueue.PQueueAdvanced;
 
@@ -42,7 +38,6 @@ public class SimulationWorld implements Runnable
     private Random prng;
     private int day;
     
-    private Container outerPanel;
     private SimulationPanel panel;
     private Timer simulationUpdateTimer;
     private LiveableStatus liveablesRemaining = new LiveableStatus();
@@ -125,6 +120,7 @@ public class SimulationWorld implements Runnable
 	    if(next.getType() == PlaceType.FROB)
 		liveablesRemaining.addSurvivingFrob((Frob)next);
 	}
+	System.out.println("End simulation run");
 	result = SimulationResult.makeSimulationResult(this);
 	return result;
     }
@@ -163,16 +159,17 @@ public class SimulationWorld implements Runnable
     private void updatePanel()
     {
 	panel.setCompletedUpdate(false);
-	simulationUpdateTimer.start();
+	panel.actionPerformed(new ActionEvent(batchMode, day, "Day complete"){private static final long serialVersionUID = 1L;});
 	try
 	{
-	    while (!panel.hasCompletedUpdate())
+	    do
+	    {
 		Thread.sleep(panel.getWaitTime());
+	    }while (!panel.hasCompletedUpdate());
 	}
 	catch (InterruptedException e)
 	{
 	}
-	simulationUpdateTimer.stop();
     }
     
     /**
@@ -250,26 +247,6 @@ public class SimulationWorld implements Runnable
 		Liveable frob = (Liveable) makeFrob();
 		world.put(location[0], location[1], frob);
 		world.createLiveable(frob);
-	    }
-	}
-
-	private void initializeGraphics(SimulationWorld world)
-	{
-	    world.panel = new SimulationPanel(world);
-	    world.simulationUpdateTimer = new Timer(0, panel);
-	    world.simulationUpdateTimer.setRepeats(false);
-	    if(outerPanel == null)
-	    {
-		SimulationSpeedSlider slider = new SimulationSpeedSlider(1, 500, 250, world.panel);
-		JFrame container = new JFrame();
-		container.setPreferredSize(new Dimension(width * 10, height * 10));
-		container.getContentPane().add(panel, BorderLayout.CENTER);
-		container.getContentPane().add(slider, BorderLayout.SOUTH);
-		container.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		container.pack();
-		container.setResizable(false);
-		container.setVisible(true);
-		outerPanel = container;
 	    }
 	}
 
@@ -593,6 +570,8 @@ public class SimulationWorld implements Runnable
     
     public void setPanel(SimulationPanel panel)
     {
+	simulationUpdateTimer = new Timer(1, panel);
+	simulationUpdateTimer.setRepeats(false);
     	this.panel = panel;
     }
     

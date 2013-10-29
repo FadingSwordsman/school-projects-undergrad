@@ -1,15 +1,22 @@
 package com.putable.frobworld.locd011;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
+import javax.swing.JFrame;
+
+import com.putable.frobworld.locd011.graphics.SimulationPanel;
+import com.putable.frobworld.locd011.graphics.SimulationSpeedSlider;
 import com.putable.frobworld.locd011.simulation.SimulationResult;
 import com.putable.frobworld.locd011.simulation.SimulationResultSet;
 import com.putable.frobworld.locd011.simulation.SimulationSettings;
 import com.putable.frobworld.locd011.simulation.SimulationWorld;
+import com.putable.frobworld.locd011.simulation.WorldSetting;
 
 /**
  * A driver for FrobWorld artificial life simulator.
@@ -123,6 +130,20 @@ public class FrobWorld
     {
 	SimulationSettings settings = SimulationSettings.createSettings(25000);
 	SimulationWorld world = new SimulationWorld(settings, false, seed);
+	JFrame container = new JFrame();
+	SimulationPanel panel = new SimulationPanel(world);
+	SimulationSpeedSlider slider = new SimulationSpeedSlider(2, 500, 30, panel);
+	world.setPanel(panel);
+	WorldSetting worldSetting = settings.getWorldSettings();
+	int height = worldSetting.getWorldHeight();
+	int width = worldSetting.getWorldWidth();
+	container.setPreferredSize(new Dimension(width * 10 + 40, height * 10 + 40));
+	container.getContentPane().add(panel, BorderLayout.CENTER);
+	container.getContentPane().add(slider, BorderLayout.SOUTH);
+	container.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	container.pack();
+	container.setResizable(false);
+	container.setVisible(true);
 	System.out.println(world.runSimulation());
     }
 
