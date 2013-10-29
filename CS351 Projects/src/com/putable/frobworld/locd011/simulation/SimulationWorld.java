@@ -54,12 +54,7 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings)
     {
-	this(settings, false, new Random().nextInt(), null);
-    }
-    
-    public SimulationWorld(SimulationSettings settings, Container container)
-    {
-	this(settings, false, new Random().nextInt(), container);
+	this(settings, false, new Random().nextInt());
     }
 
     /**
@@ -70,7 +65,7 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings, boolean batchMode)
     {
-	this(settings, batchMode, new Random().nextInt(), null);
+	this(settings, batchMode, new Random().nextInt());
     }
 
     /**
@@ -81,24 +76,11 @@ public class SimulationWorld implements Runnable
      */
     public SimulationWorld(SimulationSettings settings, int randomSeed)
     {
-	this(settings, false, randomSeed, null);
-    }
-
-    /**
-     * Create a SimulationWorld given the appropriate settings
-     * 
-     * @param settings
-     * @param batchMode
-     * @param prng
-     */
-    public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed)
-    {
-	this(settings, batchMode, randomSeed, null);
+    	this(settings, false, randomSeed);
     }
     
-    public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed, Container container)
+    public SimulationWorld(SimulationSettings settings, boolean batchMode, int randomSeed)
     {
-	this.outerPanel = container;
 	this.settings = settings;
 	this.batchMode = batchMode;
 	this.prng = new Random(randomSeed);
@@ -121,8 +103,8 @@ public class SimulationWorld implements Runnable
 	    Iterable<GraphicsDelta> dailyChanges = runDay();
 	    if (!batchMode)
 	    {
-		panel.setDeltaList(dailyChanges);
-		updatePanel();
+	    	panel.setDeltaList(dailyChanges);
+	    	updatePanel();
 	    }
 	}
 	if(day >= settings.getWorldSettings().getMaxSimulationLength())
@@ -269,8 +251,6 @@ public class SimulationWorld implements Runnable
 		world.put(location[0], location[1], frob);
 		world.createLiveable(frob);
 	    }
-	    if (!batchMode)
-		initializeGraphics(world);
 	}
 
 	private void initializeGraphics(SimulationWorld world)
@@ -610,6 +590,13 @@ public class SimulationWorld implements Runnable
     {
 	return result;
     }
+    
+    public void setPanel(SimulationPanel panel)
+    {
+    	this.panel = panel;
+    }
+    
+    
     
     public int getSeed()
     {

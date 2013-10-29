@@ -20,9 +20,11 @@ public class FrobApplet extends JApplet
 
     public void init()
     {
-	SimulationSettings settings = SimulationSettings.createSettings(25000);
-	world = new SimulationWorld(settings, this);
-	worldPanel = world.getPanel();
+    	SimulationSettings settings = SimulationSettings.createSettings(25000);
+    	world = new SimulationWorld(settings);
+    	worldPanel = new SimulationPanel(world);
+    	world.setPanel(worldPanel);
+	worldPanel.setSize(250, 500);
 	speedSlider = new SimulationSpeedSlider(1,500,25,worldPanel);
 	getContentPane().add(worldPanel);
 	getContentPane().add(speedSlider);
