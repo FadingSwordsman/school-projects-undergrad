@@ -45,6 +45,18 @@ public class ChatClient implements Connectable
     
     public static void main(String[] args)
     {
+	if (args.length > 0)
+	    url = args[0];
+	if (args.length > 1)
+	    try
+	    {
+		port = Integer.parseInt(args[1]);
+	    }
+	    catch (NumberFormatException e)
+	    {
+		e.printStackTrace();
+		return;
+	    }
 	ChatClient client = getClient();
 	try
 	{
