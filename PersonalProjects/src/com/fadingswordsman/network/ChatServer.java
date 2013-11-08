@@ -36,6 +36,7 @@ public class ChatServer
 		e.printStackTrace();
 	    }
 	}
+	System.out.println(msg);
     }
     
     public static ChatServer getServer()
@@ -53,6 +54,7 @@ public class ChatServer
 	    try
 	    {
 		blah = new ServerSocket(port);
+		port++;
 		Socket sock = blah.accept();
 		connections.add(sock);
 		outputs.add(new BufferedWriter(new OutputStreamWriter(sock.getOutputStream())));
