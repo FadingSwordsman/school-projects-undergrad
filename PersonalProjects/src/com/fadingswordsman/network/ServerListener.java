@@ -14,7 +14,7 @@ public class ServerListener implements Runnable
 	
 	private ServerListener(String scope, int port) throws IOException
 	{
-			listener = new ServerSocket(port, 50, InetAddress.getByName(scope));
+		listener = new ServerSocket(port, 50, InetAddress.getByName(scope));
 	}
 	
 	@Override
@@ -24,7 +24,7 @@ public class ServerListener implements Runnable
 			try
 			{
 				Connection newConnection = new ServerConnection(listener.accept());
-				new Thread(newConnection, "Connection" + ++connectionNumber);
+				new Thread(newConnection, "Connection" + ++connectionNumber).start();
 			}
 			catch(IOException e)
 			{

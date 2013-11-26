@@ -36,7 +36,24 @@ public class AbstractConnection implements Connection
 		new Thread(new Listener()).start();
 		while(isOpen.get())
 		{
-			
+			boolean isSent = false;
+			while(!isSent)
+			try
+			{
+				String message = toSend.take();
+				socketOut.write(message);
+				socketOut.flush();
+				isSent = true;
+			}
+			catch(InterruptedException e)
+			{}
+			catch(IOException e)
+			{
+				System.err.println("Error while writing to connection");
+				System.err.println(e.getLocalizedMessage());
+				isSent = true;
+				isOpen.set(false);
+			}
 		}
 	}
 
@@ -53,7 +70,6 @@ public class AbstractConnection implements Connection
 			}
 			catch (InterruptedException e)
 			{
-
 			}
 	}
 
