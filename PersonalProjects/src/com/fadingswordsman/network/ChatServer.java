@@ -14,6 +14,7 @@ public class ChatServer
 {
     private static int port = 31337;
     private static ChatServer instance;
+    private volatile boolean isOpen = true;
     private Collection<Socket> connections = new LinkedBlockingDeque<Socket>();
     private Collection<BufferedWriter> outputs = new LinkedBlockingDeque<BufferedWriter>();
     
@@ -46,14 +47,13 @@ public class ChatServer
 	return instance;
     }
     
-    private void listen()
+    private void listen() throws IOException
     {
-	ServerSocket blah;
-	while(true)
+	ServerSocket blah = new ServerSocket(port);
+	while(isOpen)
 	{
 	    try
 	    {
-		blah = new ServerSocket(port);
 		port++;
 		Socket sock = blah.accept();
 		connections.add(sock);
@@ -64,9 +64,9 @@ public class ChatServer
 	    catch (IOException e)
 	    {
 		e.printStackTrace();
-		return;
 	    }
 	}
+	blah.close();
     }
     
     private class StreamListener implements Runnable
@@ -110,9 +110,16 @@ public class ChatServer
 	    }
 	    catch (NumberFormatException e)
 	    {
-		e.printStackTrace();
+	    	System.err.println("Invalid port number specified");
 	    }
 	ChatServer server = ChatServer.getServer();
-	server.listen();
+	try
+	{
+		server.listen();
+	}
+	catch(IOException e)
+	{
+		System.err.println("Server failed to listen on port " + args[0]);
+	}
     }
 }

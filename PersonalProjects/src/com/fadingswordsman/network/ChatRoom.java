@@ -29,7 +29,7 @@ public class ChatRoom implements Runnable, ConnectionRegistrar
 					{
 						try
 						{
-							toSend.put(incoming);
+							toProcess.put(incoming);
 							processed = true;
 						}
 						catch(InterruptedException e)
@@ -60,6 +60,10 @@ public class ChatRoom implements Runnable, ConnectionRegistrar
 		}
 	}
 	
+	public String getNextInput()
+	{
+		return toProcess.peek();
+	}
 	
 	public void registerConnection(Connection connection)
 	{
