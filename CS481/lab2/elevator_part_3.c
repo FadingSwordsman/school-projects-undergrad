@@ -43,7 +43,6 @@ void initialize_simulation(Elevator_Simulation *es)
 
 void initialize_elevator(Elevator *e)
 {
-	e->v = malloc(sizeof(int) * e->es->nfloors);
 }
 
 void initialize_person(Person *e)
@@ -81,7 +80,6 @@ void wait_to_get_off_elevator(Person *p)
 	pthread_mutex_lock(p->lock);
 	while(p->to != p->e->onfloor)
 		pthread_cond_wait(p->cond, p->lock);
-	pthread_mutex_unlock(p->lock);
 }
 
 void person_done(Person *p)
@@ -200,7 +198,9 @@ void load_from_floor(Elevator *e, int dir)
 	int floor = e->onfloor - 1;
 	Dllist node, list;
 	Person *p;
+	pthread_mutex_lock(e->lock);
 	pthread_mutex_lock(floor_locks + floor);
+	pthread_mutex_unlock(e->lock);
 	list = floors[floor];
 	dll_traverse(node, list)
 	{
