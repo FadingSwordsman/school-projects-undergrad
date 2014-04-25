@@ -104,10 +104,10 @@ void try_open_door(Elevator *e)
 		open_door(e);
 }
 
-void move_elevator_to_floor(Elevator *e, int dir)
+void move_elevator_to_floor(Elevator *e)
 {
 	try_close_door(e);
-	move_to_floor(e, e->onfloor + dir);
+	move_to_floor(e, e->onfloor);
 }
 
 void unload_to_floor(Elevator *e)
@@ -146,7 +146,8 @@ void load_from_floor(Elevator *e, int dir)
 	Dllist node, list;
 	Person *p;
 	pthread_mutex_lock(e->lock);
-	pthread_mutex_lock(&floor_locks[floor]);
+	if(pthread_mutex_trylock(&floor_locks[floor]))
+	{
 		pthread_mutex_unlock(e->lock);
 		list = floors[floor];
 		dll_traverse(node, list)
@@ -167,6 +168,9 @@ void load_from_floor(Elevator *e, int dir)
 			}
 		}
 		pthread_mutex_unlock(floor_locks+floor);
+	}
+	else
+		pthread_mutex_unlock(e->lock);
 }
 
 void *elevator(void *arg)
@@ -177,7 +181,7 @@ void *elevator(void *arg)
 	while(1)
 	{
 		direction = get_direction(e, direction);
-		move_elevator_to_floor(e, direction);
+		move_elevator_to_floor(e);
 		unload_to_floor(e);
 		load_from_floor(e, direction);
 	}
