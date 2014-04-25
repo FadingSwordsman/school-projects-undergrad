@@ -27,6 +27,7 @@ while [ $i -le $nruns ]; do
   n=`echo $n | awk '{ print $1+1 }'`
   if [ $2 != "Simulation" ]; then
     failed=1
+		echo "$seed"
     echo "Run $i: Failed at person $5"
   else
     a=`echo $t $4 $6 | awk '{ print $3/$2*100.0 }'`
