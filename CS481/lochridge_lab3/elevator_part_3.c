@@ -204,9 +204,11 @@ void load_from_floor(Elevator *e, int dir)
 		pthread_mutex_lock(p->lock);
 		p->e = e;
 		try_open_door(e);
+		printf("Signal %s\n", p->lname);
 		pthread_cond_signal(p->cond);
 		pthread_mutex_lock(e->lock);
 		pthread_mutex_unlock(p->lock);
+		printf("Wait on signal\n");
 		pthread_cond_wait(e->cond, e->lock);
 		pthread_mutex_unlock(e->lock);
 		node = dll_prev(node);
