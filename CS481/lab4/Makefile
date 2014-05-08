@@ -2,7 +2,7 @@ CC = gcc
 SHMEM = -lpthread -lm
 CFLAGS = -Wall
 
-TARGETS = ipc_mp_bench ipc_shmem_bench test_read test_fread
+TARGETS = ipc_mp_bench ipc_shmem_bench test_read test_fread test_memcpy
 
 all:	$(TARGETS)
 
