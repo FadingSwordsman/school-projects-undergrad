@@ -8,6 +8,18 @@
 #include "test_common.h"
 #include "common.h"
 
+
+int get_log_10(int number)
+{
+	int temp = number, result = 0;
+	while(temp > 1)
+	{
+		temp /= 10;
+		result++;
+	}
+	return result;
+}
+
 void print_results(int stride, int ops, int bytes, int time)
 {
 	printf("%d,", stride);
@@ -21,7 +33,7 @@ void print_results(int stride, int ops, int bytes, int time)
 
 void print_header(char *title)
 {
-	printf("%s:\nStride,Time,Operations,Bytes,TimePerOp,Throughput,Latency\n", title);
+	printf("%s:\nStride,Time,Operations,Bytes,TimePerOp,BytePerMillisecond,MillisecondPerByte\n", title);
 }
 
 long int memcpy_with_stride(int fd, int stride, int filesize)
@@ -47,7 +59,7 @@ long int memcpy_with_stride(int fd, int stride, int filesize)
 		memcpy(buffer + counter, mapped, filesize - counter);
 	}
 	gettimeofday(&end, NULL);
-	print_results(stride, ops, bytes, get_time_diff(start, end));
+	print_results(get_log_10(stride), ops, bytes, get_time_diff(start, end));
 	free(buffer);
 	return get_time_diff(start, end);
 }
