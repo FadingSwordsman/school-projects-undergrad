@@ -1,28 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
 #include "common.h"
 
-int *pipe_ids;
+int *to_child;
+int *to_parent;
 int *buffer;
+long int bufferTime;
 
-void read_process()
+void read_process(int *pipe_ids)
 {
-	int temp, counter;
-	communicate_array(read, pipe_ids[0], buffer);
-	for(counter = 0; counter < ARR_SIZE; counter += STRIDE/sizeof(int))
-	{
-		temp = buffer[counter];
-		printf("%d\n", temp);
-	}
+	int x;
+	struct timeval start, end;
+	gettimeofday(&start, NULL);
+	for(x = 0; x < ARR_SIZE; x+= (STRIDE<<3))
+		read(pipe_ids[0], buffer + x, STRIDE);
+	gettimeofday(&end, NULL);
+	bufferTime += get_time_diff(start, end);
 }
 
-void write_process()
+void write_process(int *pipe_ids)
 {
-	int counter;
-	for(counter = 0; counter < ARR_SIZE; counter++)
-		buffer[counter]++;
-	communicate_array(write, pipe_ids[1], buffer);
+	int x;
+	for(x = 0; x < ARR_SIZE; x+= (STRIDE<<3))
+		write(pipe_ids[1], buffer + x, STRIDE);
 }
 
 void parent()
@@ -32,8 +35,8 @@ void parent()
 		buffer[count] = count;
 	for(count = 0; count < NUM_RUNS; count++)
 	{
-		write_process();
-		read_process();
+		write_process(to_child);
+		read_process(to_parent);
 	}
 }
 
@@ -42,20 +45,43 @@ void child()
 	int count;
 	for(count = 0; count < NUM_RUNS; count++)
 	{
-		read_process();
-		write_process();
+		read_process(to_child);
+		write_process(to_parent);
 	}
 }
 
 int main(int argc, char **argv)
 {
+	struct timeval startTime, endTime;
+	int wallTime, clockTime;
+	bufferTime = 0;
 	buffer = (int*) malloc(ARR_SIZE*sizeof(int));
-	pipe_ids = (int*)malloc(2*sizeof(int));
-	pipe(pipe_ids);
+	to_child = (int*)malloc(2*sizeof(int));
+	to_parent = (int*)malloc(2*sizeof(int));
+	pipe(to_child);
+	pipe(to_parent);
+	wallTime = (int)time(NULL);
+	clockTime = (int)clock();
+	gettimeofday(&startTime, NULL);
 	if(fork())
+	{
 		parent();
+		gettimeofday(&endTime, NULL);
+		printf("Total time: %ld\n", get_time_diff(startTime, endTime));
+		printf("Time reading buffer (parent): %ld\n", bufferTime);
+		printf("Wall time: %d\n", (int)time(NULL) - wallTime);
+		printf("CPU time: %d\n", (int)clock() - clockTime);
+	}
 	else
+	{
 		child();
-	free(pipe_ids);
+		gettimeofday(&endTime, NULL);
+		printf("Total time: %ld\n", get_time_diff(startTime, endTime));
+		printf("Time reading buffer (child): %ld\n", bufferTime);
+		printf("Wall time: %d\n", (int)time(NULL) - wallTime);
+		printf("CPU time: %d\n", (int)clock() - clockTime);
+	}
+	free(to_parent);
+	free(to_child);
 	return 0;
 }
