@@ -2,7 +2,7 @@ CC = gcc
 SHMEM = -lpthread -lm
 CFLAGS = -Wall
 
-TARGETS = ipc_mp_bench ipc_shmem_bench test_read test_fread test_memcpy
+TARGETS = ipc_mp_bench ipc_shmem_bench test_read test_fread test_memcpy io_bench
 
 all:	$(TARGETS)
 
@@ -23,3 +23,6 @@ test_fread: test_fread.c
 
 test_memcpy: test_memcpy.c
 	$(CC) $(CFLAGS) -o test_memcpy test_memcpy.c
+
+io_bench: io_bench.c
+	$(CC) $(CFLAGS) -o io_bench io_bench.c
