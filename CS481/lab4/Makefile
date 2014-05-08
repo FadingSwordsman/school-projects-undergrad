@@ -1,5 +1,5 @@
 CC = gcc
-SHMEM = -lpthread
+SHMEM = -lpthread -lm
 CFLAGS = -Wall
 
 TARGETS = ipc_mp_bench ipc_shmem_bench test_read test_fread
@@ -13,7 +13,7 @@ ipc_mp_bench: ipc_mp_bench.c
 	$(CC) $(CFLAGS) -o ipc_mp_bench ipc_mp_bench.c
 
 ipc_shmem_bench: ipc_shmem_bench.c
-	$(CC) $(CFLAGS) $(SHMEM) -o ipc_shmem_bench ipc_shmem_bench.c
+	$(CC) $(CFLAGS) -o ipc_shmem_bench ipc_shmem_bench.c $(SHMEM)
 
 test_read: test_read.c
 	$(CC) $(CFLAGS) -o test_read test_read.c
