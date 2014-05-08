@@ -23,7 +23,7 @@ void run_tests(char *filename)
 	int fd, filesize, x;
 	FILE *file;
 	printf("Stride,Time\n");
-	for(x = 1; x < 10000; x++)
+	for(x = 1; x < 10000; x*=10)
 	{
 		fd = open(filename, O_RDONLY);
 		file = fdopen(fd, "r");
