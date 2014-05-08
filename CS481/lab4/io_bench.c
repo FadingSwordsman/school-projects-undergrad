@@ -13,6 +13,7 @@ void print_results(int stride, int ops, int bytes, int time)
 	printf("%d,", stride);
 	printf("%d,", time);
 	printf("%d,", ops);
+	printf("%d,", bytes);
 	printf("%f,", (float)time/(float)ops);
 	printf("%f,", (float)bytes/(float)time);
 	printf("%f\n", (float)time/(float)bytes);
@@ -20,7 +21,7 @@ void print_results(int stride, int ops, int bytes, int time)
 
 void print_header(char *title)
 {
-	printf("%s:\nStride,Time,Operations,TimePerOp,Throughput,Latency\n", title);
+	printf("%s:\nStride,Time,Operations,Bytes,TimePerOp,Throughput,Latency\n", title);
 }
 
 long int memcpy_with_stride(int fd, int stride, int filesize)
@@ -163,9 +164,9 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	run_read_tests(argv[1]);
-	run_fread_tests(argv[1]);
-	run_memcpy_tests(argv[1]);
+		run_read_tests(argv[1]);
+		run_fread_tests(argv[1]);
+		run_memcpy_tests(argv[1]);
 
 	return 0;
 }
