@@ -1,5 +1,7 @@
 \documentclass[]{scrartcl}
 \usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{rotating}
 
 \title{CS 481 Lab 4}
 \author{David Lochridge}
@@ -35,7 +37,22 @@ For read() operations, I would expect performance to improve considerably as the
 is increased.
 \subsection*{7}
 For fread() operations, I would expect performance to improve slightly as the stride is increased.
-\subsection{8}
+\subsection*{8}
 For mmap() and memcpy(), I would expect the performance to increase more than the performance for read() operations increases.
+\pagebreak
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{Time.jpg}
+\includegraphics[width=0.5\textwidth]{TimePerByte.jpg}
+
+\includegraphics[width=0.5\textwidth]{TimePerOp.jpg}
+\includegraphics[width=0.5\textwidth]{BytePerTime.jpg}
+\end{figure}
+
+\section*{Conclusion}
+As expected, fread outperformed read, and memcpy outperformed both read and fread. Read gained more and more performance as the strides got larger, while memcpy and fread started seeing diminishing returns with the size of stride. This likely happened because the buffers for both memcpy and fread were being used to their maximum ability after a stride somewhere between $10^2$ and $10^3$, leading to their diminished return.
+
+The primary consideration for the performance increase from increased stride sizes is memory space. With less memory space, fread and memcpy would likely start performing worse than read, considering that the buffer would also be using some of the memory space, and requiring movement from memory to disk in the worst case.
+
 
 \end{document}
