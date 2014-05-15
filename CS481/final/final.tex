@@ -13,15 +13,15 @@ Even assuming that hardware failures do not occur in such a massive system, and 
 
 \section*{Space-time (Non?)continuum}
 \subsection{}
-Time-shared in this context is 
+Time-shared in this context is context switching among 
 
 Space-shared
 
 \subsection{}
-Time-sharing on the HPCOS would
+Time-sharing on the HPCOS would give the advantage of allowing multiple processes to run on some of the compute nodes, or over multiple compute nodes at once.
 
 \subsection{}
-Space-sharing on the HPCOS
+Space-sharing on the HPCOS constitute 
 
 \subsection{}
 Different tasks running on a single compute node should be processes, to prevent interference in each others' memory space, as well as sustain the principle of least privilege. Using threads would require that all processes use the same memory space, part of the reason that an Operating System exists in the first place, .
@@ -49,9 +49,9 @@ Tasks running across different nodes are required to be processes. Any communica
 \setcounter{subsection}{0}
 \section*{Managing Storage}
 \subsection{}
-A RAID 0 scheme in this context would work by distributing data among the external network servers, and striping them as though each fileserver was an individual drive. This scheme would be beneficial in using , even though the 
+A RAID 0 scheme in this context would work by distributing data among the external network servers, and striping them as though each fileserver was an individual drive. This scheme would be beneficial in preventing bandwidth loss, though it would cause a huge number of problems in case any system failed.
 
-A wise choice in this plan would be to ask that each use a RAID 1 setup, for the most reliable, or a RAID 5 setup, for improved general performance, as well as some drive failure resistance.
+A wise choice in this plan would be to ask that the NFS as a whole use a RAID 1 setup, for the most reliable, or a RAID 5 setup, for improved general performance, as well as some drive failure resistance.
 
 \subsection{}
 
