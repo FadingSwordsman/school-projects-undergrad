@@ -1,58 +1,143 @@
 \documentclass[]{scrartcl}
 \usepackage{enumerate}
-\usepackage{graphicx}
-\usepackage{rotating}
 
-\title{CS 481 Lab 4}
+\title{CS 481 Problem Set 2}
 \author{David Lochridge}
 
 \begin{document}
 
 \maketitle
 
-\section*{Part 1}
-\subsection*{1}
+\section{Hard Disks}
+\subsection{}
+For -a 0:
 \begin{itemize}
-\item[*] Overall execution time for all of the reads took 124813 milliseconds, making the cost per buffer read .00624 milliseconds, on average.
-\item[*] The total time spent accessing the buffer was 77565 milliseconds.
-\item[*] time reported that the time taken was 124.81 seconds, the user time was 108.35  seconds, and the system time was 87.30 seconds.
+\item[•] Seek Time: 0
+\item[•] Rotate Time: 165
+\item[•] Transfer Time: 30
 \end{itemize}
-\subsection*{2}
+
+For -a 6:
 \begin{itemize}
-\item[*] Overall execution time for all of the exchanges was 267421 milliseconds, making the cost per exchange .01337 milliseconds, on average.
-\item[*] The total time spent reading the buffer was 292580 milliseconds (146134 milliseconds for the parent and 146446 milliseconds for the child)
-\item[*] time reported that the time taken was 267.42 seconds, the user time was 16.75 seconds, and the system time was 229.45 seconds.
+\item[•] Seek Time: 0
+\item[•] Rotate Time: 345
+\item[•] Transfer Time: 30
 \end{itemize}
-\subsection*{3}
-The measurements taken from within the program seem to be accurate for the overall measurement, but the amount of time spent reading and using CPU time do not seem to align, primarily in the multi-process program.
-\subsection*{4}
-The primary problem that I see with measuring using the time command is in the multi-process program, and calculating the total amount of CPU time used by both processes.
 
-\section*{Part 2}
-\subsection*{5}
-I would expect that fread will outperform read, since it is doing buffering in the back-ground. In comparison to these two, I would expect that mmap()/memcpy() would
-outperform both read and fread.
-\subsection*{6}
-For read() operations, I would expect performance to improve considerably as the stride
-is increased.
-\subsection*{7}
-For fread() operations, I would expect performance to improve slightly as the stride is increased.
-\subsection*{8}
-For mmap() and memcpy(), I would expect the performance to increase more than the performance for read() operations increases.
-\pagebreak
+For -a 30:
+\begin{itemize}
+\item[•] Seek Time: 80
+\item[•] Rotate Time: 265
+\item[•] Transfer Time: 30
+\end{itemize}
 
-\begin{figure}
-\includegraphics[width=0.5\textwidth]{Time.jpg}
-\includegraphics[width=0.5\textwidth]{TimePerByte.jpg}
+For -a 7,30,8:
+\begin{itemize}
+\item[•] Seek Time: 160
+\item[•] Rotate Time: 545
+\item[•] Transfer Time: 90
+\end{itemize}
 
-\includegraphics[width=0.5\textwidth]{TimePerOp.jpg}
-\includegraphics[width=0.5\textwidth]{BytePerTime.jpg}
-\end{figure}
+For -a 10,11,12,13:
+\begin{itemize}
+\item[•] Seek Time: 40
+\item[•] Rotate Time: 425
+\item[•] Transfer Time: 120
+\end{itemize}
+\subsection{}
+As the seek rate is adjusted, the seek time decreases, while the rotate time is increased. The Transfer time is unaffected.
 
-\section*{Conclusion}
-As expected, fread outperformed read, and memcpy outperformed both read and fread. Read gained more and more performance as the strides got larger, while memcpy and fread started seeing diminishing returns with the size of stride. This likely happened because the buffers for both memcpy and fread were being used to their maximum ability after a stride somewhere between $10^2$ and $10^3$, leading to their diminished return.
+\subsection{}
+As the rotation rate is adjusted, the rotation and transfer times are reduced, while the seek time is unaffected.
 
-The primary consideration for the performance increase from increased stride sizes is memory space. With less memory space, fread and memcpy would likely start performing worse than read, considering that the buffer would also be using some of the memory space, and requiring movement from memory to disk in the worst case.
+\subsection{}
+In the case of the 7,30,8 memory requests, the values should be accessed in sequential order (7,8,30)
+
+By running the SSTF option, we see:
+\begin{itemize}
+\item[•] Seek Time: 80
+\item[•] Rotate Time: 205
+\item[•] Transfer Time: 90
+\end{itemize}
+Which reduces both the rotation time and seek time.
+
+\subsection{}
+In the case of the 7,30,8 requests, there is not improvement of using SATF.
+
+The conditions in which the SATF scheduler is beneficial are those in which requests are made across the disk, and additional requests are made while the disk is being read.
+
+\subsection{}
+Introducing a skew less than 10, but greater than 1 improves the performance of the rotation time. The ideal skew for overall performance improvement on the default seek rate is 2.
+
+For higher seek rates, the ideal skew is 1, and for lower rates, the ideal skew is higher (.1's ideal, for example, is 38)
+
+A rough estimate of the ideal skew rate seems to be the number of consecutive memory requests divided by the seek rate, minus 2, with a minimum of 1.
+
+\subsection{}
+The bandwidth for each sector is as follows, in sector read per unit time:
+\begin{itemize}
+\item[•] Inner track: 1/10
+\item[•] Middle track: 1/20
+\item[•] Outer track: 1/30
+\end{itemize}
+
+\section{File System Implementation}
+\subsection{}
+The operations, in order, for seed 17 are:
+\begin{itemize}
+\item[•] mkdir()
+\item[•] creat()
+\item[•] creat()
+\item[•] link()
+\item[•] mkdir()
+\item[•] creat()
+\item[•] unlink()
+\item[•] mkdir()
+\item[•] open()/write()/close()
+\item[•] creat()
+\end{itemize}
+\subsection{}
+In general, the algorithms will attempt to allocate the first available memory for the file or folder being created.
+
+\subsection{}
+With few blocks, the simulation failed on open/write/close and calls.
+
+The final state of the system is likely to have many folders, files, and links, but little data.
+
+\subsection{}
+With few inodes, the simulation failed on mkdir, creat, and link calls.
+
+The final state of the file system is likely to have a flat structure, with few large files.
+
+\section{RAID}
+\subsection{}
+Requests are mapped among varied disks in RAID 0, even with adjacent memory locations.
+
+In RAID 1, the disk returning a response is typically the same one that returned a nearby response.
+
+In RAID 4, requests are serviced by the appropriate disk, calculated by offset divided by chuck size mod number of disks.
+
+In RAID 5, requests are serviced in the same manner as RAID 4, accounting for the additional parity.
+
+For large contiguous reads, RAID-5 symmetric outperforms RAID-5 asymmetric.
+
+\subsection{}
+In increasing the chunk size:
+\begin{itemize}
+\item[•] RAID 0: The mappings are shifted among the disks, with multiple contiguous on the same disk, and the same number on the next one, and so forth.
+\item[•] RAID 1: The mappings are mostly unaffected.
+\item[•] RAID 4: The mappings are shifted among the blocks, with multiple contiguous blocks on each disk
+\item[•] RAID 5: Affected the same way as RAID 4
+\end{itemize}
+
+\subsection{}
+In reversing the problem:
+\begin{itemize}
+\item[•] RAID 0: The mappings are unaffected.
+\item[•] RAID 1: The mappings are unaffected.
+\item[•] RAID 4: The mappings are unaffected.
+\item[•] RAID 5: The mappings are unaffected.
+\end{itemize}
 
 
 \end{document}

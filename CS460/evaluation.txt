@@ -1,0 +1,74 @@
+Evaluator: David Lochridge
+Team: G.E.R.A.
+Team members:
+	Ben Mixon-Baca
+	Justin Edwards
+	Trent Small
+	David Lochridge
+Date: May 14, 2014
+
+Technology evaluation
+
+Tool#1:
+Name:	vim
+Purpose:	Text editing
+Chosen:	To be contrarian to the rest of the group's emacs choice
+Strengths:	Simple to use, pinky finger is still functioning normally.
+Weaknesses:	Syntax highlighting caused a segfault on one of the files. This lead to much mocking from the rest of the group.
+
+Tool#2:
+Name:	Ruby on Rails
+Purpose:	Primary front and back-end language
+Chosen:	Recommendation of Trent, who had worked with it before.
+Strengths:	Rapid deployment, working website within hours. Forced usage of MVC model. Allowed our app the be extremely customizable as far as look and feel went.
+Weaknesses:
+		Setup hassles: the "Just run this one command and everything's installed and working" was an absolute lie. It took most of the group upwards of two weeks to install.
+		Debugging: Because of all of the generated boilerplate, alongside our inexperience with Rails, fixing bugs was a huge pain.
+		Rigidity: Many of the visions we had for features had to be beaten into the rails method, instead of being implemented as we wanted them. 
+		Bleeding edge or bust: Documentation available was for the previous version of Rails, which caused a large number of misunderstandings of functions (And it was a difference between minor versions) In particular, forcing the queries to get the correct set of data was a huge pain.
+
+Tool#3: 
+Name:	Heroku
+Purpose:	Deployment
+Chosen:	Provided a simple way to deploy, recommended by Trent
+Strengths:	After setup, worked wonderfully. Integrated extremely well with both git and RoR technology choices.
+Weaknesses: The learning curve for setup, which was a big pain the first time.
+		Usage of a database that was different from the development database: This was huge. A large number of assumptions that caused no end of headaches happened because MySQL returns null on an empty set, and Postgres returns "".
+
+Team evaluation
+
+Member: David Lochridge
+	Responsibilities:	External data, Wizard
+
+	Contributions:	Wrote fetcher for external data. Designed a lot of the database design with input from team. Wrote wizard.
+
+Member: Ben Mixon-Baca
+	Responsibilities:	Team lead, 
+
+	Contributions:	Came up with the project, got a lot of the early development plan together (Timeline, user story, feature designs), helped and worked a lot on the site overhaul. Wrote the equation evaluator with Trent.
+
+Member: Justin Edwards
+	Responsibilities:	Charting
+
+	Contributions:	Created the charts and charting over time, which was central to the project. Helped with visual style and getting the CSS to pretend it was behaving. Provided a workspace after the helicopter closed UNM.
+
+Member: Trent Small
+	Responsibilities:	
+
+	Contributions:	Provided much of the art for the project, particularly for the badges. Designed the equation evaluator and worked with Ben to implement it.
+
+		Time	Crea	Meet	Easy	Over
+Ben Mixon-Baca
+Justin Edwards
+Trent Small
+David Lochridge
+
+
+
+Other Notes
+
+I would work with any of these team members again, we got along fine (Or I saw it that way, at least) and managed to produce quite a bit. There were few minor hiccups, but nothing major that broke down. Ben got quite a bit more stressed than he usually is, and introduced a ton of new feature ideas right near the end. We took the better ones, and they ended up being great, and integral to gamifying.
+
+Trent spent a bit more time on artwork than I would have liked, since he requested that we work in RoR, but still added some features and provided help there. To be fair, none of the rest of us had any real knowledge of creating artwork, so he filled a necessary role
+
+Justin was a huge help for CSS and general web development. He managed to build up a decent understanding of Rails, and ended up being the go-to person for helping with debugging problems.
