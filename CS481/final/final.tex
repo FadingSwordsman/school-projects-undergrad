@@ -13,37 +13,73 @@ Even assuming that hardware failures do not occur in such a massive system, and 
 
 \section*{Space-time (Non?)continuum}
 \subsection{}
-Time-shared in this context is context switching among 
+Time-shared in this context is context switching among processes on individual cores, as well as spreading access time over individual nodes and processes in the given compute node. While it is outside the scope of the HPCOS, submission of jobs from an external interface is also space-shared.
 
-Space-shared
+Space-shared in this context is storage of memory on disk and in memory space, to ensure that none of it interferes or overlaps each other. On the filesystem, users' data and programs are also a form of space sharing.
 
 \subsection{}
 Time-sharing on the HPCOS would give the advantage of allowing multiple processes to run on some of the compute nodes, or over multiple compute nodes at once.
 
 \subsection{}
-Space-sharing on the HPCOS constitute 
+Space-sharing on the HPCOS constitutes sharing physical space on the individual compute nodes, and managing memory being used concurrently by the (potentially) hundreds of processes running on that node.
 
 \subsection{}
 Different tasks running on a single compute node should be processes, to prevent interference in each others' memory space, as well as sustain the principle of least privilege. Using threads would require that all processes use the same memory space, part of the reason that an Operating System exists in the first place, .
 In the case of some HPCOSs, only one task is given to a compute node or processor, in which case that process should still be a process for the purpose of preventing a possible system failure. In that event, if the Operating System were running the process as a thread, recovery would be considerably more difficult, and the entire compute node might need to be restarted.
 
 \subsection{}
-Tasks running across different nodes are required to be processes. Any communication between these processes would have to be explicit communication.
+Tasks running across different nodes are required to be processes. Any communication between these processes would have to be explicit communication, as attempting to maintain some semblance of shared space is far beyond current capabilities, though a number of research projects are working on allowing that communication in an implicit and efficient way.
+In the event that that research had been completed, though, the tasks on different nodes would still have to be processes, as they would only be simulating shared memory space.
 
 \setcounter{section}{4}
 \setcounter{subsection}{0}
 \section*{Managing Memory}
 \subsection{}
+Assuming address space size is limited by the physical memory, and the size of the physical memory will not be expanded in the future:
+
+2 TiB = 2$^4$$^0$ bytes * 2 = 2$^4$$^1$ bytes
+
+To address to any arbitrary byte, we would then need 41 bit long addresses.
+
+\subsection{}
+In a non-swapping, non-paging based scheme, all state for a given process is always kept in memory. Context switching between processes is faster, as the swapping that would slow that process down no longer exists, but each process is allowed a much smaller fraction of the memory than it normally would be.
+As the TLB and disk would not be used without swapping or page tables to cache, the average memory access latency would be 200 ns, with some number of reads and writes using memory every single time.
+
+\subsection{}
+The address space limit for each program in the above scheme becomes the amount of memory available divided by the number of processes. In the HPCOS, this is:\\
+2 TiB / 128 processes = 2$^4$$^1$ bytes / 2$^6$ processes = 2$^3$$^5$ bytes per process
+
+\subsection{}
+Assuming that, on a TLB miss, the OS must load the page into the TLB before making another TLB request for the same page, and similarly for any given page.
+
+With a single level page table, the costs of a memory read or write for each operation is as follows:
+\begin{itemize}
+\item[•] TLB Hit - 20 ns + 200 ns = 220 ns
+\item[•] TLB Miss, Page hit - 20 ns + 200 ns + 200 ns + 20 ns + 220 ns = 660 ns
+\item[•] TLB Miss, Page miss - 660 ns + 200 ms = 200 ms, 660 ns (200.00066 ms)
+\item[•] Dirty page eviction - 200 ms + 660 ns + 200 ns + 200 ms = 400 ms, 860 ns (400.00086 ms)
+\end{itemize}
+
+Assuming we have 2000 memory operations that fall into this distribution, there are:
+\begin{itemize}
+\item[•] 1800 TLB hits
+\item[•] 190 Page table hits
+\item[•] 10 Page table misses
+\item[•] 1 dirty page eviction (One of the page table misses)
+\end{itemize}
+
+Our total running time for those 2000 operations would be:
+200 ns * 1800 + 660 ns * 190 + (200 ms, 660 ns) * 9 + 400 ms, 860 ns * 1 = 2200 ms, 492200 ns (2200.49286 ms)
+ 
+Averaged over 2000 operations, we find 1.10024643 ms per operation.
+ 
+Therefore, the average effective memory access latency would be 1.1 ms, 246.43 ns.
 
 \subsection{}
 
-\subsection{}
 
 \subsection{}
-
-\subsection{}
-
-\subsection{}
+Given than a single page entry is 8 KiB, we want each page entry to be the same size. As such, the 
 
 \setcounter{section}{5}
 \setcounter{subsection}{0}
@@ -54,9 +90,14 @@ A RAID 0 scheme in this context would work by distributing data among the extern
 A wise choice in this plan would be to ask that the NFS as a whole use a RAID 1 setup, for the most reliable, or a RAID 5 setup, for improved general performance, as well as some drive failure resistance.
 
 \subsection{}
+For large contiguous reads, a program could attempt to reach multiple fileservers in the NFS, making requests for different section of the data that it had to read, in order to increase the read bandwidth. If the servers were in a RAID 0 scheme, as discussed earlier, the multiple requests would be handled in one attempt, with a request to an arbitrary server from the program, and multiple servers responding with their portions of the requested data.
 
 \subsection{}
+For write requests to large, contiguous blocks in memory, the opposite approach should be taken compared to previously. Considering that any given fileserver has the same data as another, the program would send the data to one of the reachable filesystems, which would then write the data to disk, and propagate that update to further disks, mimicing a RAID 1 without the requirement that all disks complete their write.
+
+In the case that a different fileserver could be reached after the first write, and it hadn't had a previous change propagated to it, some performance would be lost. In that case, a program might want to attempt to access the NFS multiple times, in order to reach fileservers until it found one that had received its previous updates.
 
 \subsection{}
+The primary difference between RAID 0 and RAID 5 is the block of parity stored once per stripe on RAID 5. While RAID 0 has a tendency to show better write and read times, RAID 5 makes use of data parity, allowing continued use after a disk failure or removal. In the event that the disks being used had different seek and spin speeds, RAID 5 may be able to outperform RAID 0 by avoiding use of the slower disk, but those returns would not likely make a huge difference.
 
 \end{document}

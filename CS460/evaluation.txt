@@ -1,3 +1,5 @@
+Identification Section
+
 Evaluator: David Lochridge
 Team: G.E.R.A.
 Team members:
@@ -7,9 +9,9 @@ Team members:
 	David Lochridge
 Date: May 14, 2014
 
-Technology evaluation
+Technology Evaluation Section
 
-Tool#1:
+Technology#1:
 Name:	Ruby on Rails
 Purpose:	Primary front and back-end language
 Chosen:	Recommendation of Trent, who had worked with it before.
@@ -20,7 +22,7 @@ Weaknesses:	Drastically different programming ideal: The first half of the proje
 		Rigidity: Many of the visions we had for features had to be beaten into the rails method, instead of being implemented as we wanted them. 
 		Bleeding edge or bust: Documentation available was for the previous version of Rails, which caused a large number of misunderstandings of functions (And it was a difference between minor versions) In particular, forcing the queries to get the correct set of data was a huge pain.
 
-Tool#2: 
+Technology#2: 
 Name:	Heroku
 Purpose:	Deployment
 Chosen:	Provided a simple way to deploy, recommended by Trent
@@ -28,22 +30,22 @@ Strengths:	After setup, worked wonderfully. Integrated extremely well with both 
 Weaknesses: The learning curve for setup, which was a big pain the first time.
 		Usage of a database that was different from the development database: This was huge. A large number of assumptions that caused no end of headaches happened because MySQL returns null on an empty set, and Postgres returns "".
 
-Tool#3:
+
+Tool#1:
 Name:	Git
 Purpose:	Source Control
 Chosen:	Due to familiarity of team, partially because of integration with deployment technology, and 
 Strengths:	No terrible merges happened at all during the process. Helped actually show the changes that the mystical rails commands created for us.
 Weaknesses:	The connection with Heroku caused problems when commits were pushed there first, as opposed to the primary branch.
 
-
-Tool#4:
+Tool#2:
 Name:	GoogleDocs
 Purpose:	Development documentation repository
 Chosen:	For ease of use, team familiarity
 Strengths:	Collaborative system was good for polishing a lot of the documents, making sure there were fewer typos
 Weaknesses:	Online editing for some file formats wasn't possible, making this a tool we had to use in addition to others.
 
-Team evaluation
+Team Evaluation Section
 
 Member: David Lochridge
 	Responsibilities:	External data, Wizard
@@ -51,12 +53,12 @@ Member: David Lochridge
 	Contributions:	Wrote fetcher for external data. Designed a lot of the database layout with input from team. Wrote wizard.
 
 Member: Ben Mixon-Baca
-	Responsibilities:	Team lead, 
+	Responsibilities:	Team lead, working on gamification model and components
 
 	Contributions:	Came up with the project, got a lot of the early development plan together (Timeline, user story, feature designs), helped and worked a lot on the site overhaul. Wrote the equation evaluator with Trent.
 
 Member: Justin Edwards
-	Responsibilities:	Charting
+	Responsibilities:	Charting, CSS fixes and help
 
 	Contributions:	Created the charts and charting over time, which was central to the project. Helped with visual style and getting the CSS to pretend it was behaving. Provided a workspace after the helicopter closed UNM.
 
@@ -70,8 +72,6 @@ Ben Mixon-Baca	10	9	10	8	25
 Justin Edwards	9	8	10	9	30
 Trent Small	8	10	9	9	23
 David Lochridge	9	7	9	8	22
-
-
 
 Other Notes
 
