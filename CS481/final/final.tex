@@ -4,6 +4,8 @@
 \author{David Lochridge}
 
 \begin{document}
+\maketitle
+
 \section{}
 \section*{Managing the Processors}
 \subsection{}
@@ -24,12 +26,11 @@ Time-sharing on the HPCOS would give the advantage of allowing multiple processe
 Space-sharing on the HPCOS constitutes sharing physical space on the individual compute nodes, and managing memory being used concurrently by the (potentially) hundreds of processes running on that node.
 
 \subsection{}
-Different tasks running on a single compute node should be processes, to prevent interference in each others' memory space, as well as sustain the principle of least privilege. Using threads would require that all processes use the same memory space, part of the reason that an Operating System exists in the first place, .
+Different tasks running on a single compute node should be processes, to prevent interference in each others' memory space, as well as sustain the principle of least privilege. Using threads would require that all processes use the same memory space, part of the reason that an Operating System exists in the first place.
 In the case of some HPCOSs, only one task is given to a compute node or processor, in which case that process should still be a process for the purpose of preventing a possible system failure. In that event, if the Operating System were running the process as a thread, recovery would be considerably more difficult, and the entire compute node might need to be restarted.
 
 \subsection{}
-Tasks running across different nodes are required to be processes. Any communication between these processes would have to be explicit communication, as attempting to maintain some semblance of shared space is far beyond current capabilities, though a number of research projects are working on allowing that communication in an implicit and efficient way.
-In the event that that research had been completed, though, the tasks on different nodes would still have to be processes, as they would only be simulating shared memory space.
+Tasks running across different nodes are required to be processes. Any communication between these processes would have to be explicit communication, as attempting to maintain some semblance of shared space is far beyond current capabilities, though a number of research projects are working on allowing that communication in an implicit and efficient way. Even considering this abstraction, the processes would only have simulated shared memory, and would continue to remain separate processes.
 
 \setcounter{section}{4}
 \setcounter{subsection}{0}
@@ -37,7 +38,7 @@ In the event that that research had been completed, though, the tasks on differe
 \subsection{}
 Assuming address space size is limited by the physical memory, and the size of the physical memory will not be expanded in the future:
 
-2 TiB = 2$^4$$^0$ bytes * 2 = 2$^4$$^1$ bytes
+2 TiB = 2$^4$$^0$ bytes * 2 / 2$^1$$^0$ = 2$^4$$^1$ bytes
 
 To address to any arbitrary byte, we would then need 41 bit long addresses.
 
@@ -76,10 +77,12 @@ Averaged over 2000 operations, we find 1.10024643 ms per operation.
 Therefore, the average effective memory access latency would be 1.1 ms, 246.43 ns.
 
 \subsection{}
-
+With an address space of 64 GiB and 16 KiB pages, we can have a total of 64*2$^3$$^0$ / 16*2$^1$$^0$,  or 2$^2$$^2$ pages. Because of this, we require 8 * 2$^2$$^2$ bytes, or 32 MiB of space for our page table.
 
 \subsection{}
-Given than a single page entry is 8 KiB, we want each page entry to be the same size. As such, the 
+To make each table in a multi-layered page table for the system above into the size of a single page, we reduce the size of page tables to 16 KiB at each chance possible. To do so, we need a total of 14 bits to offset into that space, and determine the next page table to offset into. With our addresses being size 2$^4$$^1$, this means our address would become two offsets of 14, followed by one offset of 13.
+
+We would then have a three levelled page table, in which the first two page lookups would return full page tables of size 16 KiB, the last page table lookup would index into a partially filled page table, and the final offset would give us the desired page entry.
 
 \setcounter{section}{5}
 \setcounter{subsection}{0}
