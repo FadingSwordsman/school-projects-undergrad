@@ -135,6 +135,15 @@
   \let\oldsection\section
   \renewcommand{\section}[1]{
     \par\vspace{\baselineskip}{\Large\headingfont\color{headercolor} ##1}
+    \setcounter{subsection}{0}
+  }
+  \renewcommand{\subsection}[1]{
+    \ifnum \value{subsection}=0
+      \par{\emph{##1}}
+    \else
+      \par\vspace{\baselineskip}{\emph{##1}}
+    \fi
+    \addtocounter{subsection}{1}
   }
   \begin{textblock}{3.6}(1.5, 4.33)
   \begin{flushright}
