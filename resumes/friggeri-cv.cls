@@ -21,25 +21,8 @@
 \definecolor{gray}{HTML}{4D4D4D}
 \definecolor{lightgray}{HTML}{999999}
 
-\definecolor{green}{HTML}{C2E15F}
-\definecolor{orange}{HTML}{FDA333}
-\definecolor{purple}{HTML}{D3A4F9}
-\definecolor{red}{HTML}{FB4485}
-\definecolor{blue}{HTML}{6CE0F1}
-
-\ifdefined\@cv@print
-  \colorlet{gray}{gray}
-  \colorlet{gray}{gray}
-  \colorlet{gray}{gray}
-  \colorlet{gray}{gray}
-  \colorlet{gray}{gray}
-  \colorlet{gray}{gray}
-  \colorlet{fillheader}{white}
-  \colorlet{header}{gray}
-\else
-  \colorlet{fillheader}{gray}
-  \colorlet{header}{white}
-\fi
+\colorlet{fillheader}{gray}
+\colorlet{header}{white}
 \colorlet{textcolor}{gray}
 \colorlet{headercolor}{gray}
 
