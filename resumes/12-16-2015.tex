@@ -1,0 +1,184 @@
+%%%%%%%%%%%%%%%%%%%%%
+% Friggeri Resume/CV
+% XeLaTeX Template
+% Version 1.0 (5/5/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Adrien Friggeri (adrien@friggeri.net)
+% https://github.com/afriggeri/CV
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+% Important notes:
+% This template needs to be compiled with XeLaTeX and the bibliography, if used,
+% needs to be compiled with biber rather than bibtex.
+%
+%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[]{friggeri-cv} % Add 'print' as an option into the square bracket to remove colors from this template for printing
+
+\addbibresource{bibliography.bib} % Specify the bibliography file to include publications
+
+\begin{document}
+
+\header{David Lochridge}{}{Software Developer} % Your name and current job title/field
+
+%----------------------------------------------------------------------------------------
+%	SIDEBAR SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{aside} % In the aside, each new line forces a line break
+\section{Contact}
+9912 Pitt Pl NE
+Albuquerque, NM 87111
+~
+(505) 803 3839
+~
+\href{mailto:locd011@cs.unm.edu}{locd011@cs.unm.edu}
+\section{Programming}
+\subsection{Expert}
+Java
+Javascript
+\subsection{Intermediate}
+C, C++
+C\# (Incl. .NET)
+Haskell
+HTML
+Python
+Ruby
+VB (Incl. .NET)
+\subsection{Beginner}
+ASP.NET
+Clojure
+LaTeX
+\section{Certifications}
+Security+ (2015)
+ASTQB Testing (2006)
+\end{aside}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+
+\section{Education}
+
+\begin{entrylist}
+%------------------------------------------------
+\entry
+{2007--2014}
+{Bachelors {\normalfont of Science}}
+{The University of New Mexico, Albuquerque}
+{Major in Computer Science, Minor in Russian Studies.}
+%------------------------------------------------
+\end{entrylist}
+
+%----------------------------------------------------------------------------------------
+%	WORK EXPERIENCE SECTION
+%----------------------------------------------------------------------------------------
+
+\section{Experience}
+
+\begin{entrylist}
+%------------------------------------------------
+\entry
+{Aug 2015--Now}
+{Sandia National Laboratories}
+{Albuquerque, New Mexico}
+{\emph{Software System Engineer}} \\
+Worked with a small team writing and maintaining custom software build and build support tools, and corporate applications such as GitHub, Artifactory, and Jenkins.\\
+Detailed highlights:
+\begin{itemize}
+\item Wrote custom tool for detecting potentially sensitive code 
+\item Wrote code for creating portable development and build environments
+\item Adjusted and fixed custom build tool used in legacy project
+\end{itemize}
+
+\entry
+{May 2014--Aug 2015}
+{SAIC, Inc}
+{Albuquerque, New Mexico}
+{\emph{Software Developer} \\
+Worked on a small team of developers maintaining over 50 applications, primarily written in Ruby on Rails, for Sandia National Laboratories.\\
+Detailed highlights:
+\begin{itemize}
+\item Primary developer and contact for VB.NET and C++ projects.
+\item Wrote a web application for coordinating group across ASC LDAP and AD
+\item Wrote front and backend code for several visualizations in D3.
+\item Wrote code for SlyCat, an open source project for ensemble analysis.
+\begin{itemize}
+		\item \href{https://github.com/sandialabs/slycat}{https://github.com/sandialabs/slycat}
+\end{itemize}
+\end{itemize}
+}
+%------------------------------------------------
+\entry
+{2013--May 2014}
+{CAaNES, LLC}
+{Albuquerque, New Mexico}
+{\emph{Software Developer} \\
+Wrote code for a web application that classified, visualized, and managed\\ security vulnerabilities, using Spring Framework and Maven in Java:
+\begin{center}
+	\href{https://risksense.com}{https://risksense.com}
+\end{center}
+Detailed highlights:
+\begin{itemize}
+\item Maintained data import portion of application.
+\begin{itemize}
+	\item Parsers for a variety of vulnerability and network scanners
+\end{itemize}
+\item Wrote web service for running and automatically importing scanner data.
+\item Helped administer server hosted on Amazon Web Services.
+\end{itemize}}
+%------------------------------------------------
+\entry
+{2009--2013}
+{Baker Hughes, Inc}
+{Albuquerque, New Mexico}
+{\emph{Software Tester} \\
+Wrote and ran manual and automated tests for a geological modeling suite:
+\begin{center}
+	\href{http://jewelsuite.com}{http://jewelsuite.com (Redirects to bakerhughes.com)}
+\end{center}
+Detailed highlights:
+\begin{itemize}
+\item Designed and wrote automated tests in TestComplete using javascript.
+\item Created and maintained virtual environments for compatibility testing
+\end{itemize}
+}
+%------------------------------------------------
+\end{entrylist}
+
+%----------------------------------------------------------------------------------------
+%	COMMUNICATION SKILLS SECTION
+%----------------------------------------------------------------------------------------
+
+\section{Communication skills}
+
+\begin{entrylist}
+%------------------------------------------------
+\entry
+{2014}
+{Senior Design Project}
+{University of New Mexico}
+{Project proposal and final project for CS460, Software Engineering.}
+%------------------------------------------------
+\entry
+{2010--2013}
+{Report}
+{Baker Hughes, Inc}
+{Created and presented annual report on performance and automated testing.}
+%------------------------------------------------
+ \end{entrylist}
+
+%----------------------------------------------------------------------------------------
+%	INTERESTS SECTION
+%----------------------------------------------------------------------------------------
+
+\section{References}
+
+Available on request.
+\end{document}
